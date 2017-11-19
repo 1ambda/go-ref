@@ -4,28 +4,13 @@ import (
 	"net"
 
 	"github.com/1ambda/go-ref/server-backend/internal/pkg/config"
-	"github.com/1ambda/go-ref/server-backend/internal/server/name"
+	"github.com/1ambda/go-ref/server-backend/internal/server/hello"
 	pb "github.com/1ambda/go-ref/server-backend/pkg/api"
 
 	"go.uber.org/zap"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
-
-type server struct{}
-
-func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	actualName, err := name.GetName(in.Name)
-	if err != nil {
-		logger, _ := zap.NewProduction()
-		defer logger.Sync()
-		log := logger.Sugar()
-		log.Errorw("Failed to retrieve name",
-			"error", err)
-	}
-	return &pb.HelloReply{Message: "Hello " + actualName}, nil
-}
 
 func main() {
 	spec := config.GetSpecification()
@@ -52,7 +37,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterHelloServer(s, &server{})
+	pb.RegisterHelloServer(s, &hello.HelloServer{})
 	reflection.Register(s)
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)

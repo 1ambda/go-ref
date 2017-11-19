@@ -18,7 +18,7 @@ var (
 type Specification struct {
 	Env		string `default:"LOCAL"`
 	Debug	bool   `default:"false"`
-	Port	string `default:"50001"`
+	Port	string `default:"50002"`
 	Host	string `default:"localhost"`
 }
 

@@ -4,3 +4,8 @@
 
 # Golang Reference Project
 
+- [server-gateway](https://github.com/1ambda/go-ref/tree/master/server-gateway): App serving REST endpoints
+  * generate model using [go-swagger](https://github.com/go-swagger)
+  * call backend gRPC server (*TODO*)
+- [server-backend](https://github.com/1ambda/go-ref/tree/master/server-backend): App serving gRPC endpoints
+  * persist data into storage (*TODO*)

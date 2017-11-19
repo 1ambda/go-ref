@@ -31,7 +31,7 @@ APPS		:= $(APP) client
 
 # `api/$(SERVICE).proto					: protobuf definition
 # `pkg/api/$(SERVICE).pb.go`			: (auto-generated) protobuf service
-# `internal/mock/mock_$(SERVICE).go`	: (auto-generated) protobuf mock
+# `pkg/api/mock_$(SERVICE).pb.go`	: (auto-generated) protobuf mock
 SERVICES	:= hello
 
 GIT_COMMIT	= $(shell git rev-parse HEAD)
@@ -46,13 +46,14 @@ DOCKER_IMAGE	= go-ref_server-backend
 
 prepare:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing prerequisites"
-	$(GOGET) github.com/golang/protobuf/protoc-gen-go
-	$(GOGET) github.com/golang/mock/mockgen
 	$(GOGET) github.com/alecthomas/gometalinter
 	$(GOLINT) --install --update --force
 	$(GOGET) github.com/ahmetb/govvv
 	$(GOGET) github.com/githubnemo/CompileDaemon
 	$(GOGET) github.com/onsi/ginkgo/ginkgo
+
+	$(GOGET) github.com/golang/protobuf/protoc-gen-go
+	$(GOGET) github.com/golang/mock/mockgen
 
 install:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"
@@ -80,7 +81,7 @@ $(SERVICES):
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf service files: $(SERVICE)"
 	protoc api/$(SERVICE).proto --go_out=plugins=grpc:pkg
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf mock files: $(SERVICE)"
-	mockgen -source=pkg/api/$(SERVICE).pb.go -package=mock $(SERVICE_UPPERCASE)Client > internal/mock/mock_$(SERVICE).go
+	mockgen -source=pkg/api/$(SERVICE).pb.go -package=api $(SERVICE_UPPERCASE)Client > pkg/api/mock_$(SERVICE).pb.go
 
 protoc: $(SERVICES)
 

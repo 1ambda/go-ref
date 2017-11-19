@@ -1,0 +1,38 @@
+swagger: "2.0"
+info:
+  description: API Spec for Gateway
+  title: Gateway API
+  version: 0.0.1
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /:
+    get:
+      tags:
+        - todos
+      responses:
+        200:
+          description: list the todo operations
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/item"
+definitions:
+  item:
+    type: object
+    required:
+      - description
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      description:
+        type: string
+        minLength: 1
+      completed:
+        type: boolean

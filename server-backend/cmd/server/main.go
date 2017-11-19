@@ -41,11 +41,11 @@ func main() {
 		"git_state", config.GitState,
 		"git_summary", config.GitSummary,
 		"env", spec.Env,
-		"port", spec.ServerPort,
+		"port", spec.Port,
 		"debug", spec.Debug,
 	)
 
-	port := spec.ServerPort
+	port := spec.Port
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)

@@ -16,10 +16,10 @@ var (
 )
 
 type Specification struct {
-	Env        string `envconfig:"ENV",default:"LOCAL"`
-	Debug      bool   `envconfig:"DEBUG",default:"false"`
-	ServerPort string `envconfig:"PORT",default:"50001"`
-	ServerHost string `envconfig:"HOST",default:"localhost"`
+	Env		string `default:"LOCAL"`
+	Debug	bool   `default:"false"`
+	Port	string `default:"50001"`
+	Host	string `default:"localhost"`
 }
 
 func GetSpecification() Specification {

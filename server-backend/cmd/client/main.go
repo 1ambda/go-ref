@@ -23,11 +23,12 @@ func main() {
 		"git_state", config.GitState,
 		"git_summary", config.GitSummary,
 		"env", spec.Env,
-		"port", spec.ServerPort,
+		"host", spec.Host,
+		"port", spec.Port,
 		"debug", spec.Debug,
 	)
 
-	address := spec.ServerHost + ":" + spec.ServerPort
+	address := spec.Host+ ":" + spec.Port
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
@@ -36,7 +37,7 @@ func main() {
 	c := pb.NewHelloClient(conn)
 
 	// Contact the server and print out its response.
-	name := "2ambda"
+	name := "1ambda"
 	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
 	if err != nil {
 		log.Fatalf("Could not greet: %v", err)

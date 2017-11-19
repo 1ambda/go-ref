@@ -22,24 +22,30 @@ GOVVV		= govvv
 GOLINT		= gometalinter
 GOBUILD		= GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) build
 GOFMT		= $(GOCMD)fmt
-GOTEST	= ginkgo
+GOTEST		= ginkgo
 GOTEST_OPT	= -r -p -v
-
 GO_FILES	= $(shell $(GOCMD) list ./... | grep -v /vendor/)
 
 APP			= server					# default app
-APPS		:= server client
+APPS		:= $(APP) client
 
 # `api/$(SERVICE).proto					: protobuf definition
 # `pkg/api/$(SERVICE).pb.go`			: (auto-generated) protobuf service
 # `internal/mock/mock_$(SERVICE).go`	: (auto-generated) protobuf mock
 SERVICES	:= hello
 
+GIT_COMMIT	= $(shell git rev-parse HEAD)
+GIT_DIRTY	= $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
+VERSION		= $(shell cat ./VERSION)
+
+GITHUB_USER		= 1ambda				# github username
+GITHUB_REPO		= go-ref				# github repository
+GITHUB_MODULE	= server-backend		# module name in the repository
+DOCKER_REPO		= 1ambda
+DOCKER_IMAGE	= go-ref_server-backend
+
 prepare:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing prerequisites"
-	brew update
-	brew install dep
-	brew install protobuf
 	$(GOGET) github.com/golang/protobuf/protoc-gen-go
 	$(GOGET) github.com/golang/mock/mockgen
 	$(GOGET) github.com/alecthomas/gometalinter
@@ -84,7 +90,7 @@ $(APPS): protoc
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))
 	$(GOBUILD) -i -ldflags="$(LDFLAG)" -o $(BIN_DIR)/$(TARGET) -v $(CMD_DIR)/$(TARGET)/$(MAIN)
 
-build: protoc $(APPS)
+build: clean protoc $(APPS)
 
 test: check
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - testing"
@@ -106,8 +112,39 @@ run-cont:
 		-exclude-dir="pkg/api" \
 		-build="make build" -command="make run" -graceful-kill=true
 
+docker-prepare:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - setting GOOS to linux for docker image build"
+	@$(eval GOOS := linux)
+
+docker-image: docker-prepare docker-clean build
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building docker image: $(APP)"
+	docker build \
+		--build-arg APP=${APP} \
+		-t $(DOCKER_IMAGE):local .
+
+docker-tag:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - tagging docker image: latest $(VERSION) $(GIT_COMMIT)"
+	docker tag $(DOCKER_IMAGE):local $(DOCKER_REPO)/$(DOCKER_IMAGE):$(GIT_COMMIT)
+	docker tag $(DOCKER_IMAGE):local $(DOCKER_REPO)/$(DOCKER_IMAGE):$(VERSION)
+	docker tag $(DOCKER_IMAGE):local $(DOCKER_REPO)/$(DOCKER_IMAGE):latest
+
+docker-push:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - pushing docker image: latest $(VERSION) $(GIT_COMMIT)"
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(GIT_COMMIT)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):${VERSION}
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):latest
+
+docker-clean:
+	docker image rm $(DOCKER_REPO)/$(DOCKER_IMAGE):$(GIT_COMMIT) || true
+	docker image rm $(DOCKER_REPO)/$(DOCKER_IMAGE):$(VERSION) || true
+	docker image rm $(DOCKER_REPO)/$(DOCKER_IMAGE):latest || true
+	docker image rm $(DOCKER_IMAGE):local || true
+
+docker: clean docker-image docker-tag docker-push
+
 clean:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning"
+	rm -rf ./bin
 
 all: clean install format lint style build test
 

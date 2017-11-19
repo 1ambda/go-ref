@@ -39,6 +39,8 @@ GITHUB_MODULE	= server-gateway		# module name in the repository
 DOCKER_REPO		= 1ambda
 DOCKER_IMAGE	= go-ref_server-gateway
 
+SWAGGER_FILE	= api/swagger.yml
+
 prepare:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing prerequisites"
 	$(GOGET) github.com/alecthomas/gometalinter
@@ -68,12 +70,20 @@ format:
 
 check: format style lint
 
-swagger:
+swagger-clean:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger file"
+	rm -rf pkg/api/model/*	|| true
+	rm -rf pkg/api/rest/* 	|| true
+
+swagger-version:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - updating swagger spec version: $(VERSION)"
+	@./scripts/update-swagger-version.sh
+
+swagger: swagger-clean swagger-version
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger file"
 	swagger validate api/swagger.yml
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger code"
 	swagger generate server --spec=api/swagger.yml --target=pkg/api --exclude-main --model-package=model --server-package=rest
-	# swagger generate client --spec=api/swagger.yml --target=pkg/api --client-package=client --skip-models --skip-operations
 
 $(APPS):
 	@$(eval TARGET := $@)

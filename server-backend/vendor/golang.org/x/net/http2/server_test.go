@@ -1718,7 +1718,6 @@ func TestServer_Response_NoData_Header_FooBar(t *testing.T) {
 		wanth := [][2]string{
 			{":status", "200"},
 			{"foo-bar", "some-value"},
-			{"content-type", "text/plain; charset=utf-8"},
 			{"content-length", "0"},
 		}
 		if !reflect.DeepEqual(goth, wanth) {
@@ -2878,9 +2877,9 @@ func testServerWritesTrailers(t *testing.T, withFlush bool) {
 		w.Header().Set("Trailer:post-header-trailer2", "hi2")
 		w.Header().Set("Trailer:Range", "invalid")
 		w.Header().Set("Trailer:Foo\x01Bogus", "invalid")
-		w.Header().Set("Transfer-Encoding", "should not be included; Forbidden by RFC 2616 14.40")
-		w.Header().Set("Content-Length", "should not be included; Forbidden by RFC 2616 14.40")
-		w.Header().Set("Trailer", "should not be included; Forbidden by RFC 2616 14.40")
+		w.Header().Set("Transfer-Encoding", "should not be included; Forbidden by RFC 7230 4.1.2")
+		w.Header().Set("Content-Length", "should not be included; Forbidden by RFC 7230 4.1.2")
+		w.Header().Set("Trailer", "should not be included; Forbidden by RFC 7230 4.1.2")
 		return nil
 	}, func(st *serverTester) {
 		getSlash(st)
@@ -2953,7 +2952,6 @@ func TestServerDoesntWriteInvalidHeaders(t *testing.T) {
 		wanth := [][2]string{
 			{":status", "200"},
 			{"ok1", "x"},
-			{"content-type", "text/plain; charset=utf-8"},
 			{"content-length", "0"},
 		}
 		if !reflect.DeepEqual(goth, wanth) {
@@ -3266,7 +3264,6 @@ func TestServerNoAutoContentLengthOnHead(t *testing.T) {
 	headers := st.decodeHeader(h.HeaderBlockFragment())
 	want := [][2]string{
 		{":status", "200"},
-		{"content-type", "text/plain; charset=utf-8"},
 	}
 	if !reflect.DeepEqual(headers, want) {
 		t.Errorf("Headers mismatch.\n got: %q\nwant: %q\n", headers, want)

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/model"
+	model "github.com/1ambda/go-ref/server-gateway/pkg/api/model"
 )
 
 // FindTodosOKCode is the HTTP code returned for type FindTodosOK
@@ -30,6 +30,7 @@ type FindTodosOK struct {
 
 // NewFindTodosOK creates FindTodosOK with default headers values
 func NewFindTodosOK() *FindTodosOK {
+
 	return &FindTodosOK{}
 }
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/model"
+	model "github.com/1ambda/go-ref/server-gateway/pkg/api/model"
 )
 
 // UpdateOneOKCode is the HTTP code returned for type UpdateOneOK
@@ -30,6 +30,7 @@ type UpdateOneOK struct {
 
 // NewUpdateOneOK creates UpdateOneOK with default headers values
 func NewUpdateOneOK() *UpdateOneOK {
+
 	return &UpdateOneOK{}
 }
 

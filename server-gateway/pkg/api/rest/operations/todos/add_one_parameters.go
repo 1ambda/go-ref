@@ -12,13 +12,13 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/model"
+	model "github.com/1ambda/go-ref/server-gateway/pkg/api/model"
 )
 
 // NewAddOneParams creates a new AddOneParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewAddOneParams() AddOneParams {
-	var ()
+
 	return AddOneParams{}
 }
 
@@ -38,9 +38,12 @@ type AddOneParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewAddOneParams() beforehand.
 func (o *AddOneParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	if runtime.HasBody(r) {

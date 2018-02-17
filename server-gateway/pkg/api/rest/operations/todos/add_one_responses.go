@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/model"
+	model "github.com/1ambda/go-ref/server-gateway/pkg/api/model"
 )
 
 // AddOneCreatedCode is the HTTP code returned for type AddOneCreated
@@ -30,6 +30,7 @@ type AddOneCreated struct {
 
 // NewAddOneCreated creates AddOneCreated with default headers values
 func NewAddOneCreated() *AddOneCreated {
+
 	return &AddOneCreated{}
 }
 

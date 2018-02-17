@@ -11,5 +11,5 @@ if [[ -z "${VERSION}" ]]; then
 fi
 
 
-sed -i.bak s/[\s]*version:.*/version:\ ${VERSION}/g ${SWAGGER_FILE}
+sed -i.bak s/^\s*version:.*/version:\ ${VERSION}/g ${SWAGGER_FILE}
 rm ${SWAGGER_FILE}.bak || true

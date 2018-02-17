@@ -1,3 +1,4 @@
+include ../scripts/makefiles/variables.mk
 include ../scripts/makefiles/basic.mk
 include ../scripts/makefiles/docker.mk
 include ../scripts/makefiles/install.mk
@@ -8,11 +9,8 @@ include ../scripts/makefiles/check.mk
 APP			= server					# default app
 APPS		:= $(APP)
 
-GITHUB_USER		= 1ambda				# github username
-GITHUB_REPO		= go-ref				# github repository
 GITHUB_MODULE	= service-gateway		# module name in the repository
-DOCKER_REPO		= 1ambda
-DOCKER_IMAGE	= goref_service-gateway
+DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
 SWAGGER_FILE			= ../schema/swagger/gateway.yml
 GENERATED_CLIENT_DIR 	= ../service-front/src/app/generated/swagger

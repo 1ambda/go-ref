@@ -1,6 +1,7 @@
 GOCMD		= go
 GOGET		= $(GOCMD) get -u -v
 GODEP		= dep
+BREW		= brew
 
 prepare:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing prerequisites"
@@ -16,6 +17,7 @@ prepare:
 
 	# swagger
 	$(GOGET) github.com/go-swagger/go-swagger/cmd/swagger
+	$(BREW) upgrade swagger-codegen
 
 install:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"

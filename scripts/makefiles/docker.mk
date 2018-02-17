@@ -4,9 +4,7 @@ docker-prepare:
 
 docker-image: docker-prepare docker-clean build
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building docker image: $(APP)"
-	docker build \
-		--build-arg APP=${APP} \
-		-t $(DOCKER_IMAGE):local .
+	docker build --build-arg APP=${APP} -t $(DOCKER_IMAGE):local .
 
 docker-tag:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - tagging docker image: latest $(VERSION) $(GIT_COMMIT)"

@@ -14,19 +14,26 @@ GITHUB_MODULE	= service-gateway		# module name in the repository
 DOCKER_REPO		= 1ambda
 DOCKER_IMAGE	= goref_service-gateway
 
-SWAGGER_FILE	= ../schema/swagger/gateway.yml
-
-swagger-clean:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger file"
-	rm -rf pkg/api/model/*	|| true
-	rm -rf pkg/api/rest/* 	|| true
+SWAGGER_FILE			= ../schema/swagger/gateway.yml
+GENERATED_CLIENT_DIR 	= ../service-front/src/app/generated/swagger
 
 swagger-version:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - updating swagger spec version: $(VERSION)"
 	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_FILE) ../scripts/update-swagger-version.sh
 
-swagger: swagger-clean swagger-version
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger file"
+swagger-client:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger client files"
+	rm -rf $(GENERATED_CLIENT_DIR)	|| true
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger client"
+	swagger-codegen generate -i $(SWAGGER_FILE) -l typescript-angular -o $(GENERATED_CLIENT_DIR)
+
+swagger: swagger-version
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger files"
+	rm -rf pkg/api/model/*	|| true
+	rm -rf pkg/api/rest/* 	|| true
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger spec"
 	swagger validate $(SWAGGER_FILE)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger code"
 	swagger generate server --spec=$(SWAGGER_FILE) --target=pkg/api --exclude-main --model-package=model --server-package=rest

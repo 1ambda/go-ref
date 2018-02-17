@@ -5,8 +5,8 @@ import (
 
 	pb "github.com/1ambda/go-ref/server-backend/pkg/api"
 
-	"go.uber.org/zap"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 type HelloServer struct{}

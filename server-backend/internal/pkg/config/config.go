@@ -16,10 +16,10 @@ var (
 )
 
 type Specification struct {
-	Env		string `default:"LOCAL"`
-	Debug	bool   `default:"false"`
-	Port	string `default:"50002"`
-	Host	string `default:"localhost"`
+	Env   string `default:"LOCAL"`
+	Debug bool   `default:"false"`
+	Port  string `default:"50002"`
+	Host  string `default:"localhost"`
 }
 
 func GetSpecification() Specification {

@@ -28,7 +28,7 @@ func main() {
 		"debug", spec.Debug,
 	)
 
-	address := spec.Host+ ":" + spec.Port
+	address := spec.Host + ":" + spec.Port
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)

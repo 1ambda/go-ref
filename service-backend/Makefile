@@ -10,9 +10,9 @@ APPS		:= $(APP) client
 
 GITHUB_USER		= 1ambda				# github username
 GITHUB_REPO		= go-ref				# github repository
-GITHUB_MODULE	= server-backend		# module name in the repository
+GITHUB_MODULE	= service-backend		# module name in the repository
 DOCKER_REPO		= 1ambda
-DOCKER_IMAGE	= go-ref_server-backend
+DOCKER_IMAGE	= goref_service-backend
 
 # `api/$(SERVICE).proto					: protobuf definition
 # `pkg/api/$(SERVICE).pb.go`			: (auto-generated) protobuf service

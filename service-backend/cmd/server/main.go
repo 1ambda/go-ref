@@ -3,9 +3,9 @@ package main
 import (
 	"net"
 
-	"github.com/1ambda/go-ref/server-backend/internal/pkg/config"
-	"github.com/1ambda/go-ref/server-backend/internal/server/hello"
-	pb "github.com/1ambda/go-ref/server-backend/pkg/api"
+	"github.com/1ambda/go-ref/service-backend/internal/pkg/config"
+	"github.com/1ambda/go-ref/service-backend/internal/server/hello"
+	pb "github.com/1ambda/go-ref/service-backend/pkg/api"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

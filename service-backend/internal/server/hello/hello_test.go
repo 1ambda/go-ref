@@ -1,7 +1,7 @@
 package hello_test
 
 import (
-	. "github.com/1ambda/go-ref/server-backend/internal/server/hello"
+	. "github.com/1ambda/go-ref/service-backend/internal/server/hello"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

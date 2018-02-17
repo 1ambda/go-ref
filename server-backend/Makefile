@@ -33,6 +33,7 @@ APPS		:= $(APP) client
 # `pkg/api/$(SERVICE).pb.go`			: (auto-generated) protobuf service
 # `pkg/api/mock_$(SERVICE).pb.go`	: (auto-generated) protobuf mock
 SERVICES	:= hello
+SCHEMA_DIR	:= ../schema/protobuf
 
 GIT_COMMIT	= $(shell git rev-parse HEAD)
 GIT_DIRTY	= $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
@@ -79,7 +80,7 @@ $(SERVICES):
 	# capitalize first letter
 	@$(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf service files: $(SERVICE)"
-	protoc api/$(SERVICE).proto --go_out=plugins=grpc:pkg
+	protoc  --proto_path $(SCHEMA_DIR) $(SERVICE).proto --go_out=plugins=grpc:pkg/api
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf mock files: $(SERVICE)"
 	mockgen -source=pkg/api/$(SERVICE).pb.go -package=api $(SERVICE_UPPERCASE)Client > pkg/api/mock_$(SERVICE).pb.go
 

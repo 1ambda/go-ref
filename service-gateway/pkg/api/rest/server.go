@@ -21,7 +21,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	graceful "github.com/tylerb/graceful"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest/operations"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 )
 
 const (

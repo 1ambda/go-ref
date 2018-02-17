@@ -2,10 +2,10 @@ package main
 
 import (
 	"os"
-	"github.com/1ambda/go-ref/server-gateway/internal/pkg/config"
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest"
-	internal "github.com/1ambda/go-ref/server-gateway/internal/server/rest"
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest/operations"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest"
+	internal "github.com/1ambda/go-ref/service-gateway/internal/server/rest"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 
 	loads "github.com/go-openapi/loads"
 	flags "github.com/jessevdk/go-flags"

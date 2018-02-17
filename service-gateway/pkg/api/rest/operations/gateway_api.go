@@ -19,7 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest/operations/todos"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/todos"
 )
 
 // NewGatewayAPI creates a new Gateway instance

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	model "github.com/1ambda/go-ref/server-gateway/pkg/api/model"
+	model "github.com/1ambda/go-ref/service-gateway/pkg/api/model"
 )
 
 // AddOneCreatedCode is the HTTP code returned for type AddOneCreated

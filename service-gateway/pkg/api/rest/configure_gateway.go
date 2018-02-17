@@ -11,8 +11,8 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 	graceful "github.com/tylerb/graceful"
 
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest/operations"
-	"github.com/1ambda/go-ref/server-gateway/pkg/api/rest/operations/todos"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/todos"
 )
 
 //go:generate swagger generate server --target ../pkg/api --name  --spec ../../schema/swagger/gateway.yml --model-package model --server-package rest --exclude-main

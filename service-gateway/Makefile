@@ -10,9 +10,9 @@ APPS		:= $(APP)
 
 GITHUB_USER		= 1ambda				# github username
 GITHUB_REPO		= go-ref				# github repository
-GITHUB_MODULE	= server-gateway		# module name in the repository
+GITHUB_MODULE	= service-gateway		# module name in the repository
 DOCKER_REPO		= 1ambda
-DOCKER_IMAGE	= goref_server-gateway
+DOCKER_IMAGE	= goref_service-gateway
 
 SWAGGER_FILE	= ../schema/swagger/gateway.yml
 

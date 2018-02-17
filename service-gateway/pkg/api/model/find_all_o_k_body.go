@@ -14,12 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// FindTodosOKBody find todos o k body
-// swagger:model findTodosOKBody
-type FindTodosOKBody []*Item
+// FindAllOKBody find all o k body
+// swagger:model findAllOKBody
+type FindAllOKBody []*Access
 
-// Validate validates this find todos o k body
-func (m FindTodosOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this find all o k body
+func (m FindAllOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

@@ -19,7 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/todos"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/access"
 )
 
 // NewGatewayAPI creates a new Gateway instance
@@ -39,17 +39,20 @@ func NewGatewayAPI(spec *loads.Document) *GatewayAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		TodosAddOneHandler: todos.AddOneHandlerFunc(func(params todos.AddOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation TodosAddOne has not yet been implemented")
+		AccessAddOneHandler: access.AddOneHandlerFunc(func(params access.AddOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessAddOne has not yet been implemented")
 		}),
-		TodosDestroyOneHandler: todos.DestroyOneHandlerFunc(func(params todos.DestroyOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation TodosDestroyOne has not yet been implemented")
+		AccessFindAllHandler: access.FindAllHandlerFunc(func(params access.FindAllParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessFindAll has not yet been implemented")
 		}),
-		TodosFindTodosHandler: todos.FindTodosHandlerFunc(func(params todos.FindTodosParams) middleware.Responder {
-			return middleware.NotImplemented("operation TodosFindTodos has not yet been implemented")
+		AccessFindOneHandler: access.FindOneHandlerFunc(func(params access.FindOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessFindOne has not yet been implemented")
 		}),
-		TodosUpdateOneHandler: todos.UpdateOneHandlerFunc(func(params todos.UpdateOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation TodosUpdateOne has not yet been implemented")
+		AccessRemoveOneHandler: access.RemoveOneHandlerFunc(func(params access.RemoveOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessRemoveOne has not yet been implemented")
+		}),
+		AccessUpdateOneHandler: access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessUpdateOne has not yet been implemented")
 		}),
 	}
 }
@@ -82,14 +85,16 @@ type GatewayAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// TodosAddOneHandler sets the operation handler for the add one operation
-	TodosAddOneHandler todos.AddOneHandler
-	// TodosDestroyOneHandler sets the operation handler for the destroy one operation
-	TodosDestroyOneHandler todos.DestroyOneHandler
-	// TodosFindTodosHandler sets the operation handler for the find todos operation
-	TodosFindTodosHandler todos.FindTodosHandler
-	// TodosUpdateOneHandler sets the operation handler for the update one operation
-	TodosUpdateOneHandler todos.UpdateOneHandler
+	// AccessAddOneHandler sets the operation handler for the add one operation
+	AccessAddOneHandler access.AddOneHandler
+	// AccessFindAllHandler sets the operation handler for the find all operation
+	AccessFindAllHandler access.FindAllHandler
+	// AccessFindOneHandler sets the operation handler for the find one operation
+	AccessFindOneHandler access.FindOneHandler
+	// AccessRemoveOneHandler sets the operation handler for the remove one operation
+	AccessRemoveOneHandler access.RemoveOneHandler
+	// AccessUpdateOneHandler sets the operation handler for the update one operation
+	AccessUpdateOneHandler access.UpdateOneHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -153,20 +158,24 @@ func (o *GatewayAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.TodosAddOneHandler == nil {
-		unregistered = append(unregistered, "todos.AddOneHandler")
+	if o.AccessAddOneHandler == nil {
+		unregistered = append(unregistered, "access.AddOneHandler")
 	}
 
-	if o.TodosDestroyOneHandler == nil {
-		unregistered = append(unregistered, "todos.DestroyOneHandler")
+	if o.AccessFindAllHandler == nil {
+		unregistered = append(unregistered, "access.FindAllHandler")
 	}
 
-	if o.TodosFindTodosHandler == nil {
-		unregistered = append(unregistered, "todos.FindTodosHandler")
+	if o.AccessFindOneHandler == nil {
+		unregistered = append(unregistered, "access.FindOneHandler")
 	}
 
-	if o.TodosUpdateOneHandler == nil {
-		unregistered = append(unregistered, "todos.UpdateOneHandler")
+	if o.AccessRemoveOneHandler == nil {
+		unregistered = append(unregistered, "access.RemoveOneHandler")
+	}
+
+	if o.AccessUpdateOneHandler == nil {
+		unregistered = append(unregistered, "access.UpdateOneHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -270,22 +279,27 @@ func (o *GatewayAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"][""] = todos.NewAddOne(o.context, o.TodosAddOneHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/{id}"] = todos.NewDestroyOne(o.context, o.TodosDestroyOneHandler)
+	o.handlers["POST"]["/access"] = access.NewAddOne(o.context, o.AccessAddOneHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"][""] = todos.NewFindTodos(o.context, o.TodosFindTodosHandler)
+	o.handlers["GET"]["/access"] = access.NewFindAll(o.context, o.AccessFindAllHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/{id}"] = access.NewFindOne(o.context, o.AccessFindOneHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/{id}"] = access.NewRemoveOne(o.context, o.AccessRemoveOneHandler)
 
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/{id}"] = todos.NewUpdateOne(o.context, o.TodosUpdateOneHandler)
+	o.handlers["PUT"]["/{id}"] = access.NewUpdateOne(o.context, o.AccessUpdateOneHandler)
 
 }
 

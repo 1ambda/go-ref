@@ -8,7 +8,7 @@ API Spec for Gateway
     Schemes:
       http
     Host: localhost
-    BasePath: /
+    BasePath: /api
     Version: 0.0.1
 
     Consumes:

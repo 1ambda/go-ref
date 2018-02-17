@@ -12,7 +12,7 @@ import (
 	graceful "github.com/tylerb/graceful"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
-	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/todos"
+	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/access"
 )
 
 //go:generate swagger generate server --target ../pkg/api --name  --spec ../../schema/swagger/gateway.yml --model-package model --server-package rest --exclude-main
@@ -35,17 +35,20 @@ func configureAPI(api *operations.GatewayAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.TodosAddOneHandler = todos.AddOneHandlerFunc(func(params todos.AddOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation todos.AddOne has not yet been implemented")
+	api.AccessAddOneHandler = access.AddOneHandlerFunc(func(params access.AddOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation access.AddOne has not yet been implemented")
 	})
-	api.TodosDestroyOneHandler = todos.DestroyOneHandlerFunc(func(params todos.DestroyOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation todos.DestroyOne has not yet been implemented")
+	api.AccessFindAllHandler = access.FindAllHandlerFunc(func(params access.FindAllParams) middleware.Responder {
+		return middleware.NotImplemented("operation access.FindAll has not yet been implemented")
 	})
-	api.TodosFindTodosHandler = todos.FindTodosHandlerFunc(func(params todos.FindTodosParams) middleware.Responder {
-		return middleware.NotImplemented("operation todos.FindTodos has not yet been implemented")
+	api.AccessFindOneHandler = access.FindOneHandlerFunc(func(params access.FindOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation access.FindOne has not yet been implemented")
 	})
-	api.TodosUpdateOneHandler = todos.UpdateOneHandlerFunc(func(params todos.UpdateOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation todos.UpdateOne has not yet been implemented")
+	api.AccessRemoveOneHandler = access.RemoveOneHandlerFunc(func(params access.RemoveOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation access.RemoveOne has not yet been implemented")
+	})
+	api.AccessUpdateOneHandler = access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation access.UpdateOne has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

@@ -18,18 +18,33 @@ import (
 type Error struct {
 
 	// code
-	Code int64 `json:"code,omitempty"`
+	// Required: true
+	Code *string `json:"code"`
 
 	// message
 	// Required: true
 	Message *string `json:"message"`
+
+	// timestamp
+	// Required: true
+	Timestamp *int64 `json:"timestamp"`
 }
 
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCode(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
 	if err := m.validateMessage(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateTimestamp(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -40,9 +55,27 @@ func (m *Error) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Error) validateCode(formats strfmt.Registry) error {
+
+	if err := validate.Required("code", "body", m.Code); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Error) validateMessage(formats strfmt.Registry) error {
 
 	if err := validate.Required("message", "body", m.Message); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Error) validateTimestamp(formats strfmt.Registry) error {
+
+	if err := validate.Required("timestamp", "body", m.Timestamp); err != nil {
 		return err
 	}
 

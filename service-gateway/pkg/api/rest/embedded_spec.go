@@ -33,35 +33,21 @@ func init() {
     "title": "Gateway API",
     "version": "0.0.1"
   },
+  "basePath": "/api",
   "paths": {
-    "/": {
+    "/access": {
       "get": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "findTodos",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "since",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int32",
-            "default": 20,
-            "name": "limit",
-            "in": "query"
-          }
-        ],
+        "operationId": "findAll",
         "responses": {
           "200": {
-            "description": "list the todo operations",
+            "description": "list of access logs",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/item"
+                "$ref": "#/definitions/access"
               }
             }
           },
@@ -75,7 +61,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "todos"
+          "access"
         ],
         "operationId": "addOne",
         "parameters": [
@@ -83,7 +69,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           }
         ],
@@ -91,7 +77,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           },
           "default": {
@@ -104,17 +90,17 @@ func init() {
       }
     },
     "/{id}": {
-      "put": {
+      "get": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "updateOne",
+        "operationId": "findOne",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           }
         ],
@@ -122,7 +108,36 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "access"
+        ],
+        "operationId": "updateOne",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/access"
             }
           },
           "default": {
@@ -135,9 +150,9 @@ func init() {
       },
       "delete": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "destroyOne",
+        "operationId": "removeOne",
         "responses": {
           "204": {
             "description": "Deleted"
@@ -153,7 +168,7 @@ func init() {
       "parameters": [
         {
           "type": "integer",
-          "format": "int32",
+          "format": "int64",
           "name": "id",
           "in": "path",
           "required": true
@@ -162,38 +177,69 @@ func init() {
     }
   },
   "definitions": {
-    "error": {
+    "access": {
       "type": "object",
       "required": [
-        "message"
+        "browserName",
+        "browserVersion",
+        "osName",
+        "osVersion",
+        "isMobile",
+        "language",
+        "timezone",
+        "timestamp",
+        "userAgent"
       ],
       "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
+        "browserName": {
+          "type": "string"
         },
-        "message": {
+        "browserVersion": {
+          "type": "string"
+        },
+        "isMobile": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "osName": {
+          "type": "string"
+        },
+        "osVersion": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "userAgent": {
+          "type": "string"
+        },
+        "uuid": {
           "type": "string"
         }
       }
     },
-    "item": {
+    "error": {
       "type": "object",
       "required": [
-        "description"
+        "timestamp",
+        "code",
+        "message"
       ],
       "properties": {
-        "completed": {
-          "type": "boolean"
+        "code": {
+          "type": "string"
         },
-        "description": {
-          "type": "string",
-          "minLength": 1
+        "message": {
+          "type": "string"
         },
-        "id": {
+        "timestamp": {
           "type": "integer",
-          "format": "int64",
-          "readOnly": true
+          "format": "int64"
         }
       }
     }
@@ -215,33 +261,19 @@ func init() {
     "title": "Gateway API",
     "version": "0.0.1"
   },
+  "basePath": "/api",
   "paths": {
-    "/": {
+    "/access": {
       "get": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "findTodos",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "since",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int32",
-            "default": 20,
-            "name": "limit",
-            "in": "query"
-          }
-        ],
+        "operationId": "findAll",
         "responses": {
           "200": {
-            "description": "list the todo operations",
+            "description": "list of access logs",
             "schema": {
-              "$ref": "#/definitions/findTodosOKBody"
+              "$ref": "#/definitions/findAllOKBody"
             }
           },
           "default": {
@@ -254,7 +286,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "todos"
+          "access"
         ],
         "operationId": "addOne",
         "parameters": [
@@ -262,7 +294,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           }
         ],
@@ -270,7 +302,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           },
           "default": {
@@ -283,17 +315,17 @@ func init() {
       }
     },
     "/{id}": {
-      "put": {
+      "get": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "updateOne",
+        "operationId": "findOne",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
             }
           }
         ],
@@ -301,7 +333,36 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/item"
+              "$ref": "#/definitions/access"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "access"
+        ],
+        "operationId": "updateOne",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/access"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/access"
             }
           },
           "default": {
@@ -314,9 +375,9 @@ func init() {
       },
       "delete": {
         "tags": [
-          "todos"
+          "access"
         ],
-        "operationId": "destroyOne",
+        "operationId": "removeOne",
         "responses": {
           "204": {
             "description": "Deleted"
@@ -332,7 +393,7 @@ func init() {
       "parameters": [
         {
           "type": "integer",
-          "format": "int32",
+          "format": "int64",
           "name": "id",
           "in": "path",
           "required": true
@@ -341,47 +402,78 @@ func init() {
     }
   },
   "definitions": {
-    "error": {
+    "access": {
       "type": "object",
       "required": [
-        "message"
+        "browserName",
+        "browserVersion",
+        "osName",
+        "osVersion",
+        "isMobile",
+        "language",
+        "timezone",
+        "timestamp",
+        "userAgent"
       ],
       "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
+        "browserName": {
+          "type": "string"
         },
-        "message": {
+        "browserVersion": {
+          "type": "string"
+        },
+        "isMobile": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "osName": {
+          "type": "string"
+        },
+        "osVersion": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "userAgent": {
+          "type": "string"
+        },
+        "uuid": {
           "type": "string"
         }
       }
     },
-    "findTodosOKBody": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/item"
-      },
-      "x-go-gen-location": "operations"
-    },
-    "item": {
+    "error": {
       "type": "object",
       "required": [
-        "description"
+        "timestamp",
+        "code",
+        "message"
       ],
       "properties": {
-        "completed": {
-          "type": "boolean"
+        "code": {
+          "type": "string"
         },
-        "description": {
-          "type": "string",
-          "minLength": 1
+        "message": {
+          "type": "string"
         },
-        "id": {
+        "timestamp": {
           "type": "integer",
-          "format": "int64",
-          "readOnly": true
+          "format": "int64"
         }
       }
+    },
+    "findAllOKBody": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/access"
+      },
+      "x-go-gen-location": "operations"
     }
   }
 }`))

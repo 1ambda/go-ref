@@ -9,47 +9,48 @@ consumes:
 - application/json
 produces:
 - application/json
+basePath: /api
 paths:
-  /:
+  /access:
     get:
       tags:
-        - todos
-      operationId: findTodos
-      parameters:
-        - name: since
-          in: query
-          type: integer
-          format: int64
-        - name: limit
-          in: query
-          type: integer
-          format: int32
-          default: 20
+        - access
+      operationId: findAll
+#      parameters:
+#        - name: since
+#          in: query
+#          type: integer
+#          format: int64
+#        - name: limit
+#          in: query
+#          type: integer
+#          format: int32
+#          default: 20
       responses:
         200:
-          description: list the todo operations
+          description: list of access logs
           schema:
             type: array
             items:
-              $ref: "#/definitions/item"
+              $ref: "#/definitions/access"
         default:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
     post:
       tags:
-        - todos
+        - access
       operationId: addOne
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/item"
+            $ref: "#/definitions/access"
       responses:
         201:
           description: Created
           schema:
-            $ref: "#/definitions/item"
+            $ref: "#/definitions/access"
         default:
           description: error
           schema:
@@ -57,32 +58,50 @@ paths:
   /{id}:
     parameters:
       - type: integer
-        format: int32
+        format: int64
         name: id
         in: path
         required: true
+    get:
+      tags:
+        - access
+      operationId: findOne
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/access"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/access"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
     put:
       tags:
-        - todos
+        - access
       operationId: updateOne
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/item"
+            $ref: "#/definitions/access"
       responses:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/item"
+            $ref: "#/definitions/access"
         default:
           description: error
           schema:
             $ref: "#/definitions/error"
     delete:
       tags:
-        - todos
-      operationId: destroyOne
+        - access
+      operationId: removeOne
       responses:
         204:
           description: Deleted
@@ -91,27 +110,51 @@ paths:
           schema:
             $ref: "#/definitions/error"
 definitions:
-  item:
+  access:
     type: object
     required:
-      - description
+      - browserName
+      - browserVersion
+      - osName
+      - osVersion
+      - isMobile
+      - language
+      - timezone
+      - timestamp
+      - userAgent
     properties:
-      id:
-        type: integer
-        format: int64
-        readOnly: true
-      description:
+      browserName:
         type: string
-        minLength: 1
-      completed:
-        type: boolean
+      browserVersion:
+        type: string
+      osName:
+        type: string
+      osVersion:
+        type: string
+      isMobile:
+        type: string
+      language:
+        type: string
+      timestamp:
+        type: string
+      timezone:
+        type: string
+      userAgent:
+        type: string
+      # non-required fields
+      uuid:
+        type: string
   error:
     type: object
     required:
+      - timestamp
+      - code
       - message
     properties:
-      code:
+      timestamp:
         type: integer
         format: int64
+      code:
+        type: string
       message:
         type: string

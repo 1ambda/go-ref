@@ -76,3 +76,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/go-openapi/loads"
+
+[[constraint]]
+  name = "github.com/rs/cors"
+  version = "1.2.0"

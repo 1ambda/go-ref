@@ -123,6 +123,12 @@
   revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
 
 [[projects]]
+  name = "github.com/rs/cors"
+  packages = ["."]
+  revision = "7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6"
+  version = "v1.2"
+
+[[projects]]
   name = "github.com/tylerb/graceful"
   packages = ["."]
   revision = "4654dfbb6ad53cb5e27f37d99b02e16c1872fbbb"
@@ -202,6 +208,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e999ace3d70bcb803d01d3bdce44613b6a96e78bf6d45a5130b1cc84361e286d"
+  inputs-digest = "dd38e97f9cf56a1b3b1deb477805883c9146252e8732c07ab495ce3692782642"
   solver-name = "gps-cdcl"
   solver-version = 1

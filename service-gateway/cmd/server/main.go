@@ -7,8 +7,10 @@ import (
 	internal "github.com/1ambda/go-ref/service-gateway/internal/server/rest"
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 
-	loads "github.com/go-openapi/loads"
-	flags "github.com/jessevdk/go-flags"
+	"github.com/rs/cors"
+
+	"github.com/go-openapi/loads"
+	"github.com/jessevdk/go-flags"
 	"go.uber.org/zap"
 	"github.com/go-openapi/runtime"
 )
@@ -70,8 +72,9 @@ func main() {
 	api.Logger = log.Infof
 	internal.ConfigureAPI(api)
 
-	// set middleware
+	// set middlewares
 	handler := api.Serve(nil)
+	handler = cors.Default().Handler(handler)
 	server.SetHandler(handler)
 
 	// set shutdown hook
@@ -81,4 +84,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-

@@ -16,7 +16,7 @@ import (
 
 // UpdateOneURL generates an URL for the update one operation
 type UpdateOneURL struct {
-	ID int64
+	ID int32
 
 	_basePath string
 	// avoid unkeyed usage
@@ -44,7 +44,7 @@ func (o *UpdateOneURL) Build() (*url.URL, error) {
 
 	var _path = "/{id}"
 
-	id := swag.FormatInt64(o.ID)
+	id := swag.FormatInt32(o.ID)
 	if id != "" {
 		_path = strings.Replace(_path, "{id}", id, -1)
 	} else {

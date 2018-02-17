@@ -35,7 +35,7 @@ type DestroyOneParams struct {
 	  Required: true
 	  In: path
 	*/
-	ID int64
+	ID int32
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -61,9 +61,9 @@ func (o *DestroyOneParams) bindID(rawData []string, hasKey bool, formats strfmt.
 		raw = rawData[len(rawData)-1]
 	}
 
-	value, err := swag.ConvertInt64(raw)
+	value, err := swag.ConvertInt32(raw)
 	if err != nil {
-		return errors.InvalidType("id", "path", "int64", raw)
+		return errors.InvalidType("id", "path", "int32", raw)
 	}
 	o.ID = value
 

@@ -149,7 +149,7 @@ func init() {
       "parameters": [
         {
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "name": "id",
           "in": "path",
           "required": true

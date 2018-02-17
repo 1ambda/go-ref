@@ -13,9 +13,7 @@ fi
 
 echo -e "${TAG} Converting \`${PREV_MODULE_NAME}\` to \`${NEW_MODULE_NAME}\` \n"
 
-find . -type f -name "*.go" | grep -v vendor
-find . -type f -name "Makefile" | grep -v vendor
-
-find . -type f -name "Makefile" | grep -v vendor | xargs sed -i "s/${PREV_MODULE_NAME}/${NEW_MODULE_NAME}/g"
+find . -type f -name "*.go" | grep -v vendor |      xargs sed -i '' "s/${PREV_MODULE_NAME}/${NEW_MODULE_NAME}/g"
+find . -type f -name "Makefile" | grep -v vendor |  xargs sed -i '' "s/${PREV_MODULE_NAME}/${NEW_MODULE_NAME}/g"
 
 

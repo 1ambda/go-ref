@@ -95,10 +95,31 @@
   revision = "1ff04bd4a6c8a4af5813bd5bf3dc24c4756b9ee2"
 
 [[projects]]
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
+  version = "v1.3"
+
+[[projects]]
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
   revision = "96dc06278ce32a0e9d957d590bb987c81ee66407"
   version = "v1.3.0"
+
+[[projects]]
+  name = "github.com/jinzhu/gorm"
+  packages = [
+    ".",
+    "dialects/mysql"
+  ]
+  revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
+  version = "v1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  revision = "1c35d901db3da928c72a72d8458480cc9ade058f"
 
 [[projects]]
   name = "github.com/kelseyhightower/envconfig"
@@ -208,6 +229,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dd38e97f9cf56a1b3b1deb477805883c9146252e8732c07ab495ce3692782642"
+  inputs-digest = "ed7f9ffc7df1b467e6cc1afef7e7b5e1ed7630c6951bd99eab785547b7c083cb"
   solver-name = "gps-cdcl"
   solver-version = 1

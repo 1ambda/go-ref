@@ -89,7 +89,7 @@ func init() {
         }
       }
     },
-    "/{id}": {
+    "/access/{id}": {
       "get": {
         "tags": [
           "access"
@@ -226,20 +226,18 @@ func init() {
     "error": {
       "type": "object",
       "required": [
-        "timestamp",
-        "code",
         "message"
       ],
       "properties": {
         "code": {
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "message": {
           "type": "string"
         },
         "timestamp": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     }
@@ -314,7 +312,7 @@ func init() {
         }
       }
     },
-    "/{id}": {
+    "/access/{id}": {
       "get": {
         "tags": [
           "access"
@@ -451,20 +449,18 @@ func init() {
     "error": {
       "type": "object",
       "required": [
-        "timestamp",
-        "code",
         "message"
       ],
       "properties": {
         "code": {
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "message": {
           "type": "string"
         },
         "timestamp": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },

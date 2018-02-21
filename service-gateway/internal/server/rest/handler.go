@@ -3,21 +3,28 @@ package rest
 import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/access"
+	restmodel "github.com/1ambda/go-ref/service-gateway/pkg/api/model"
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 	"github.com/jinzhu/gorm"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
+	"github.com/go-openapi/swag"
+	"time"
 )
 
 func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
-	api.AccessAddOneHandler = access.AddOneHandlerFunc(
+	api.AccessAddOneHandler = buildAccessOneHandler(db)
+	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
+
+}
+
+func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
+	return access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
 			logger, _ := zap.NewProduction()
 			defer logger.Sync()
 			sugar := logger.Sugar()
-			sugar.Infow("Creating Access",
-				"access", params.Body,
-			)
+			sugar.Infow("Creating Access","request", params.Body)
 
 			record := model.Access{
 				BrowserName:    *params.Body.BrowserName,
@@ -31,9 +38,50 @@ func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 				UserAgent:      *params.Body.UserAgent,
 			}
 
-			db.Create(&record)
+			if err := db.Create(&record).Error; err != nil {
+				sugar.Errorw("Failed to create new Access record: %v","error", err)
+				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
+					Code: 500,
+					Message: swag.String(err.Error()),
+					Timestamp: time.Now().UTC().String(),
+				})
+			}
 
 			return access.NewAddOneCreated().WithPayload(params.Body)
 		})
+}
 
+func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
+	return access.FindOneHandlerFunc(
+		func(params access.FindOneParams) middleware.Responder {
+			logger, _ := zap.NewProduction()
+			defer logger.Sync()
+			sugar := logger.Sugar()
+			sugar.Infow("Finding Access","id", params.ID)
+
+			var record model.Access
+
+			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
+				sugar.Errorw("Failed to create new Access record", "error", err)
+				access.NewFindOneDefault(404).WithPayload(&restmodel.Error{
+					Code: 404,
+					Message: swag.String(err.Error()),
+					Timestamp: time.Now().UTC().String(),
+				})
+			}
+
+			response := restmodel.Access{
+				BrowserName:    &record.BrowserName,
+				BrowserVersion: &record.BrowserVersion,
+				OsName:         &record.OsName,
+				OsVersion:      &record.OsVersion,
+				IsMobile:       &record.IsMobile,
+				Timezone:       &record.Timezone,
+				Timestamp:      &record.Timestamp,
+				Language:       &record.Language,
+				UserAgent:      &record.UserAgent,
+			}
+
+			return access.NewFindOneOK().WithPayload(&response)
+		})
 }

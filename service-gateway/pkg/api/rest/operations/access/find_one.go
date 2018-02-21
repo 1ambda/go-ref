@@ -29,7 +29,7 @@ func NewFindOne(ctx *middleware.Context, handler FindOneHandler) *FindOne {
 	return &FindOne{Context: ctx, Handler: handler}
 }
 
-/*FindOne swagger:route GET /{id} access findOne
+/*FindOne swagger:route GET /access/{id} access findOne
 
 FindOne find one API
 

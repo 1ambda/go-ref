@@ -18,33 +18,21 @@ import (
 type Error struct {
 
 	// code
-	// Required: true
-	Code *string `json:"code"`
+	Code int64 `json:"code,omitempty"`
 
 	// message
 	// Required: true
 	Message *string `json:"message"`
 
 	// timestamp
-	// Required: true
-	Timestamp *int64 `json:"timestamp"`
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCode(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
 	if err := m.validateMessage(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
-	if err := m.validateTimestamp(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -55,27 +43,9 @@ func (m *Error) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Error) validateCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("code", "body", m.Code); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Error) validateMessage(formats strfmt.Registry) error {
 
 	if err := validate.Required("message", "body", m.Message); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Error) validateTimestamp(formats strfmt.Registry) error {
-
-	if err := validate.Required("timestamp", "body", m.Timestamp); err != nil {
 		return err
 	}
 

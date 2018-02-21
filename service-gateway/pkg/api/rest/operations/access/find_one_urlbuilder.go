@@ -42,7 +42,7 @@ func (o *FindOneURL) SetBasePath(bp string) {
 func (o *FindOneURL) Build() (*url.URL, error) {
 	var result url.URL
 
-	var _path = "/{id}"
+	var _path = "/access/{id}"
 
 	id := swag.FormatInt64(o.ID)
 	if id != "" {

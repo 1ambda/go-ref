@@ -55,7 +55,7 @@ paths:
           description: error
           schema:
             $ref: "#/definitions/error"
-  /{id}:
+  /access/{id}:
     parameters:
       - type: integer
         format: int64
@@ -147,14 +147,12 @@ definitions:
   error:
     type: object
     required:
-      - timestamp
-      - code
       - message
     properties:
       timestamp:
+        type: string
+      code:
         type: integer
         format: int64
-      code:
-        type: string
       message:
         type: string

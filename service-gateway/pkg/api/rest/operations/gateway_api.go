@@ -289,17 +289,17 @@ func (o *GatewayAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/{id}"] = access.NewFindOne(o.context, o.AccessFindOneHandler)
+	o.handlers["GET"]["/access/{id}"] = access.NewFindOne(o.context, o.AccessFindOneHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/{id}"] = access.NewRemoveOne(o.context, o.AccessRemoveOneHandler)
+	o.handlers["DELETE"]["/access/{id}"] = access.NewRemoveOne(o.context, o.AccessRemoveOneHandler)
 
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/{id}"] = access.NewUpdateOne(o.context, o.AccessUpdateOneHandler)
+	o.handlers["PUT"]["/access/{id}"] = access.NewUpdateOne(o.context, o.AccessUpdateOneHandler)
 
 }
 

@@ -13,14 +13,22 @@ import (
 	"github.com/jessevdk/go-flags"
 	"go.uber.org/zap"
 	"github.com/go-openapi/runtime"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"fmt"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
 )
 
 func main() {
-	spec := config.GetSpecification()
 
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 	log := logger.Sugar()
+
+	// get config
+	spec := config.GetSpecification()
 	log.Infow("Starting server...",
 		"version", config.Version,
 		"build_date", config.BuildDate,
@@ -33,6 +41,19 @@ func main() {
 		"debug", spec.Debug,
 	)
 
+	// setup db connection
+	dbConnString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		spec.MysqlUserName, spec.MysqlPassword, spec.MysqlHost, spec.MysqlPort, spec.MysqlDatabase)
+	db, err := gorm.Open("mysql", dbConnString)
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db.SingularTable(true)
+	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
+
+	// setup API
 	swaggerSpec, err := loads.Analyzed(rest.SwaggerJSON, "")
 	if err != nil {
 		log.Fatal(err)
@@ -70,7 +91,7 @@ func main() {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
 	api.Logger = log.Infof
-	internal.ConfigureAPI(api)
+	internal.ConfigureAPI(db, api)
 
 	// set middlewares
 	handler := api.Serve(nil)

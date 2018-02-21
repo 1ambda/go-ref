@@ -16,10 +16,15 @@ var (
 )
 
 type Specification struct {
-	Env		string `default:"LOCAL"`
-	Debug	bool   `default:"false"`
-	Port	int		`default:"50002"`
-	Host	string `default:"localhost"`
+	Env           string `default:"LOCAL"`
+	Debug         bool   `default:"true"`
+	Port          int    `default:"50002"`
+	Host          string `default:"localhost"`
+	MysqlHost     string `default:"localhost"`
+	MysqlPort     string `default:"3306"`
+	MysqlUserName string `default:"root"`
+	MysqlPassword string `default:"root"`
+	MysqlDatabase string `default:"goref"`
 }
 
 func GetSpecification() Specification {

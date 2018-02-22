@@ -15,6 +15,7 @@ import (
 func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 	api.AccessAddOneHandler = buildAccessOneHandler(db)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
+	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 
 }
 
@@ -24,7 +25,7 @@ func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 			logger, _ := zap.NewProduction()
 			defer logger.Sync()
 			sugar := logger.Sugar()
-			sugar.Infow("Creating Access","request", params.Body)
+			sugar.Infow("Creating Access", "request", params.Body)
 
 			record := model.Access{
 				BrowserName:    *params.Body.BrowserName,
@@ -39,10 +40,10 @@ func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 			}
 
 			if err := db.Create(&record).Error; err != nil {
-				sugar.Errorw("Failed to create new Access record: %v","error", err)
+				sugar.Errorw("Failed to create new Access record: %v", "error", err)
 				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
-					Code: 500,
-					Message: swag.String(err.Error()),
+					Code:      500,
+					Message:   swag.String(err.Error()),
 					Timestamp: time.Now().UTC().String(),
 				})
 			}
@@ -57,15 +58,15 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 			logger, _ := zap.NewProduction()
 			defer logger.Sync()
 			sugar := logger.Sugar()
-			sugar.Infow("Finding Access","id", params.ID)
+			sugar.Infow("Finding Access record", "id", params.ID)
 
 			var record model.Access
 
 			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
 				sugar.Errorw("Failed to create new Access record", "error", err)
 				access.NewFindOneDefault(404).WithPayload(&restmodel.Error{
-					Code: 404,
-					Message: swag.String(err.Error()),
+					Code:      404,
+					Message:   swag.String(err.Error()),
 					Timestamp: time.Now().UTC().String(),
 				})
 			}
@@ -83,5 +84,44 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 			}
 
 			return access.NewFindOneOK().WithPayload(&response)
+		})
+}
+
+func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
+	return access.FindAllHandlerFunc(
+		func(params access.FindAllParams) middleware.Responder {
+			logger, _ := zap.NewProduction()
+			defer logger.Sync()
+			sugar := logger.Sugar()
+			sugar.Info("Finding All Access records")
+
+			var records []model.Access
+
+			if err := db.Find(&records).Error; err != nil {
+				sugar.Errorw("Failed to find all Access records", "error", err)
+				access.NewFindAllDefault(500).WithPayload(&restmodel.Error{
+					Code:      500,
+					Message:   swag.String(err.Error()),
+					Timestamp: time.Now().UTC().String(),
+				})
+			}
+
+			response := make([]*restmodel.Access, 0)
+			for _, record := range records {
+
+				response = append(response, &restmodel.Access{
+					BrowserName:    &record.BrowserName,
+					BrowserVersion: &record.BrowserVersion,
+					OsName:         &record.OsName,
+					OsVersion:      &record.OsVersion,
+					IsMobile:       &record.IsMobile,
+					Timezone:       &record.Timezone,
+					Timestamp:      &record.Timestamp,
+					Language:       &record.Language,
+					UserAgent:      &record.UserAgent,
+				})
+			}
+
+			return access.NewFindAllOK().WithPayload(response)
 		})
 }

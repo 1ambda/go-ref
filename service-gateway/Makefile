@@ -36,6 +36,12 @@ swagger: swagger-version
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger code"
 	swagger generate server --spec=$(SWAGGER_FILE) --target=pkg/api --exclude-main --model-package=model --server-package=rest
 
+swagger-commit:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - commiting swagger related files"
+	git add ../schema
+	git add pkg/api
+	git commit -m "schema: Update swagger spec"
+
 $(APPS): swagger
 	@$(eval TARGET := $@)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"

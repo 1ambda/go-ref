@@ -17,6 +17,7 @@ func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
+	api.AccessUpdateOneHandler = buildAccessUpdateOneHandler(db)
 }
 
 func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
@@ -155,5 +156,31 @@ func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
 			}
 
 			return access.NewRemoveOneNoContent()
+		})
+}
+
+func buildAccessUpdateOneHandler(db *gorm.DB) access.UpdateOneHandlerFunc {
+	return access.UpdateOneHandlerFunc(
+		func(params access.UpdateOneParams) middleware.Responder {
+			logger, _ := zap.NewProduction()
+			defer logger.Sync()
+			sugar := logger.Sugar()
+			sugar.Infow("Updating Access record", "id", params.ID)
+
+			record := convertAccessToDbModel(params.Body)
+			var updated model.Access
+
+			if err := db.Model(&updated).Where("id = ?", params.ID).Update(record).Error; err != nil {
+				sugar.Errorw("Failed to update new Access record: %v", "error", err)
+				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
+					Code:      500,
+					Message:   swag.String(err.Error()),
+					Timestamp: time.Now().UTC().String(),
+				})
+			}
+
+			response := convertAccessToRestModel(&updated)
+
+			return access.NewUpdateOneOK().WithPayload(response)
 		})
 }

@@ -6,10 +6,10 @@ import (
 )
 
 type BaseModel struct {
-	ID        uint       `json:"id" gorm:"primary_key"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"deletedAt"`
-	DeletedAt *time.Time `json:"-" sql:"index"`
+	Id        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type Access struct {

@@ -16,6 +16,7 @@ func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 	api.AccessAddOneHandler = buildAccessOneHandler(db)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
+	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
 
 }
 
@@ -25,7 +26,7 @@ func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 			logger, _ := zap.NewProduction()
 			defer logger.Sync()
 			sugar := logger.Sugar()
-			sugar.Infow("Creating Access", "request", params.Body)
+			sugar.Infow("Creating Access record", "request", params.Body)
 
 			record := model.Access{
 				BrowserName:    *params.Body.BrowserName,
@@ -123,5 +124,26 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 			}
 
 			return access.NewFindAllOK().WithPayload(response)
+		})
+}
+
+func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
+	return access.RemoveOneHandlerFunc(
+		func(params access.RemoveOneParams) middleware.Responder {
+			logger, _ := zap.NewProduction()
+			defer logger.Sync()
+			sugar := logger.Sugar()
+			sugar.Infow("Deleting Access record", "id", params.ID)
+
+			if err := db.Where("id = ?", params.ID).Delete(&model.Access{}).Error; err != nil {
+				sugar.Errorw("Failed to delete new Access record: %v", "error", err)
+				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
+					Code:      500,
+					Message:   swag.String(err.Error()),
+					Timestamp: time.Now().UTC().String(),
+				})
+			}
+
+			return access.NewRemoveOneNoContent()
 		})
 }

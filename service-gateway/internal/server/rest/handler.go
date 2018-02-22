@@ -17,7 +17,38 @@ func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
+}
 
+func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
+	record := model.Access{
+		BrowserName:    *restmodel.BrowserName,
+		BrowserVersion: *restmodel.BrowserVersion,
+		OsName:         *restmodel.OsName,
+		OsVersion:      *restmodel.OsVersion,
+		IsMobile:       *restmodel.IsMobile,
+		Timezone:       *restmodel.Timezone,
+		Timestamp:      *restmodel.Timestamp,
+		Language:       *restmodel.Language,
+		UserAgent:      *restmodel.UserAgent,
+	}
+
+	return &record
+}
+
+func convertAccessToRestModel(record *model.Access) *restmodel.Access {
+	restmodel := restmodel.Access{
+		BrowserName:    &record.BrowserName,
+		BrowserVersion: &record.BrowserVersion,
+		OsName:         &record.OsName,
+		OsVersion:      &record.OsVersion,
+		IsMobile:       &record.IsMobile,
+		Timezone:       &record.Timezone,
+		Timestamp:      &record.Timestamp,
+		Language:       &record.Language,
+		UserAgent:      &record.UserAgent,
+	}
+
+	return &restmodel
 }
 
 func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
@@ -28,19 +59,9 @@ func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 			sugar := logger.Sugar()
 			sugar.Infow("Creating Access record", "request", params.Body)
 
-			record := model.Access{
-				BrowserName:    *params.Body.BrowserName,
-				BrowserVersion: *params.Body.BrowserVersion,
-				OsName:         *params.Body.OsName,
-				OsVersion:      *params.Body.OsVersion,
-				IsMobile:       *params.Body.IsMobile,
-				Timezone:       *params.Body.Timezone,
-				Timestamp:      *params.Body.Timestamp,
-				Language:       *params.Body.Language,
-				UserAgent:      *params.Body.UserAgent,
-			}
+			record := convertAccessToDbModel(params.Body)
 
-			if err := db.Create(&record).Error; err != nil {
+			if err := db.Create(record).Error; err != nil {
 				sugar.Errorw("Failed to create new Access record: %v", "error", err)
 				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
 					Code:      500,
@@ -72,19 +93,8 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 				})
 			}
 
-			response := restmodel.Access{
-				BrowserName:    &record.BrowserName,
-				BrowserVersion: &record.BrowserVersion,
-				OsName:         &record.OsName,
-				OsVersion:      &record.OsVersion,
-				IsMobile:       &record.IsMobile,
-				Timezone:       &record.Timezone,
-				Timestamp:      &record.Timestamp,
-				Language:       &record.Language,
-				UserAgent:      &record.UserAgent,
-			}
-
-			return access.NewFindOneOK().WithPayload(&response)
+			response := convertAccessToRestModel(&record)
+			return access.NewFindOneOK().WithPayload(response)
 		})
 }
 

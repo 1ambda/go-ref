@@ -1,0 +1,19 @@
+<div class="container">
+  <div>
+    <ngx-datatable
+      class="material"
+      [rows]="rows"
+      [columns]="columns"
+      [rowHeight]="50"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [loadingIndicator]="isTableLoading"
+      [scrollbarH]="true"
+      [externalPaging]="true"
+      [limit]="itemCountPerPage"
+      [count]="totalItemCount"
+      [offset]="currentPageOffset"
+      (page)='onPageChange($event)'>
+    ></ngx-datatable>
+  </div>
+</div>

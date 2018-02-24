@@ -10,10 +10,11 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
 	"github.com/go-openapi/swag"
 	"time"
+	"github.com/satori/go.uuid"
 )
 
 func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
-	api.AccessAddOneHandler = buildAccessOneHandler(db)
+	api.AccessAddOneHandler = buildAccessAddOneHandler(db)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
@@ -21,6 +22,8 @@ func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
 }
 
 func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
+	uuid := uuid.NewV4()
+
 	record := model.Access{
 		BrowserName:    *restmodel.BrowserName,
 		BrowserVersion: *restmodel.BrowserVersion,
@@ -31,6 +34,7 @@ func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
 		Timestamp:      *restmodel.Timestamp,
 		Language:       *restmodel.Language,
 		UserAgent:      *restmodel.UserAgent,
+		UUID: uuid.String(),
 	}
 
 	return &record
@@ -38,6 +42,7 @@ func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
 
 func convertAccessToRestModel(record *model.Access) *restmodel.Access {
 	restmodel := restmodel.Access{
+		ID: int64(record.Id),
 		BrowserName:    &record.BrowserName,
 		BrowserVersion: &record.BrowserVersion,
 		OsName:         &record.OsName,
@@ -47,13 +52,21 @@ func convertAccessToRestModel(record *model.Access) *restmodel.Access {
 		Timestamp:      &record.Timestamp,
 		Language:       &record.Language,
 		UserAgent:      &record.UserAgent,
-		ID: int64(record.Id),
+		UUID: record.UUID,
 	}
 
 	return &restmodel
 }
 
-func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
+func buildRestError(err error) *restmodel.Error {
+	return &restmodel.Error{
+		Code:      500,
+		Message:   swag.String(err.Error()),
+		Timestamp: time.Now().UTC().String(),
+	}
+}
+
+func buildAccessAddOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 	return access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
 			logger, _ := zap.NewProduction()
@@ -65,11 +78,8 @@ func buildAccessOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 
 			if err := db.Create(record).Error; err != nil {
 				sugar.Errorw("Failed to create new Access record: %v", "error", err)
-				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
-					Code:      500,
-					Message:   swag.String(err.Error()),
-					Timestamp: time.Now().UTC().String(),
-				})
+				restError := buildRestError(err)
+				access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
 			return access.NewAddOneCreated().WithPayload(params.Body)
@@ -88,11 +98,8 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 
 			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
 				sugar.Errorw("Failed to create new Access record", "error", err)
-				access.NewFindOneDefault(404).WithPayload(&restmodel.Error{
-					Code:      404,
-					Message:   swag.String(err.Error()),
-					Timestamp: time.Now().UTC().String(),
-				})
+				restError := buildRestError(err)
+				access.NewFindOneDefault(404).WithPayload(restError)
 			}
 
 			response := convertAccessToRestModel(&record)
@@ -124,11 +131,8 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 				Error
 			if err != nil {
 				sugar.Errorw("Failed to find all Access records", "error", err)
-				access.NewFindAllDefault(500).WithPayload(&restmodel.Error{
-					Code:      500,
-					Message:   swag.String(err.Error()),
-					Timestamp: time.Now().UTC().String(),
-				})
+				restError := buildRestError(err)
+				access.NewFindAllDefault(500).WithPayload(restError)
 			}
 
 			rows := make([]*restmodel.Access, 0)
@@ -161,11 +165,8 @@ func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
 
 			if err := db.Where("id = ?", params.ID).Delete(&model.Access{}).Error; err != nil {
 				sugar.Errorw("Failed to delete new Access record: %v", "error", err)
-				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
-					Code:      500,
-					Message:   swag.String(err.Error()),
-					Timestamp: time.Now().UTC().String(),
-				})
+				restError := buildRestError(err)
+				access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
 			return access.NewRemoveOneNoContent()
@@ -185,11 +186,8 @@ func buildAccessUpdateOneHandler(db *gorm.DB) access.UpdateOneHandlerFunc {
 
 			if err := db.Model(&updated).Where("id = ?", params.ID).Update(record).Error; err != nil {
 				sugar.Errorw("Failed to update new Access record: %v", "error", err)
-				access.NewAddOneDefault(500).WithPayload(&restmodel.Error{
-					Code:      500,
-					Message:   swag.String(err.Error()),
-					Timestamp: time.Now().UTC().String(),
-				})
+				restError := buildRestError(err)
+				access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
 			response := convertAccessToRestModel(&updated)

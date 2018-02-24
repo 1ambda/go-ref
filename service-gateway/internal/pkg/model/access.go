@@ -26,4 +26,5 @@ type Access struct {
 	Timestamp      string
 	Language       string
 	UserAgent      string
+	UUID           string // uuid v4
 }

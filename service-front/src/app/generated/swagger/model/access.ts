@@ -21,5 +21,6 @@ export interface Access {
     timestamp: string;
     timezone: string;
     userAgent: string;
+    id?: number;
     uuid?: string;
 }

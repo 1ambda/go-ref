@@ -25,6 +25,9 @@ type Access struct {
 	// Required: true
 	BrowserVersion *string `json:"browserVersion"`
 
+	// id
+	ID int64 `json:"id,omitempty"`
+
 	// is mobile
 	// Required: true
 	IsMobile *string `json:"isMobile"`

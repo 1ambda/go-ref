@@ -47,6 +47,7 @@ func convertAccessToRestModel(record *model.Access) *restmodel.Access {
 		Timestamp:      &record.Timestamp,
 		Language:       &record.Language,
 		UserAgent:      &record.UserAgent,
+		ID: int64(record.Id),
 	}
 
 	return &restmodel
@@ -108,8 +109,20 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 			sugar.Info("Finding All Access records")
 
 			var records []model.Access
+			var count int64 = 0
+			currentPageOffset := params.CurrentPageOffset
+			itemCountPerPage := params.ItemCountPerPage
 
-			if err := db.Find(&records).Error; err != nil {
+			dbOffset := int64(*currentPageOffset) * (*itemCountPerPage)
+
+			err := db.
+				Table(model.AccessTable).
+				Count(&count).
+				Offset(int(dbOffset)).
+				Limit(int(*itemCountPerPage)).
+				Find(&records).
+				Error
+			if err != nil {
 				sugar.Errorw("Failed to find all Access records", "error", err)
 				access.NewFindAllDefault(500).WithPayload(&restmodel.Error{
 					Code:      500,
@@ -118,23 +131,23 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 				})
 			}
 
-			response := make([]*restmodel.Access, 0)
-			for _, record := range records {
-
-				response = append(response, &restmodel.Access{
-					BrowserName:    &record.BrowserName,
-					BrowserVersion: &record.BrowserVersion,
-					OsName:         &record.OsName,
-					OsVersion:      &record.OsVersion,
-					IsMobile:       &record.IsMobile,
-					Timezone:       &record.Timezone,
-					Timestamp:      &record.Timestamp,
-					Language:       &record.Language,
-					UserAgent:      &record.UserAgent,
-				})
+			rows := make([]*restmodel.Access, 0)
+			for i, _ := range records {
+				record := records[i]
+				restmodel := convertAccessToRestModel(&record)
+				rows = append(rows, restmodel)
 			}
 
-			return access.NewFindAllOK().WithPayload(response)
+			pagination := restmodel.Pagination{
+				ItemCountPerPage:  itemCountPerPage,
+				CurrentPageOffset: currentPageOffset,
+				TotalItemCount:    &count,
+			}
+
+			return access.NewFindAllOK().WithPayload(&restmodel.FindAllOKBody{
+				Pagination: &pagination,
+				Rows:       rows,
+			})
 		})
 }
 

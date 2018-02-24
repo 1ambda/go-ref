@@ -12,6 +12,8 @@ type BaseModel struct {
 	DeletedAt *time.Time
 }
 
+var AccessTable = "access"
+
 type Access struct {
 	BaseModel
 

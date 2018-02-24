@@ -221,6 +221,10 @@ func init() {
         "browserVersion": {
           "type": "string"
         },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "isMobile": {
           "type": "string"
         },
@@ -481,6 +485,10 @@ func init() {
         },
         "browserVersion": {
           "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
         },
         "isMobile": {
           "type": "string"

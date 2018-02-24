@@ -165,6 +165,9 @@ definitions:
       userAgent:
         type: string
       # non-required fields
+      id:
+        type: integer
+        format: int64
       uuid:
         type: string
   error:

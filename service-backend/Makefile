@@ -5,6 +5,7 @@ include ../scripts/makefiles/install.mk
 include ../scripts/makefiles/run.mk
 include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
+include ../scripts/makefiles/git.mk
 
 APP			= server					# default app
 APPS		:= $(APP) client

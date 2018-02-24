@@ -16,7 +16,7 @@ import (
 // FindAllOKCode is the HTTP code returned for type FindAllOK
 const FindAllOKCode int = 200
 
-/*FindAllOK list of access logs
+/*FindAllOK access records with pagination info
 
 swagger:response findAllOK
 */
@@ -25,7 +25,7 @@ type FindAllOK struct {
 	/*
 	  In: Body
 	*/
-	Payload model.FindAllOKBody `json:"body,omitempty"`
+	Payload *model.FindAllOKBody `json:"body,omitempty"`
 }
 
 // NewFindAllOK creates FindAllOK with default headers values
@@ -35,13 +35,13 @@ func NewFindAllOK() *FindAllOK {
 }
 
 // WithPayload adds the payload to the find all o k response
-func (o *FindAllOK) WithPayload(payload model.FindAllOKBody) *FindAllOK {
+func (o *FindAllOK) WithPayload(payload *model.FindAllOKBody) *FindAllOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the find all o k response
-func (o *FindAllOK) SetPayload(payload model.FindAllOKBody) {
+func (o *FindAllOK) SetPayload(payload *model.FindAllOKBody) {
 	o.Payload = payload
 }
 
@@ -49,15 +49,12 @@ func (o *FindAllOK) SetPayload(payload model.FindAllOKBody) {
 func (o *FindAllOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		payload = make(model.FindAllOKBody, 0, 50)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-
 }
 
 /*FindAllDefault generic error response

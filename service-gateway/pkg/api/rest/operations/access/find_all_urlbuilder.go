@@ -9,11 +9,18 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // FindAllURL generates an URL for the find all operation
 type FindAllURL struct {
+	CurrentPageOffset *int32
+	ItemCountPerPage  *int64
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +49,26 @@ func (o *FindAllURL) Build() (*url.URL, error) {
 		_basePath = "/api"
 	}
 	result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var currentPageOffset string
+	if o.CurrentPageOffset != nil {
+		currentPageOffset = swag.FormatInt32(*o.CurrentPageOffset)
+	}
+	if currentPageOffset != "" {
+		qs.Set("currentPageOffset", currentPageOffset)
+	}
+
+	var itemCountPerPage string
+	if o.ItemCountPerPage != nil {
+		itemCountPerPage = swag.FormatInt64(*o.ItemCountPerPage)
+	}
+	if itemCountPerPage != "" {
+		qs.Set("itemCountPerPage", itemCountPerPage)
+	}
+
+	result.RawQuery = qs.Encode()
 
 	return &result, nil
 }

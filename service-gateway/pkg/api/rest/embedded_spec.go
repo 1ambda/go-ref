@@ -41,13 +41,37 @@ func init() {
           "access"
         ],
         "operationId": "findAll",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "default": 10,
+            "name": "itemCountPerPage",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "name": "currentPageOffset",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "list of access logs",
+            "description": "access records with pagination info",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/access"
+              "type": "object",
+              "properties": {
+                "pagination": {
+                  "$ref": "#/definitions/pagination"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/access"
+                  }
+                }
               }
             }
           },
@@ -240,6 +264,28 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "pagination": {
+      "type": "object",
+      "required": [
+        "itemCountPerPage",
+        "currentPageOffset",
+        "totalItemCount"
+      ],
+      "properties": {
+        "currentPageOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemCountPerPage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalItemCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     }
   }
 }`))
@@ -267,9 +313,25 @@ func init() {
           "access"
         ],
         "operationId": "findAll",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "default": 10,
+            "name": "itemCountPerPage",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "name": "currentPageOffset",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "list of access logs",
+            "description": "access records with pagination info",
             "schema": {
               "$ref": "#/definitions/findAllOKBody"
             }
@@ -465,11 +527,45 @@ func init() {
       }
     },
     "findAllOKBody": {
+      "type": "object",
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/pagination"
+        },
+        "rows": {
+          "$ref": "#/definitions/findAllOKBodyRows"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "findAllOKBodyRows": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/access"
       },
       "x-go-gen-location": "operations"
+    },
+    "pagination": {
+      "type": "object",
+      "required": [
+        "itemCountPerPage",
+        "currentPageOffset",
+        "totalItemCount"
+      ],
+      "properties": {
+        "currentPageOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemCountPerPage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalItemCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     }
   }
 }`))

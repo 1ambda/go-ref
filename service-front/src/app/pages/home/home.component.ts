@@ -4,9 +4,14 @@ import {
 } from '@angular/core'
 
 import 'clientjs'
+import { grpc } from "grpc-web-client"
 import * as moment from 'moment'
 
-import { AccessService, Access } from '../../generated/swagger';
+import { AccessService, Access } from '../../generated/swagger'
+import {CountResponse, EmptyRequest} from "../../generated/grpc/gateway_pb"
+import {Gateway} from "../../generated/grpc/gateway_pb_service"
+
+import {RpcConnectionUrl} from "../../shared"
 
 @Component({
   selector: 'home',  // <home></home>
@@ -38,6 +43,13 @@ export class HomeComponent implements OnInit {
   currentPageOffset = 0 /** page_number -1 */
   isTableLoading = true
 
+  /**
+   * server-side streamed variables
+   */
+  totalAccessCount = 10
+  currentUserCount = 1
+
+
   constructor(
     private accessService: AccessService
   ) {}
@@ -49,6 +61,8 @@ export class HomeComponent implements OnInit {
       .subscribe(created => {
         this.fetchAllAccessList()
       })
+
+    this.subscribeCurrentUserCount()
   }
 
   sendAccess() {
@@ -85,6 +99,25 @@ export class HomeComponent implements OnInit {
 
         this.isTableLoading = false
       })
+  }
+
+  subscribeCurrentUserCount() {
+    const request = new EmptyRequest();
+    const grpcClient = grpc.client(Gateway.SubscribeCurrentUserCount, {
+      host: RpcConnectionUrl,
+    })
+
+    grpcClient.onHeaders((headers: grpc.Metadata) => {
+      console.log("SubscribeCurrentUserCount.onHeaders", headers);
+    })
+
+    grpcClient.onMessage((message: CountResponse) => {
+      console.log("SubscribeCurrentUserCount.onMessage", message.toObject())
+      this.currentUserCount = message.getCount()
+    })
+
+    grpcClient.start()
+    grpcClient.send(request)
   }
 
 

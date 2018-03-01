@@ -3,13 +3,13 @@ syntax = "proto3";
 package grpc;
 
 service Gateway {
-    rpc SubscribeTotalAccessCount (Empty) returns (stream Count) {}
-    rpc SubscribeCurrentUserCount (Empty) returns (stream Count) {}
+    rpc subscribeTotalAccessCount (EmptyRequest) returns (stream CountResponse) {}
+    rpc subscribeCurrentUserCount (EmptyRequest) returns (stream CountResponse) {}
 }
 
-message Empty {}
+message EmptyRequest {}
 
-message Count {
+message CountResponse {
    int64 count = 1;
 }
 

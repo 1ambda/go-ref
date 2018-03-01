@@ -11,15 +11,15 @@ export namespace Gateway {
     static readonly service = Gateway;
     static readonly requestStream = false;
     static readonly responseStream = true;
-    static readonly requestType = gateway_pb.Empty;
-    static readonly responseType = gateway_pb.Count;
+    static readonly requestType = gateway_pb.EmptyRequest;
+    static readonly responseType = gateway_pb.CountResponse;
   }
   export class SubscribeCurrentUserCount {
     static readonly methodName = "SubscribeCurrentUserCount";
     static readonly service = Gateway;
     static readonly requestStream = false;
     static readonly responseStream = true;
-    static readonly requestType = gateway_pb.Empty;
-    static readonly responseType = gateway_pb.Count;
+    static readonly requestType = gateway_pb.EmptyRequest;
+    static readonly responseType = gateway_pb.CountResponse;
   }
 }

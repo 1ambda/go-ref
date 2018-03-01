@@ -1,7 +1,6 @@
 import {Component, NgModule, OnInit, OnDestroy} from '@angular/core'
 import {MatButtonModule, MatToolbarModule, MatMenuModule} from '@angular/material'
 import {RouterModule} from '@angular/router'
-import {Subscription} from 'rxjs/Subscription'
 
 @Component({
   selector: 'app-navbar',

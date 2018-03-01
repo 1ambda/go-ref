@@ -1,1 +1,9 @@
-/*styles for home content only*/
+.home .stat-title {
+  font-weight: 700;
+}
+
+.home .stat-value {
+  font-weight: 300;
+  font-size: 45px;
+}
+

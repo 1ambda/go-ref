@@ -3,37 +3,37 @@
 
 import * as jspb from "google-protobuf";
 
-export class Empty extends jspb.Message {
+export class EmptyRequest extends jspb.Message {
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Empty.AsObject;
-  static toObject(includeInstance: boolean, msg: Empty): Empty.AsObject;
+  toObject(includeInstance?: boolean): EmptyRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: EmptyRequest): EmptyRequest.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: Empty, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Empty;
-  static deserializeBinaryFromReader(message: Empty, reader: jspb.BinaryReader): Empty;
+  static serializeBinaryToWriter(message: EmptyRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EmptyRequest;
+  static deserializeBinaryFromReader(message: EmptyRequest, reader: jspb.BinaryReader): EmptyRequest;
 }
 
-export namespace Empty {
+export namespace EmptyRequest {
   export type AsObject = {
   }
 }
 
-export class Count extends jspb.Message {
+export class CountResponse extends jspb.Message {
   getCount(): number;
   setCount(value: number): void;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Count.AsObject;
-  static toObject(includeInstance: boolean, msg: Count): Count.AsObject;
+  toObject(includeInstance?: boolean): CountResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: CountResponse): CountResponse.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: Count, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Count;
-  static deserializeBinaryFromReader(message: Count, reader: jspb.BinaryReader): Count;
+  static serializeBinaryToWriter(message: CountResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CountResponse;
+  static deserializeBinaryFromReader(message: CountResponse, reader: jspb.BinaryReader): CountResponse;
 }
 
-export namespace Count {
+export namespace CountResponse {
   export type AsObject = {
     count: number,
   }

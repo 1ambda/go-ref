@@ -25,10 +25,10 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
 
 	grpcapi "github.com/1ambda/go-ref/service-gateway/pkg/grpc"
-	"github.com/1ambda/go-ref/service-gateway/internal/server/grpc"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/grpc"
 
 	restapi "github.com/1ambda/go-ref/service-gateway/pkg/api/rest"
-	"github.com/1ambda/go-ref/service-gateway/internal/server/rest"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 )
 

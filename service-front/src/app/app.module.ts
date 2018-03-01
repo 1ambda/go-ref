@@ -71,7 +71,7 @@ const APP_PROVIDERS = [
  * App Modules
  */
 import { NavbarModule } from './pages/common/navbar'
-
+import { MatCardModule } from '@angular/material'
 
 /**
  * `AppModule` is the main entry point.
@@ -100,6 +100,7 @@ import { NavbarModule } from './pages/common/navbar'
       preloadingStrategy: PreloadAllModules
     }),
 
+    MatCardModule,
     NavbarModule,
 
     /**

@@ -8,8 +8,8 @@ It is generated from these files:
 	gateway.proto
 
 It has these top-level messages:
-	Empty
-	Count
+	EmptyRequest
+	CountResponse
 */
 package grpc
 
@@ -33,24 +33,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type Empty struct {
+type EmptyRequest struct {
 }
 
-func (m *Empty) Reset()                    { *m = Empty{} }
-func (m *Empty) String() string            { return proto.CompactTextString(m) }
-func (*Empty) ProtoMessage()               {}
-func (*Empty) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (m *EmptyRequest) Reset()                    { *m = EmptyRequest{} }
+func (m *EmptyRequest) String() string            { return proto.CompactTextString(m) }
+func (*EmptyRequest) ProtoMessage()               {}
+func (*EmptyRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
-type Count struct {
+type CountResponse struct {
 	Count int64 `protobuf:"varint,1,opt,name=count" json:"count,omitempty"`
 }
 
-func (m *Count) Reset()                    { *m = Count{} }
-func (m *Count) String() string            { return proto.CompactTextString(m) }
-func (*Count) ProtoMessage()               {}
-func (*Count) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (m *CountResponse) Reset()                    { *m = CountResponse{} }
+func (m *CountResponse) String() string            { return proto.CompactTextString(m) }
+func (*CountResponse) ProtoMessage()               {}
+func (*CountResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
-func (m *Count) GetCount() int64 {
+func (m *CountResponse) GetCount() int64 {
 	if m != nil {
 		return m.Count
 	}
@@ -58,8 +58,8 @@ func (m *Count) GetCount() int64 {
 }
 
 func init() {
-	proto.RegisterType((*Empty)(nil), "grpc.Empty")
-	proto.RegisterType((*Count)(nil), "grpc.Count")
+	proto.RegisterType((*EmptyRequest)(nil), "grpc.EmptyRequest")
+	proto.RegisterType((*CountResponse)(nil), "grpc.CountResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -73,8 +73,8 @@ const _ = grpc1.SupportPackageIsVersion4
 // Client API for Gateway service
 
 type GatewayClient interface {
-	SubscribeTotalAccessCount(ctx context.Context, in *Empty, opts ...grpc1.CallOption) (Gateway_SubscribeTotalAccessCountClient, error)
-	SubscribeCurrentUserCount(ctx context.Context, in *Empty, opts ...grpc1.CallOption) (Gateway_SubscribeCurrentUserCountClient, error)
+	SubscribeTotalAccessCount(ctx context.Context, in *EmptyRequest, opts ...grpc1.CallOption) (Gateway_SubscribeTotalAccessCountClient, error)
+	SubscribeCurrentUserCount(ctx context.Context, in *EmptyRequest, opts ...grpc1.CallOption) (Gateway_SubscribeCurrentUserCountClient, error)
 }
 
 type gatewayClient struct {
@@ -85,8 +85,8 @@ func NewGatewayClient(cc *grpc1.ClientConn) GatewayClient {
 	return &gatewayClient{cc}
 }
 
-func (c *gatewayClient) SubscribeTotalAccessCount(ctx context.Context, in *Empty, opts ...grpc1.CallOption) (Gateway_SubscribeTotalAccessCountClient, error) {
-	stream, err := grpc1.NewClientStream(ctx, &_Gateway_serviceDesc.Streams[0], c.cc, "/grpc.Gateway/SubscribeTotalAccessCount", opts...)
+func (c *gatewayClient) SubscribeTotalAccessCount(ctx context.Context, in *EmptyRequest, opts ...grpc1.CallOption) (Gateway_SubscribeTotalAccessCountClient, error) {
+	stream, err := grpc1.NewClientStream(ctx, &_Gateway_serviceDesc.Streams[0], c.cc, "/grpc.Gateway/subscribeTotalAccessCount", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (c *gatewayClient) SubscribeTotalAccessCount(ctx context.Context, in *Empty
 }
 
 type Gateway_SubscribeTotalAccessCountClient interface {
-	Recv() (*Count, error)
+	Recv() (*CountResponse, error)
 	grpc1.ClientStream
 }
 
@@ -109,16 +109,16 @@ type gatewaySubscribeTotalAccessCountClient struct {
 	grpc1.ClientStream
 }
 
-func (x *gatewaySubscribeTotalAccessCountClient) Recv() (*Count, error) {
-	m := new(Count)
+func (x *gatewaySubscribeTotalAccessCountClient) Recv() (*CountResponse, error) {
+	m := new(CountResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *gatewayClient) SubscribeCurrentUserCount(ctx context.Context, in *Empty, opts ...grpc1.CallOption) (Gateway_SubscribeCurrentUserCountClient, error) {
-	stream, err := grpc1.NewClientStream(ctx, &_Gateway_serviceDesc.Streams[1], c.cc, "/grpc.Gateway/SubscribeCurrentUserCount", opts...)
+func (c *gatewayClient) SubscribeCurrentUserCount(ctx context.Context, in *EmptyRequest, opts ...grpc1.CallOption) (Gateway_SubscribeCurrentUserCountClient, error) {
+	stream, err := grpc1.NewClientStream(ctx, &_Gateway_serviceDesc.Streams[1], c.cc, "/grpc.Gateway/subscribeCurrentUserCount", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (c *gatewayClient) SubscribeCurrentUserCount(ctx context.Context, in *Empty
 }
 
 type Gateway_SubscribeCurrentUserCountClient interface {
-	Recv() (*Count, error)
+	Recv() (*CountResponse, error)
 	grpc1.ClientStream
 }
 
@@ -141,8 +141,8 @@ type gatewaySubscribeCurrentUserCountClient struct {
 	grpc1.ClientStream
 }
 
-func (x *gatewaySubscribeCurrentUserCountClient) Recv() (*Count, error) {
-	m := new(Count)
+func (x *gatewaySubscribeCurrentUserCountClient) Recv() (*CountResponse, error) {
+	m := new(CountResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -152,8 +152,8 @@ func (x *gatewaySubscribeCurrentUserCountClient) Recv() (*Count, error) {
 // Server API for Gateway service
 
 type GatewayServer interface {
-	SubscribeTotalAccessCount(*Empty, Gateway_SubscribeTotalAccessCountServer) error
-	SubscribeCurrentUserCount(*Empty, Gateway_SubscribeCurrentUserCountServer) error
+	SubscribeTotalAccessCount(*EmptyRequest, Gateway_SubscribeTotalAccessCountServer) error
+	SubscribeCurrentUserCount(*EmptyRequest, Gateway_SubscribeCurrentUserCountServer) error
 }
 
 func RegisterGatewayServer(s *grpc1.Server, srv GatewayServer) {
@@ -161,7 +161,7 @@ func RegisterGatewayServer(s *grpc1.Server, srv GatewayServer) {
 }
 
 func _Gateway_SubscribeTotalAccessCount_Handler(srv interface{}, stream grpc1.ServerStream) error {
-	m := new(Empty)
+	m := new(EmptyRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func _Gateway_SubscribeTotalAccessCount_Handler(srv interface{}, stream grpc1.Se
 }
 
 type Gateway_SubscribeTotalAccessCountServer interface {
-	Send(*Count) error
+	Send(*CountResponse) error
 	grpc1.ServerStream
 }
 
@@ -177,12 +177,12 @@ type gatewaySubscribeTotalAccessCountServer struct {
 	grpc1.ServerStream
 }
 
-func (x *gatewaySubscribeTotalAccessCountServer) Send(m *Count) error {
+func (x *gatewaySubscribeTotalAccessCountServer) Send(m *CountResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Gateway_SubscribeCurrentUserCount_Handler(srv interface{}, stream grpc1.ServerStream) error {
-	m := new(Empty)
+	m := new(EmptyRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func _Gateway_SubscribeCurrentUserCount_Handler(srv interface{}, stream grpc1.Se
 }
 
 type Gateway_SubscribeCurrentUserCountServer interface {
-	Send(*Count) error
+	Send(*CountResponse) error
 	grpc1.ServerStream
 }
 
@@ -198,7 +198,7 @@ type gatewaySubscribeCurrentUserCountServer struct {
 	grpc1.ServerStream
 }
 
-func (x *gatewaySubscribeCurrentUserCountServer) Send(m *Count) error {
+func (x *gatewaySubscribeCurrentUserCountServer) Send(m *CountResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -208,12 +208,12 @@ var _Gateway_serviceDesc = grpc1.ServiceDesc{
 	Methods:     []grpc1.MethodDesc{},
 	Streams: []grpc1.StreamDesc{
 		{
-			StreamName:    "SubscribeTotalAccessCount",
+			StreamName:    "subscribeTotalAccessCount",
 			Handler:       _Gateway_SubscribeTotalAccessCount_Handler,
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "SubscribeCurrentUserCount",
+			StreamName:    "subscribeCurrentUserCount",
 			Handler:       _Gateway_SubscribeCurrentUserCount_Handler,
 			ServerStreams: true,
 		},
@@ -224,15 +224,16 @@ var _Gateway_serviceDesc = grpc1.ServiceDesc{
 func init() { proto.RegisterFile("gateway.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 148 bytes of a gzipped FileDescriptorProto
+	// 168 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4d, 0x4f, 0x2c, 0x49,
 	0x2d, 0x4f, 0xac, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x49, 0x2f, 0x2a, 0x48, 0x56,
-	0x62, 0xe7, 0x62, 0x75, 0xcd, 0x2d, 0x28, 0xa9, 0x54, 0x92, 0xe5, 0x62, 0x75, 0xce, 0x2f, 0xcd,
-	0x2b, 0x11, 0x12, 0xe1, 0x62, 0x4d, 0x06, 0x31, 0x24, 0x18, 0x15, 0x18, 0x35, 0x98, 0x83, 0x20,
-	0x1c, 0xa3, 0x7a, 0x2e, 0x76, 0x77, 0x88, 0x76, 0x21, 0x4b, 0x2e, 0xc9, 0xe0, 0xd2, 0xa4, 0xe2,
-	0xe4, 0xa2, 0xcc, 0xa4, 0xd4, 0x90, 0xfc, 0x92, 0xc4, 0x1c, 0xc7, 0xe4, 0xe4, 0xd4, 0xe2, 0x62,
-	0x88, 0x6e, 0x6e, 0x3d, 0x90, 0xb1, 0x7a, 0x60, 0x33, 0xa5, 0xa0, 0x1c, 0xb0, 0x8c, 0x12, 0x83,
-	0x01, 0x23, 0x8a, 0x56, 0xe7, 0xd2, 0xa2, 0xa2, 0xd4, 0xbc, 0x92, 0xd0, 0xe2, 0xd4, 0x22, 0x22,
-	0xb4, 0x26, 0xb1, 0x81, 0x5d, 0x6d, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xa4, 0xe9, 0x35, 0x83,
-	0xc6, 0x00, 0x00, 0x00,
+	0xe2, 0xe3, 0xe2, 0x71, 0xcd, 0x2d, 0x28, 0xa9, 0x0c, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x51,
+	0x52, 0xe5, 0xe2, 0x75, 0xce, 0x2f, 0xcd, 0x2b, 0x09, 0x4a, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e,
+	0x15, 0x12, 0xe1, 0x62, 0x4d, 0x06, 0x09, 0x48, 0x30, 0x2a, 0x30, 0x6a, 0x30, 0x07, 0x41, 0x38,
+	0x46, 0x73, 0x19, 0xb9, 0xd8, 0xdd, 0x21, 0xc6, 0x09, 0x79, 0x70, 0x49, 0x16, 0x97, 0x26, 0x15,
+	0x27, 0x17, 0x65, 0x26, 0xa5, 0x86, 0xe4, 0x97, 0x24, 0xe6, 0x38, 0x26, 0x27, 0xa7, 0x16, 0x17,
+	0x83, 0x8d, 0x11, 0x12, 0xd2, 0x03, 0x59, 0xa3, 0x87, 0x6c, 0x87, 0x94, 0x30, 0x44, 0x0c, 0xc5,
+	0x1e, 0x25, 0x06, 0x03, 0x46, 0x14, 0x93, 0x9c, 0x4b, 0x8b, 0x8a, 0x52, 0xf3, 0x4a, 0x42, 0x8b,
+	0x53, 0x8b, 0x48, 0x37, 0x29, 0x89, 0x0d, 0xec, 0x47, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0xda, 0x8e, 0x6e, 0x78, 0xf4, 0x00, 0x00, 0x00,
 }

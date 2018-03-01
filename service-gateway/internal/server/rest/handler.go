@@ -1,4 +1,4 @@
-package rest
+package restservice
 
 import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"

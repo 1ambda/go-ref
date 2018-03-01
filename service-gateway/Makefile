@@ -7,27 +7,23 @@ include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
 include ../scripts/makefiles/git.mk
 
-APP			= server					# default app
+APP			= server
 APPS		:= $(APP)
 
-GITHUB_MODULE	= service-gateway		# module name in the repository
+GITHUB_MODULE	= service-gateway
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
 SWAGGER_FILE			= ../schema/swagger/gateway.yml
-GENERATED_CLIENT_DIR 	= ../service-front/src/app/generated/swagger
+
+PROTO_DIR  = ../schema/protobuf
+PROTO_FILE = $(PROTO_DIR)/gateway.proto
+GENERATED_GRPC_SERVER_DIR = "pkg/grpc"
 
 swagger-version:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - updating swagger spec version: $(VERSION)"
 	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_FILE) ../scripts/update-swagger-version.sh
 
-swagger-client:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger client files"
-	rm -rf $(GENERATED_CLIENT_DIR)	|| true
-
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger client"
-	swagger-codegen generate -i $(SWAGGER_FILE) -l typescript-angular -o $(GENERATED_CLIENT_DIR)
-
-swagger: swagger-version
+swagger-server: swagger-version
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger files"
 	rm -rf pkg/api/model/*	|| true
 	rm -rf pkg/api/rest/* 	|| true
@@ -43,7 +39,18 @@ swagger-commit:
 	git add pkg/api
 	git commit -m "schema: Update swagger spec"
 
-$(APPS): swagger
+grpc-web-server:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning grpc web client files"
+	rm -rf $(GENERATED_GRPC_SERVER_DIR)	|| true
+	mkdir -p $(GENERATED_GRPC_SERVER_DIR)
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating grpc web client"
+	protoc \
+    -I $(PROTO_DIR) \
+    --go_out=plugins=grpc:$(GENERATED_GRPC_SERVER_DIR) \
+    $(PROTO_FILE)
+
+$(APPS): swagger-server grpc-web-server
 	@$(eval TARGET := $@)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))

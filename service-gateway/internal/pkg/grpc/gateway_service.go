@@ -6,9 +6,17 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"time"
 	"go.uber.org/zap"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
+	"github.com/satori/go.uuid"
 )
 
-type GatewayService struct{}
+type GatewayService struct {
+	realtimeStatService service.RealtimeStatService
+}
+
+func NewGatewayService() *GatewayService {
+	return &GatewayService{*service.NewRealtimeStatService(),}
+}
 
 func (s *GatewayService) SubscribeTotalAccessCount(request *pb.EmptyRequest, stream pb.Gateway_SubscribeTotalAccessCountServer) error {
 	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
@@ -34,7 +42,7 @@ func (s *GatewayService) SubscribeTotalAccessCount(request *pb.EmptyRequest, str
 		time.Sleep(time.Second)
 	}
 
-	//stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
 	return nil
 }
 
@@ -45,32 +53,36 @@ func (s *GatewayService) SubscribeCurrentUserCount(request *pb.EmptyRequest, str
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
-	var currentUserCount int64 = 3
+	recv := make(chan int64)
+	uuid := uuid.NewV4().String()
+	s.realtimeStatService.IncreaseCurrentUserCountSubscriber(uuid, recv)
 
-	for {
-		count := pb.CountResponse{Count: currentUserCount}
+	done := false
+	for !done {
+		select {
+		case currentUserCount, ok := <- recv:
+			if !ok {
+				done = true; break
+			}
 
-		sugar.Infow("Sending gRPC response: SubscribeCurrentUserCount",
-			"client", stream.Context())
-		err := stream.Send(&count)
-		if err != nil {
-			sugar.Errorw("Failing to send gRPC response", "error", err)
-			break
+			count := pb.CountResponse{Count: currentUserCount}
+			sugar.Info("Sending gRPC response: SubscribeCurrentUserCount")
+
+			err := stream.Send(&count)
+			if err != nil {
+				sugar.Errorw("Failing to send gRPC response", "error", err)
+				done = true; break
+			}
+
+		case <- stream.Context().Done():
+			// https://github.com/improbable-eng/grpc-web/issues/57
+			sugar.Info("Client disconnected")
+			done = true; break
 		}
 
-		// https://github.com/improbable-eng/grpc-web/issues/57
-		err = stream.Context().Err()
-		if err != nil {
-			sugar.Errorw("Client disconnected", "error", err)
-			break
-		}
-
-		currentUserCount += 1
-		time.Sleep(time.Second)
 	}
 
+	s.realtimeStatService.DecreaseCurrentUserCountSubscriber(uuid)
 	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
 	return nil
 }
-
-

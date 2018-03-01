@@ -137,7 +137,9 @@ func connectToMySQL(spec config.Specification) (*gorm.DB, error){
 
 func configureGRPCServer(spec config.Specification) *http.Server {
 	grpcServer := grpc.NewServer()
-	grpcapi.RegisterGatewayServer(grpcServer, &grpcservice.GatewayService{})
+
+	gatewayService := grpcservice.NewGatewayService()
+	grpcapi.RegisterGatewayServer(grpcServer, gatewayService)
 
 	wrappedGrpcServer := grpcweb.WrapServer(grpcServer)
 	grpcHttpHandler := func(resp http.ResponseWriter, req *http.Request) {

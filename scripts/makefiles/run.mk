@@ -8,4 +8,5 @@ run-cont:
 		-exclude-dir="${BIN_DIR}" \
 		-exclude-dir="internal/mock" \
 		-exclude-dir="pkg/api" \
+		-exclude-dir="pkg/grpc" \
 		-build="make build" -command="make run" -graceful-kill=true

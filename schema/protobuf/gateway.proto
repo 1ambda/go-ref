@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package grpc;
+
+service Gateway {
+    rpc SubscribeTotalAccessCount (Empty) returns (stream Count) {}
+    rpc SubscribeCurrentUserCount (Empty) returns (stream Count) {}
+}
+
+message Empty {}
+
+message Count {
+   int64 count = 1;
+}
+

@@ -104,7 +104,6 @@
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
-    "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -112,6 +111,12 @@
   ]
   revision = "925541529c1fa6821df4e44ce2723319eb2be768"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/improbable-eng/grpc-web"
+  packages = ["go/grpcweb"]
+  revision = "9cca7d4530683dc49fc10cf627309ce4be119af5"
+  version = "0.5.0"
 
 [[projects]]
   name = "github.com/jessevdk/go-flags"
@@ -260,8 +265,6 @@
     "metadata",
     "naming",
     "peer",
-    "reflection",
-    "reflection/grpc_reflection_v1alpha",
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
@@ -291,6 +294,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "453a7c1c6da54fbf306d4308a5f8b454b7bd0166443b657d497972cd174fe6fd"
+  inputs-digest = "7a18e6d0308a89cfeede45601fb715668adfaaa42bc6e374d08fe542aac266d2"
   solver-name = "gps-cdcl"
   solver-version = 1

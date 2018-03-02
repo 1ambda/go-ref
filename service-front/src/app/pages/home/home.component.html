@@ -1,6 +1,6 @@
 <div class="container home">
   <div class="container" fxLayout fxLayout.xs="column">
-    <div fxFlex="50" fxFlex.xs="100%">
+    <div fxFlex="25" fxFlex.xs="100%">
       <mat-card class="example-card">
         <mat-card-header>
           <mat-card-title class="stat-title">Total Count</mat-card-title>
@@ -11,7 +11,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <div fxFlex="50" fxFlex.xs="100%">
+    <div fxFlex="25" fxFlex.xs="100%">
       <mat-card class="example-card">
         <mat-card-header>
           <mat-card-title class="stat-title">Current Connections</mat-card-title>
@@ -19,6 +19,28 @@
         </mat-card-header>
         <mat-card-content>
           <p class="stat-value">{{currentUserCount}}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div fxFlex="25" fxFlex.xs="100%">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title class="stat-title">Master Node</mat-card-title>
+          <mat-card-subtitle>Identifier</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="stat-value">{{currentMasterIdentifier}}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div fxFlex="25" fxFlex.xs="100%">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title class="stat-title">Node Count</mat-card-title>
+          <mat-card-subtitle>All Gateway Nodes</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="stat-value">{{currentNodeCount}}</p>
         </mat-card-content>
       </mat-card>
     </div>

@@ -48,6 +48,8 @@ export class HomeComponent implements OnInit {
    */
   totalAccessCount = 0
   currentUserCount = 0
+  currentNodeCount = 1
+  currentMasterIdentifier = "GATEWAY-0"
 
 
   constructor(

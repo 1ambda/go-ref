@@ -5,6 +5,8 @@ package grpc;
 service Gateway {
     rpc SubscribeTotalAccessCount (EmptyRequest) returns (stream CountResponse) {}
     rpc SubscribeCurrentUserCount (EmptyRequest) returns (stream CountResponse) {}
+    rpc SubscribeCurrentNodeCount (EmptyRequest) returns (stream CountResponse) {}
+    rpc SubscribeCurrentMasterIdentifier (EmptyRequest) returns (stream StringResponse) {}
 }
 
 message EmptyRequest {}
@@ -13,3 +15,6 @@ message CountResponse {
    int64 count = 1;
 }
 
+message StringResponse {
+    string value = 1;
+}

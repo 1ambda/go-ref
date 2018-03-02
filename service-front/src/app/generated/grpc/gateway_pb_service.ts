@@ -22,4 +22,20 @@ export namespace Gateway {
     static readonly requestType = gateway_pb.EmptyRequest;
     static readonly responseType = gateway_pb.CountResponse;
   }
+  export class SubscribeCurrentNodeCount {
+    static readonly methodName = "SubscribeCurrentNodeCount";
+    static readonly service = Gateway;
+    static readonly requestStream = false;
+    static readonly responseStream = true;
+    static readonly requestType = gateway_pb.EmptyRequest;
+    static readonly responseType = gateway_pb.CountResponse;
+  }
+  export class SubscribeCurrentMasterIdentifier {
+    static readonly methodName = "SubscribeCurrentMasterIdentifier";
+    static readonly service = Gateway;
+    static readonly requestStream = false;
+    static readonly responseStream = true;
+    static readonly requestType = gateway_pb.EmptyRequest;
+    static readonly responseType = gateway_pb.StringResponse;
+  }
 }

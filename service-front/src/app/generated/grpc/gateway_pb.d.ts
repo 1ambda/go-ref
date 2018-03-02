@@ -39,3 +39,23 @@ export namespace CountResponse {
   }
 }
 
+export class StringResponse extends jspb.Message {
+  getValue(): string;
+  setValue(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StringResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: StringResponse): StringResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: StringResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StringResponse;
+  static deserializeBinaryFromReader(message: StringResponse, reader: jspb.BinaryReader): StringResponse;
+}
+
+export namespace StringResponse {
+  export type AsObject = {
+    value: string,
+  }
+}
+

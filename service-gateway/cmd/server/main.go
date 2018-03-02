@@ -30,6 +30,7 @@ import (
 	restapi "github.com/1ambda/go-ref/service-gateway/pkg/api/rest"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
 	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 )
 
 func main() {
@@ -67,7 +68,9 @@ func main() {
 
 	// setup gRPC API server
 	sugar.Info("Starting gRPC server")
-	grpcHttpServer := configureGRPCServer(spec)
+	realtimeService := service.NewRealtimeStatService(db)
+	gatewayService := grpcservice.NewGatewayService(realtimeService)
+	grpcHttpServer := configureGRPCServer(spec, gatewayService)
 	go func() {
 		if err := grpcHttpServer.ListenAndServe(); err != nil {
 			sugar.Fatalw("failed starting grpc web http server", "error", err)
@@ -111,7 +114,7 @@ func main() {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
 	api.Logger = sugar.Infof
-	restservice.ConfigureAPI(db, api)
+	restservice.ConfigureAPI(db, api, realtimeService)
 
 	// set middlewares
 	handler := api.Serve(nil)
@@ -135,11 +138,10 @@ func connectToMySQL(spec config.Specification) (*gorm.DB, error){
 	return db, err
 }
 
-func configureGRPCServer(spec config.Specification) *http.Server {
+func configureGRPCServer(spec config.Specification, g *grpcservice.GatewayService) *http.Server {
 	grpcServer := grpc.NewServer()
 
-	gatewayService := grpcservice.NewGatewayService()
-	grpcapi.RegisterGatewayServer(grpcServer, gatewayService)
+	grpcapi.RegisterGatewayServer(grpcServer, g)
 
 	wrappedGrpcServer := grpcweb.WrapServer(grpcServer)
 	grpcHttpHandler := func(resp http.ResponseWriter, req *http.Request) {

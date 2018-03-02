@@ -46,8 +46,8 @@ export class HomeComponent implements OnInit {
   /**
    * server-side streamed variables
    */
-  totalAccessCount = 10
-  currentUserCount = 1
+  totalAccessCount = 0
+  currentUserCount = 0
 
 
   constructor(
@@ -63,6 +63,7 @@ export class HomeComponent implements OnInit {
       })
 
     this.subscribeCurrentUserCount()
+    this.subscribeTotalAccessCount()
   }
 
   sendAccess() {
@@ -101,6 +102,29 @@ export class HomeComponent implements OnInit {
       })
   }
 
+  subscribeTotalAccessCount() {
+    const request = new EmptyRequest();
+    const grpcClient = grpc.client(Gateway.SubscribeTotalAccessCount, {
+      host: RpcConnectionUrl,
+    })
+
+    grpcClient.onHeaders((headers: grpc.Metadata) => {
+      console.log("SubscribeTotalAccessCount.onHeaders", headers);
+    })
+
+    grpcClient.onMessage((message: CountResponse) => {
+      console.log("SubscribeTotalAccessCount.onMessage", message.toObject())
+      this.totalAccessCount = message.getCount()
+    })
+
+    grpcClient.onEnd((code: grpc.Code, msg: string, trailers: grpc.Metadata) => {
+      console.log("SubscribeTotalAccessCount.onEnd", code, msg, trailers);
+    });
+
+    grpcClient.start()
+    grpcClient.send(request)
+  }
+
   subscribeCurrentUserCount() {
     const request = new EmptyRequest();
     const grpcClient = grpc.client(Gateway.SubscribeCurrentUserCount, {
@@ -115,6 +139,10 @@ export class HomeComponent implements OnInit {
       console.log("SubscribeCurrentUserCount.onMessage", message.toObject())
       this.currentUserCount = message.getCount()
     })
+
+    grpcClient.onEnd((code: grpc.Code, msg: string, trailers: grpc.Metadata) => {
+      console.log("SubscribeCurrentUserCount.onEnd", code, msg, trailers);
+    });
 
     grpcClient.start()
     grpcClient.send(request)

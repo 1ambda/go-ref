@@ -11,10 +11,11 @@ import (
 	"github.com/go-openapi/swag"
 	"time"
 	"github.com/satori/go.uuid"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 )
 
-func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI) {
-	api.AccessAddOneHandler = buildAccessAddOneHandler(db)
+func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI, r *service.RealtimeStatService) {
+	api.AccessAddOneHandler = buildAccessAddOneHandler(db, r)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
@@ -66,7 +67,7 @@ func buildRestError(err error) *restmodel.Error {
 	}
 }
 
-func buildAccessAddOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
+func buildAccessAddOneHandler(db *gorm.DB, r *service.RealtimeStatService) access.AddOneHandlerFunc {
 	return access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
 			logger, _ := zap.NewProduction()
@@ -81,6 +82,8 @@ func buildAccessAddOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 				restError := buildRestError(err)
 				access.NewAddOneDefault(500).WithPayload(restError)
 			}
+
+			r.BroadcastToTalAccessCount()
 
 			return access.NewAddOneCreated().WithPayload(params.Body)
 		})

@@ -99,3 +99,15 @@ func (s *GatewayService) SubscribeCurrentUserCount(request *pb.EmptyRequest, str
 	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
 	return nil
 }
+
+func (s *GatewayService) SubscribeCurrentMasterIdentifier(request *pb.EmptyRequest, stream pb.Gateway_SubscribeCurrentMasterIdentifierServer) error {
+	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
+	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	return nil
+}
+
+func (s *GatewayService) SubscribeCurrentNodeCount(request *pb.EmptyRequest, stream pb.Gateway_SubscribeCurrentNodeCountServer) error {
+	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
+	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	return nil
+}

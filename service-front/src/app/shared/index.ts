@@ -1,3 +1,1 @@
-
-// TODO: DEV, PROD, ...
-export const RpcConnectionUrl =  "http://localhost:50001";
+export * from './websocket.service'

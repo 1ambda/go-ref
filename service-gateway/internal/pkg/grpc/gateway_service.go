@@ -16,8 +16,6 @@ func NewGatewayService(r *service.RealtimeStatService) *GatewayService {
 	return &GatewayService{r}
 }
 
-
-
 func (s *GatewayService) SubscribeTotalAccessCount(request *pb.EmptyRequest, stream pb.Gateway_SubscribeTotalAccessCountServer) error {
 	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
 
@@ -25,37 +23,44 @@ func (s *GatewayService) SubscribeTotalAccessCount(request *pb.EmptyRequest, str
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
+	sugar.Info("SubscribeTotalAccessCount")
+
 	recv := make(chan int64)
 	uuid := uuid.NewV4().String()
-	s.RealtimeStatService.AddTotalAccessCountSubscriber(uuid, recv)
-	s.RealtimeStatService.BroadcastToTalAccessCount()
 
-	done := false
-	for !done {
-		select {
-		case totalAccessUserCount, ok := <- recv:
-			if !ok {
+	go func() {
+		s.RealtimeStatService.AddTotalAccessCountSubscriber(uuid, recv)
+		s.RealtimeStatService.BroadcastToTalAccessCount()
+
+		done := false
+		for !done {
+			select {
+			case totalAccessUserCount, ok := <- recv:
+				if !ok {
+					done = true; break
+				}
+
+				count := pb.CountResponse{Count: totalAccessUserCount}
+				sugar.Info("Sending gRPC response: SubscribeCurrentUserCount")
+
+				err := stream.Send(&count)
+				if err != nil {
+					sugar.Errorw("Failing to send gRPC response", "error", err)
+					done = true; break
+				}
+
+			case <- stream.Context().Done():
+				// https://github.com/improbable-eng/grpc-web/issues/57
+				sugar.Info("Client disconnected")
 				done = true; break
 			}
-
-			count := pb.CountResponse{Count: totalAccessUserCount}
-			sugar.Info("Sending gRPC response: SubscribeCurrentUserCount")
-
-			err := stream.Send(&count)
-			if err != nil {
-				sugar.Errorw("Failing to send gRPC response", "error", err)
-				done = true; break
-			}
-
-		case <- stream.Context().Done():
-			// https://github.com/improbable-eng/grpc-web/issues/57
-			sugar.Info("Client disconnected")
-			done = true; break
 		}
 
-	}
+		s.RealtimeStatService.DeleteTotalAccessCountSubscriber(uuid)
 
-	s.RealtimeStatService.DeleteTotalAccessCountSubscriber(uuid)
+		stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	}()
+
 	return nil
 }
 
@@ -66,36 +71,75 @@ func (s *GatewayService) SubscribeCurrentUserCount(request *pb.EmptyRequest, str
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
+	sugar.Info("SubscribeCurrentUserCount")
+
 	recv := make(chan int64)
 	uuid := uuid.NewV4().String()
-	s.RealtimeStatService.IncreaseCurrentUserCountSubscriber(uuid, recv)
 
-	done := false
-	for !done {
-		select {
-		case currentUserCount, ok := <- recv:
-			if !ok {
+	go func() {
+		s.RealtimeStatService.IncreaseCurrentUserCountSubscriber(uuid, recv)
+
+		done := false
+		for !done {
+			select {
+			case currentUserCount, ok := <- recv:
+				if !ok {
+					done = true; break
+				}
+
+				count := pb.CountResponse{Count: currentUserCount}
+				sugar.Info("Sending gRPC response: SubscribeCurrentUserCount")
+
+				err := stream.Send(&count)
+				if err != nil {
+					sugar.Errorw("Failing to send gRPC response", "error", err)
+					done = true; break
+				}
+
+			case <- stream.Context().Done():
+				// https://github.com/improbable-eng/grpc-web/issues/57
+				sugar.Info("Client disconnected")
 				done = true; break
 			}
 
-			count := pb.CountResponse{Count: currentUserCount}
-			sugar.Info("Sending gRPC response: SubscribeCurrentUserCount")
-
-			err := stream.Send(&count)
-			if err != nil {
-				sugar.Errorw("Failing to send gRPC response", "error", err)
-				done = true; break
-			}
-
-		case <- stream.Context().Done():
-			// https://github.com/improbable-eng/grpc-web/issues/57
-			sugar.Info("Client disconnected")
-			done = true; break
 		}
 
-	}
+		s.RealtimeStatService.DecreaseCurrentUserCountSubscriber(uuid)
 
-	s.RealtimeStatService.DecreaseCurrentUserCountSubscriber(uuid)
+		stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	}()
+
+	return nil
+}
+
+func (s *GatewayService) SubscribeCurrentNodeCount(request *pb.EmptyRequest, stream pb.Gateway_SubscribeCurrentNodeCountServer) error {
+	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
+
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	sugar.Info("SubscribeCurrentNodeCount")
+
+	//recv := make(chan int64)
+	//uuid := uuid.NewV4().String()
+
+	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
+	return nil
+}
+
+func (s *GatewayService) SubscribeCurrentMasterIdentifier(request *pb.EmptyRequest, stream pb.Gateway_SubscribeCurrentMasterIdentifierServer) error {
+	stream.SendHeader(metadata.Pairs("Pre-Response-Metadata", "Is-sent-as-headers-stream"))
+
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	sugar.Info("SubscribeCurrentMasterIdentifier")
+
+	//recv := make(chan int64)
+	//uuid := uuid.NewV4().String()
+
 	stream.SetTrailer(metadata.Pairs("Post-Response-Metadata", "Is-sent-as-trailers-stream"))
 	return nil
 }

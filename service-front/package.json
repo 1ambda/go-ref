@@ -94,6 +94,7 @@
     "@angular/router": "~5.1.0",
     "@swimlane/ngx-datatable": "^11.2.0",
     "@types/google-protobuf": "^3.2.7",
+    "@types/websocket": "0.0.37",
     "clientjs": "^0.1.11",
     "core-js": "^2.5.1",
     "google-protobuf": "^3.5.0",
@@ -104,6 +105,7 @@
     "moment": "^2.20.1",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.5.2",
+    "websocket": "^1.0.25",
     "zone.js": "~0.8.18"
   },
   "devDependencies": {

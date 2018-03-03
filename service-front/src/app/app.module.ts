@@ -1,26 +1,34 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { RouterModule, PreloadAllModules } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http'
+import { RouterModule, PreloadAllModules } from '@angular/router'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
-import { environment } from 'environments/environment';
-import { ROUTES } from './app.routes';
-import { AppComponent } from './app.component';
-import { APP_RESOLVER_PROVIDERS } from './app.resolver';
+import { environment } from 'environments/environment'
+import { ROUTES } from './app.routes'
+import { AppComponent } from './app.component'
+import { APP_RESOLVER_PROVIDERS } from './app.resolver'
 
-import { HomeComponent } from './pages/home';
-import { AboutComponent } from './pages/about';
-import { NoContentComponent } from './pages/no-content';
-import { DevModuleModule } from './pages/+dev-module';
+import { WebsocketService } from "./shared"
+
+import { HomeComponent } from './pages/home'
+import { AboutComponent } from './pages/about'
+import { NoContentComponent } from './pages/no-content'
+import { DevModuleModule } from './pages/+dev-module'
+
+/**
+ * rxjs global import
+ */
+
+import 'rxjs/add/operator/filter'
 
 /**
  * swagger generated clients
  *
  * See: https://github.com/swagger-api/swagger-codegen/tree/master/samples/client/petstore/typescript-angular-v4/npm
  */
-import { ApiModule, Configuration, ConfigurationParameters } from './generated/swagger';
+import { ApiModule, Configuration, ConfigurationParameters } from './generated/swagger'
 
 /**
  * angular material
@@ -114,6 +122,7 @@ import { MatCardModule } from '@angular/material'
    * Expose our Services and Providers into Angular's dependency injection.
    */
   providers: [
+    WebsocketService,
     environment.ENV_PROVIDERS,
     APP_PROVIDERS
   ]

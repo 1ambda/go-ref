@@ -14,7 +14,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 )
 
-func ConfigureAPI(db *gorm.DB, api *operations.GatewayAPI, r *service.RealtimeStatService) {
+func Configure(db *gorm.DB, api *operations.GatewayAPI, r *service.RealtimeStatService) {
 	api.AccessAddOneHandler = buildAccessAddOneHandler(db, r)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)

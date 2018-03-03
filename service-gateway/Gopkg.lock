@@ -20,6 +20,12 @@
   version = "v8"
 
 [[projects]]
+  name = "github.com/docker/go-units"
+  packages = ["."]
+  revision = "0dadbb0345b35ec7ef35e228dabb8de89a65bf52"
+  version = "v0.3.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
@@ -54,6 +60,7 @@
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
+    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -112,12 +119,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  name = "github.com/improbable-eng/grpc-web"
-  packages = ["go/grpcweb"]
-  revision = "9cca7d4530683dc49fc10cf627309ce4be119af5"
-  version = "0.5.0"
-
-[[projects]]
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
   revision = "96dc06278ce32a0e9d957d590bb987c81ee66407"
@@ -173,6 +174,12 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/tylerb/graceful"
+  packages = ["."]
+  revision = "4654dfbb6ad53cb5e27f37d99b02e16c1872fbbb"
+  version = "v1.2.15"
+
+[[projects]]
   name = "go.uber.org/atomic"
   packages = ["."]
   revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
@@ -207,8 +214,7 @@
     "idna",
     "internal/timeseries",
     "lex/httplex",
-    "trace",
-    "websocket"
+    "trace"
   ]
   revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
@@ -288,6 +294,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8232819b3691dd9b2fa1e91952f4295025957c8ff62a2740fb2c3814448f669"
+  inputs-digest = "6ce3dd7d662ba06537a6b223c922e19478e39726321ae82598b1ec4d0e36a55d"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -18,7 +18,7 @@ var (
 type Specification struct {
 	Env           string `default:"LOCAL"`
 	Debug         bool   `default:"true"`
-	RpcPort       int    `default:"50001"`
+	WebSocketPort int    `default:"50001"`
 	HttpPort      int    `default:"50002"`
 	Host          string `default:"localhost"`
 	MysqlHost     string `default:"localhost"`

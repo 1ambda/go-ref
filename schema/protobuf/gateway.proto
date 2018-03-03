@@ -2,19 +2,22 @@ syntax = "proto3";
 
 package grpc;
 
-service Gateway {
-    rpc SubscribeTotalAccessCount (EmptyRequest) returns (stream CountResponse) {}
-    rpc SubscribeCurrentUserCount (EmptyRequest) returns (stream CountResponse) {}
-    rpc SubscribeCurrentNodeCount (EmptyRequest) returns (stream CountResponse) {}
-    rpc SubscribeCurrentMasterIdentifier (EmptyRequest) returns (stream StringResponse) {}
+message WebSocketResponseHeader {
+    WebSocketEventType eventType = 1;
+
+    enum WebSocketEventType {
+        UPDATE_TOTAL_ACCESS_COUNT = 0;
+        UPDATE_CURRENT_CONNECTION_COUNT = 1;
+        UPDATE_CURRENT_NODE_COUNT = 2;
+        UPDATE_CURRENT_MASTER_IDENTIFIER = 3;
+    }
 }
 
-message EmptyRequest {}
-
-message CountResponse {
-   int64 count = 1;
-}
-
-message StringResponse {
+message WebSocketRealtimeResponseBody {
     string value = 1;
+}
+
+message WebSocketRealtimeResponse {
+    WebSocketResponseHeader header = 1;
+    WebSocketRealtimeResponseBody body = 2;
 }

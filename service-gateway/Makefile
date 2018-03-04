@@ -13,7 +13,8 @@ APPS		:= $(APP)
 GITHUB_MODULE	= service-gateway
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
-SWAGGER_FILE			= ../schema/swagger/gateway.yml
+SWAGGER_REST_SPEC	= ../schema/swagger/gateway-rest.yml
+SWAGGER_WS_SPEC		= ../schema/swagger/gateway-websocket.yml
 
 PROTO_DIR  = ../schema/protobuf
 PROTO_FILE = $(PROTO_DIR)/gateway.proto
@@ -21,17 +22,28 @@ GENERATED_GRPC_SERVER_DIR = "pkg/grpc"
 
 swagger-version:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - updating swagger spec version: $(VERSION)"
-	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_FILE) ../scripts/update-swagger-version.sh
+	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_REST_SPEC) ../scripts/update-swagger-version.sh
+	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_WS_SPEC) ../scripts/update-swagger-version.sh
 
 swagger-server: swagger-version
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger files"
-	rm -rf pkg/api/model/*	|| true
-	rm -rf pkg/api/rest/* 	|| true
+	rm -rf pkg/generated/swagger/* || true
+	mkdir -p pkg/generated/swagger || true
 
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger spec"
-	swagger validate $(SWAGGER_FILE)
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger code"
-	swagger generate server --spec=$(SWAGGER_FILE) --target=pkg/api --exclude-main --model-package=model --server-package=rest
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger (REST) spec"
+	swagger validate $(SWAGGER_REST_SPEC)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger (REST) code"
+	swagger generate server --spec=$(SWAGGER_REST_SPEC) --exclude-main \
+		--target=pkg/generated/swagger --model-package=rest_model \
+		--server-package=rest_server --api-package=rest_api
+
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - validating swagger (WS) spec"
+	swagger validate $(SWAGGER_WS_SPEC)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger (WS) code"
+	swagger generate server --spec=$(SWAGGER_WS_SPEC) --exclude-main \
+		--target=pkg/generated/swagger --model-package=ws_model \
+		--skip-operations --skip-support --exclude-spec
 
 swagger-commit:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - commiting swagger related files"
@@ -39,18 +51,7 @@ swagger-commit:
 	git add pkg/api
 	git commit -m "schema: Update swagger spec"
 
-grpc-web-server:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning grpc web client files"
-	rm -rf $(GENERATED_GRPC_SERVER_DIR)	|| true
-	mkdir -p $(GENERATED_GRPC_SERVER_DIR)
-
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating grpc web client"
-	protoc \
-    -I $(PROTO_DIR) \
-    --go_out=plugins=grpc:$(GENERATED_GRPC_SERVER_DIR) \
-    $(PROTO_FILE)
-
-$(APPS): swagger-server grpc-web-server
+$(APPS): swagger-server
 	@$(eval TARGET := $@)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))

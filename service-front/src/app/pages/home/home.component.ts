@@ -3,13 +3,13 @@ import {Component, OnInit} from '@angular/core'
 import 'clientjs'
 import * as moment from 'moment'
 
-import {Access, AccessService} from '../../generated/swagger'
+import {Access, AccessService} from '../../generated/swagger/rest'
 import {WebsocketService} from "../../shared"
-import {WebSocketRealtimeResponse, WebSocketResponseHeader} from '../../generated/grpc/gateway_pb'
+import {WebSocketRealtimeResponse, WebSocketResponseHeader} from "../../generated/swagger/websocket";
 
 
 @Component({
-  selector: 'home',  // <home></home>
+  selector: 'home', // <home></home>
   providers: [],
   styleUrls: ['./home.component.css'],
   templateUrl: './home.component.html'
@@ -100,59 +100,12 @@ export class HomeComponent implements OnInit {
   }
 
   subscribeCurrentConnectionCount() {
-    const eventType = WebSocketResponseHeader.WebSocketEventType.UPDATE_CURRENT_CONNECTION_COUNT
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateConnectionCount
     this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentUserCount = response.body.value
       })
   }
-
-  // subscribeTotalAccessCount() {
-  //   const request = new EmptyRequest();
-  //   const grpcClient = grpc.client(Gateway.SubscribeTotalAccessCount, {
-  //     host: RpcConnectionUrl,
-  //   })
-  //
-  //   grpcClient.onHeaders((headers: grpc.Metadata) => {
-  //     console.log("SubscribeTotalAccessCount.onHeaders", headers);
-  //   })
-  //
-  //   grpcClient.onMessage((message: CountResponse) => {
-  //     console.log("SubscribeTotalAccessCount.onMessage", message.toObject())
-  //     this.totalAccessCount = message.getCount()
-  //   })
-  //
-  //   grpcClient.onEnd((code: grpc.Code, msg: string, trailers: grpc.Metadata) => {
-  //     console.log("SubscribeTotalAccessCount.onEnd", code, msg, trailers);
-  //   });
-  //
-  //   grpcClient.start()
-  //   grpcClient.send(request)
-  // }
-  //
-  // subscribeCurrentUserCount() {
-  //   const request = new EmptyRequest();
-  //   const grpcClient = grpc.client(Gateway.SubscribeCurrentUserCount, {
-  //     host: RpcConnectionUrl,
-  //   })
-  //
-  //   grpcClient.onHeaders((headers: grpc.Metadata) => {
-  //     console.log("SubscribeCurrentUserCount.onHeaders", headers);
-  //   })
-  //
-  //   grpcClient.onMessage((message: CountResponse) => {
-  //     console.log("SubscribeCurrentUserCount.onMessage", message.toObject())
-  //     this.currentUserCount = message.getCount()
-  //   })
-  //
-  //   grpcClient.onEnd((code: grpc.Code, msg: string, trailers: grpc.Metadata) => {
-  //     console.log("SubscribeCurrentUserCount.onEnd", code, msg, trailers);
-  //   });
-  //
-  //   grpcClient.start()
-  //   grpcClient.send(request)
-  // }
-
 
   /**
    * @param event { count, pageSize, limit, offset }

@@ -1,9 +1,10 @@
-package restservice
+package rest
 
 import (
-	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
-	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations/access"
-	restmodel "github.com/1ambda/go-ref/service-gateway/pkg/api/model"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 	"github.com/jinzhu/gorm"
@@ -14,7 +15,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 )
 
-func Configure(db *gorm.DB, api *operations.GatewayAPI, r *service.RealtimeStatService) {
+func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, r *service.RealtimeStatService) {
 	api.AccessAddOneHandler = buildAccessAddOneHandler(db, r)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
@@ -22,28 +23,28 @@ func Configure(db *gorm.DB, api *operations.GatewayAPI, r *service.RealtimeStatS
 	api.AccessUpdateOneHandler = buildAccessUpdateOneHandler(db)
 }
 
-func convertAccessToDbModel(restmodel *restmodel.Access) *model.Access {
+func convertAccessToDbModel(swaggerModel *rest_model.Access) *model.Access {
 	uuid := uuid.NewV4()
 
 	record := model.Access{
-		BrowserName:    *restmodel.BrowserName,
-		BrowserVersion: *restmodel.BrowserVersion,
-		OsName:         *restmodel.OsName,
-		OsVersion:      *restmodel.OsVersion,
-		IsMobile:       *restmodel.IsMobile,
-		Timezone:       *restmodel.Timezone,
-		Timestamp:      *restmodel.Timestamp,
-		Language:       *restmodel.Language,
-		UserAgent:      *restmodel.UserAgent,
-		UUID: uuid.String(),
+		BrowserName:    *swaggerModel.BrowserName,
+		BrowserVersion: *swaggerModel.BrowserVersion,
+		OsName:         *swaggerModel.OsName,
+		OsVersion:      *swaggerModel.OsVersion,
+		IsMobile:       *swaggerModel.IsMobile,
+		Timezone:       *swaggerModel.Timezone,
+		Timestamp:      *swaggerModel.Timestamp,
+		Language:       *swaggerModel.Language,
+		UserAgent:      *swaggerModel.UserAgent,
+		UUID:           uuid.String(),
 	}
 
 	return &record
 }
 
-func convertAccessToRestModel(record *model.Access) *restmodel.Access {
-	restmodel := restmodel.Access{
-		ID: int64(record.Id),
+func convertAccessToRestModel(record *model.Access) *rest_model.Access {
+	swaggerModel := rest_model.Access{
+		ID:             int64(record.Id),
 		BrowserName:    &record.BrowserName,
 		BrowserVersion: &record.BrowserVersion,
 		OsName:         &record.OsName,
@@ -53,14 +54,14 @@ func convertAccessToRestModel(record *model.Access) *restmodel.Access {
 		Timestamp:      &record.Timestamp,
 		Language:       &record.Language,
 		UserAgent:      &record.UserAgent,
-		UUID: record.UUID,
+		UUID:           record.UUID,
 	}
 
-	return &restmodel
+	return &swaggerModel
 }
 
-func buildRestError(err error) *restmodel.Error {
-	return &restmodel.Error{
+func buildRestError(err error) *rest_model.Error {
+	return &rest_model.Error{
 		Code:      500,
 		Message:   swag.String(err.Error()),
 		Timestamp: time.Now().UTC().String(),
@@ -138,20 +139,20 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 				access.NewFindAllDefault(500).WithPayload(restError)
 			}
 
-			rows := make([]*restmodel.Access, 0)
+			rows := make([]*rest_model.Access, 0)
 			for i, _ := range records {
 				record := records[i]
 				restmodel := convertAccessToRestModel(&record)
 				rows = append(rows, restmodel)
 			}
 
-			pagination := restmodel.Pagination{
+			pagination := rest_model.Pagination{
 				ItemCountPerPage:  itemCountPerPage,
 				CurrentPageOffset: currentPageOffset,
 				TotalItemCount:    &count,
 			}
 
-			return access.NewFindAllOK().WithPayload(&restmodel.FindAllOKBody{
+			return access.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
 				Pagination: &pagination,
 				Rows:       rows,
 			})

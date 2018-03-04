@@ -1,12 +1,12 @@
-package websocketservice
+package websocket
 
 import (
 	"net/http"
-	"github.com/gorilla/websocket"
+	ws "github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
-var upgrader = websocket.Upgrader{
+var upgrader = ws.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
@@ -15,7 +15,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func Configure(mux *http.ServeMux, m *WebSocketClientManager) {
-	mux.HandleFunc("/ws", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
 		logger, _ := zap.NewProduction()
 		defer logger.Sync()
 		sugar := logger.Sugar()
@@ -33,6 +33,6 @@ func Configure(mux *http.ServeMux, m *WebSocketClientManager) {
 		client.register()
 
 		// broadcast
-		
+
 	})
 }

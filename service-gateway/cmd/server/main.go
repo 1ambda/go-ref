@@ -18,12 +18,12 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
-
-	restapi "github.com/1ambda/go-ref/service-gateway/pkg/api/rest"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
-	"github.com/1ambda/go-ref/service-gateway/pkg/api/rest/operations"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
+
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 )
 
 func main() {
@@ -51,7 +51,7 @@ func main() {
 	db, err := connectToMySQL(spec)
 	defer db.Close()
 	if err != nil {
-		sugar.Fatal(err)
+		sugar.Fatalw("Failed to connect MySQL", "error", err)
 	}
 
 	sugar.Info("Auto-migrate MySQL tables")
@@ -60,12 +60,12 @@ func main() {
 
 	// create services
 	realtimeService := service.NewRealtimeStatService(db)
-	wsClientManager := websocketservice.NewWebSocketClientManager()
+	wsClientManager := websocket.NewWebSocketClientManager()
 
 	// configure WS server handlers, middlewares
 	sugar.Info("Configure WS server")
 	mux := http.NewServeMux()
-	websocketservice.Configure(mux, wsClientManager)
+	websocket.Configure(mux, wsClientManager)
 	//wsCors := cors.New(cors.Options{
 	//	AllowedOrigins: []string{"http://localhost:3000"},
 	//	AllowCredentials: true,
@@ -80,13 +80,13 @@ func main() {
 
 	// configure REST server
 	sugar.Info("Configure REST server")
-	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(rest_server.SwaggerJSON, "")
 	if err != nil {
-		sugar.Fatal(err)
+		sugar.Fatalw("Failed to configure REST server", "error", err)
 	}
-	api := operations.NewGatewayAPI(swaggerSpec)
+	api := rest_api.NewGatewayRestAPI(swaggerSpec)
 
-	server := restapi.NewServer(api)
+	server := rest_server.NewServer(api)
 	defer server.Shutdown()
 
 	parser := flags.NewParser(server, flags.Default)
@@ -94,7 +94,7 @@ func main() {
 	for _, optsGroup := range api.CommandLineOptionsGroups {
 		_, err := parser.AddGroup(optsGroup.ShortDescription, optsGroup.LongDescription, optsGroup.Options)
 		if err != nil {
-			sugar.Fatal(err)
+			sugar.Fatalw("Failed to parse command-line option for REST server", "error", err)
 		}
 	}
 	server.Host = spec.Host
@@ -114,7 +114,7 @@ func main() {
 
 	// configure REST server handlers, middlewares
 	sugar.Info("Configure REST handlers")
-	restservice.Configure(db, api, realtimeService)
+	rest.Configure(db, api, realtimeService)
 	handler := api.Serve(nil)
 
 	sugar.Info("Configure REST middleware")
@@ -126,7 +126,7 @@ func main() {
 	}
 
 	if err := server.Serve(); err != nil {
-		sugar.Fatal(err)
+		sugar.Fatalw("Failed to start REST server", "error", err)
 	}
 }
 

@@ -1,0 +1,81 @@
+swagger: "2.0"
+info:
+  description: Websocket API Spec for Gateway
+  title: GatewayWebsocketApi
+  version: 0.0.1
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+basePath: /ws
+paths:
+  # dummy body for `swagger generate`
+  /welcome:
+    get:
+      operationId: weclome
+      responses:
+        200:
+          description: welcome
+          schema:
+            type: string
+
+definitions:
+  # WebSocketResponseHeader
+  WebSocketResponseHeader:
+    type: object
+    required:
+      - responseType
+    properties:
+      responseType:
+        type: string
+        enum:
+          - Error
+          - UpdateTotalAccessCount
+          - UpdateConnectionCount
+          - UpdateMasterIdentifier
+          - UpdateMasterNodeCount
+      error:
+        $ref: "#/definitions/error"
+
+  # WebSocketResponseHeader.Error
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      timestamp:
+        type: string
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+
+  WebSocketRealtimeResponse:
+    type: object
+    required:
+      - header
+      - body
+    properties:
+      header:
+        $ref: "#/definitions/WebSocketResponseHeader"
+      body:
+        $ref: "#/definitions/WebSocketRealtimeResponseBody"
+
+  WebSocketRealtimeResponseBody:
+    type: object
+    required:
+      - value
+    properties:
+      value:
+        type: string
+
+
+
+
+
+
+
+

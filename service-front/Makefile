@@ -10,30 +10,20 @@ include ../scripts/makefiles/git.mk
 GITHUB_MODULE	= service-front
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
-SWAGGER_FILE			            = "../schema/swagger/gateway.yml"
-GENERATED_SWAGGER_CLIENT_DIR  = "./src/app/generated/swagger"
-
-PROTO_DIR  = "../schema/protobuf"
-PROTO_FILE = "$(PROTO_DIR)/gateway.proto"
-GENERATED_GRPC_CLIENT_DIR = "./src/app/generated/grpc"
+SWAGGER_CLIENT_DIR      = "./src/app/generated/swagger"
+SWAGGER_REST_FILE       = "../schema/swagger/gateway-rest.yml"
+SWAGGER_REST_CLIENT_DIR = "./src/app/generated/swagger/rest"
+SWAGGER_WS_FILE         = "../schema/swagger/gateway-websocket.yml"
+SWAGGER_WS_CLIENT_DIR   = "./src/app/generated/swagger/websocket"
 
 swagger-client:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger client files"
-	rm -rf $(GENERATED_SWAGGER_CLIENT_DIR)	|| true
+	rm -rf $(SWAGGER_CLIENT_DIR)	|| true
+	mkdir -p $(SWAGGER_REST_CLIENT_DIR) || true
+	mkdir -p $(SWAGGER_WS_CLIENT_DIR) || true
 
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger client"
-	swagger-codegen generate -i $(SWAGGER_FILE) -l typescript-angular -o $(GENERATED_SWAGGER_CLIENT_DIR)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger (REST) client"
+	swagger-codegen generate -i $(SWAGGER_REST_FILE) -l typescript-angular -o $(SWAGGER_REST_CLIENT_DIR)
 
-grpc-web-client:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning grpc web client files"
-	rm -rf $(GENERATED_GRPC_CLIENT_DIR)	|| true
-	mkdir -p $(GENERATED_GRPC_CLIENT_DIR)
-
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating grpc web client"
-	protoc \
-    --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts \
-    -I $(PROTO_DIR) \
-    --js_out=import_style=commonjs,binary:$(GENERATED_GRPC_CLIENT_DIR) \
-    --ts_out=service=true:$(GENERATED_GRPC_CLIENT_DIR) \
-    $(PROTO_FILE)
-
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating swagger (WS) client"
+	swagger-codegen generate -i $(SWAGGER_WS_FILE) -l typescript-angular -o $(SWAGGER_WS_CLIENT_DIR)

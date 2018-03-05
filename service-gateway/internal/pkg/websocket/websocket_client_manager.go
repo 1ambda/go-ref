@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/ws_model"
 	"fmt"
+	"time"
 )
 
 type WebSocketClientManager struct {
@@ -98,8 +99,47 @@ func (c *WebSocketClient) send(message *[]byte) error {
 }
 
 func (c *WebSocketClient) close() {
-	c.connection.WriteMessage(ws.CloseMessage, []byte{})
-	c.connection.Close()
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	if err := c.connection.WriteMessage(ws.CloseMessage, []byte{}); err != nil {
+		sugar.Errorw("Failed to send `CloseMessage`", "error", err)
+		return
+	}
+
+	if err := c.connection.Close(); err != nil {
+		sugar.Errorw("Failed to close a websocket client", "error", err)
+		return
+	}
+
+	return
+}
+
+func (c *WebSocketClient) sendUpdateConnectionCountMessage(clientsCount int) error {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	responseType := ws_model.WebSocketResponseHeaderResponseTypeUpdateConnectionCount
+	count := fmt.Sprintf("%d", clientsCount)
+
+	message := ws_model.WebSocketRealtimeResponse{
+		Header: &ws_model.WebSocketResponseHeader{ResponseType: &responseType,},
+		Body: &ws_model.WebSocketRealtimeResponseBody{
+			Value: &count,
+		},
+	}
+
+	serialized, err := json.Marshal(message)
+	if err != nil {
+		sugar.Errorw("Failed to marshal UPDATE_CURRENT_CONNECTION_COUNT", "error", err)
+		return err
+	}
+
+	c.send(&serialized)
+
+	return nil
 }
 
 func (m *WebSocketClientManager) run() {
@@ -113,25 +153,8 @@ func (m *WebSocketClientManager) run() {
 			sugar.Info("Registering a client in manager")
 			m.clients[client] = true
 
-			responseType := ws_model.WebSocketResponseHeaderResponseTypeUpdateConnectionCount
-			count := fmt.Sprintf("%d", len(m.clients))
-
-			message := ws_model.WebSocketRealtimeResponse{
-				Header: &ws_model.WebSocketResponseHeader{ResponseType: &responseType,},
-				Body: &ws_model.WebSocketRealtimeResponseBody{
-					Value: &count,
-				},
-			}
-
-			serialized, err := json.Marshal(message)
-			if err != nil {
-				sugar.Errorw("Failed to marshal UPDATE_CURRENT_CONNECTION_COUNT", "error", err)
-				continue
-			}
-
-			sugar.Info("Broadcasting a message to all clients")
 			for client := range m.clients {
-				client.send(&serialized)
+				client.sendUpdateConnectionCountMessage(len(m.clients))
 			}
 
 		case client := <-m.unregister:
@@ -143,6 +166,16 @@ func (m *WebSocketClientManager) run() {
 		case message := <-m.broadcast:
 			for client := range m.clients {
 				client.send(&message)
+			}
+
+		case <- time.After(3 * time.Second):
+			for client := range m.clients {
+				_, _, err := client.connection.ReadMessage()
+				if err != nil {
+					sugar.Errorw("ReadMessage", "error", err)
+					delete(m.clients, client)
+					client.close()
+				}
 			}
 		}
 	}

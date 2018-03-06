@@ -19,6 +19,8 @@ prepare:
 	$(GOGET) github.com/go-swagger/go-swagger/cmd/swagger
 	$(BREW) upgrade swagger-codegen
 
+	$(GOGET) github.com/bcicen/grmon/cmd/grmon
+
 install:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"
 	@$(GODEP) ensure -update

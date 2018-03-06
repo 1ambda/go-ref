@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"go.uber.org/zap"
+	"log"
 )
 
 var (
@@ -32,10 +32,7 @@ func GetSpecification() Specification {
 	var s Specification
 	err := envconfig.Process("", &s)
 	if err != nil {
-		logger, _ := zap.NewProduction()
-		defer logger.Sync()
-		log := logger.Sugar()
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
 	return s

@@ -14,7 +14,7 @@ var upgrader = ws.Upgrader{
 	},
 }
 
-func Configure(mux *http.ServeMux, m *WebSocketClientManager) {
+func Configure(mux *http.ServeMux, m *WebSocketManager) {
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
 		logger, _ := zap.NewProduction()
 		defer logger.Sync()
@@ -30,9 +30,6 @@ func Configure(mux *http.ServeMux, m *WebSocketClientManager) {
 
 		// register a client
 		client := NewWebSocketClient(m, conn)
-		client.register()
-
-		// broadcast
-
+		m.register(client)
 	})
 }

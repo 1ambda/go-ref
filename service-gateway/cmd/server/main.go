@@ -10,8 +10,6 @@ import (
 
 	"github.com/rs/cors"
 
-	"go.uber.org/zap"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -24,16 +22,13 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/logger"
 )
 
 func main() {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
-
 	// get config
 	spec := config.GetSpecification()
-	sugar.Infow("Starting server...",
+	logger.Infow("Starting server...",
 		"version", config.Version,
 		"build_date", config.BuildDate,
 		"git_commit", config.GitCommit,
@@ -47,23 +42,23 @@ func main() {
 	)
 
 	// setup db connection
-	sugar.Info("Connecting to MySQL")
+	logger.Info("Connecting to MySQL")
 	db, err := connectToMySQL(spec)
 	defer db.Close()
 	if err != nil {
-		sugar.Fatalw("Failed to connect MySQL", "error", err)
+		logger.Fatalw("Failed to connect MySQL", "error", err)
 	}
 
-	sugar.Info("Auto-migrate MySQL tables")
+	logger.Info("Auto-migrate MySQL tables")
 	db.SingularTable(true)
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
 
 	// create services
 	realtimeService := service.NewRealtimeStatService(db)
-	wsClientManager := websocket.NewWebSocketClientManager()
+	wsClientManager := websocket.NewWebSocketManager()
 
 	// configure WS server handlers, middlewares
-	sugar.Info("Configure WS server")
+	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
 	websocket.Configure(mux, wsClientManager)
 	//wsCors := cors.New(cors.Options{
@@ -74,15 +69,15 @@ func main() {
 	go func() {
 		wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
 		if err := http.ListenAndServe(wsServerPort, mux); err != nil {
-			sugar.Fatalw("failed starting websocket server", "error", err)
+			logger.Fatalw("failed starting websocket server", "error", err)
 		}
 	}()
 
 	// configure REST server
-	sugar.Info("Configure REST server")
+	logger.Info("Configure REST server")
 	swaggerSpec, err := loads.Analyzed(rest_server.SwaggerJSON, "")
 	if err != nil {
-		sugar.Fatalw("Failed to configure REST server", "error", err)
+		logger.Fatalw("Failed to configure REST server", "error", err)
 	}
 	api := rest_api.NewGatewayRestAPI(swaggerSpec)
 
@@ -94,7 +89,7 @@ func main() {
 	for _, optsGroup := range api.CommandLineOptionsGroups {
 		_, err := parser.AddGroup(optsGroup.ShortDescription, optsGroup.LongDescription, optsGroup.Options)
 		if err != nil {
-			sugar.Fatalw("Failed to parse command-line option for REST server", "error", err)
+			logger.Fatalw("Failed to parse command-line option for REST server", "error", err)
 		}
 	}
 	server.Host = spec.Host
@@ -110,23 +105,23 @@ func main() {
 	}
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.JSONProducer = runtime.JSONProducer()
-	api.Logger = sugar.Infof
+	api.Logger = logger.Infof
 
 	// configure REST server handlers, middlewares
-	sugar.Info("Configure REST handlers")
+	logger.Info("Configure REST handlers")
 	rest.Configure(db, api, realtimeService)
 	handler := api.Serve(nil)
 
-	sugar.Info("Configure REST middleware")
+	logger.Info("Configure REST middleware")
 	handler = cors.Default().Handler(handler)
 	server.SetHandler(handler)
 
 	api.ServerShutdown = func() {
-		sugar.Info("Handling shutdown hook")
+		logger.Info("Handling shutdown hook")
 	}
 
 	if err := server.Serve(); err != nil {
-		sugar.Fatalw("Failed to start REST server", "error", err)
+		logger.Fatalw("Failed to start REST server", "error", err)
 	}
 }
 

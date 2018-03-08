@@ -1,11 +1,10 @@
 package websocket
 
 import (
-	"time"
-	"github.com/satori/go.uuid"
 	ws "github.com/gorilla/websocket"
-
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/logger"
+	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
+	"time"
 )
 
 const (
@@ -35,7 +34,7 @@ func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn) *WebSocketClient {
 		closeChan:  make(chan bool),
 		buffer:     make([]*WebSocketMessage, 0),
 		uuid:       uuid.NewV4().String(),
-		isSending: false,
+		isSending:  false,
 	}
 
 	go c.run()
@@ -44,6 +43,10 @@ func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn) *WebSocketClient {
 }
 
 func (c *WebSocketClient) send(message *WebSocketMessage) error {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	w, err := c.connection.NextWriter(ws.TextMessage)
 	if err != nil {
 		logger.Errorw("Failed to get next writer", "uuid", c.uuid, "error", err)
@@ -63,6 +66,10 @@ func (c *WebSocketClient) send(message *WebSocketMessage) error {
 }
 
 func (c *WebSocketClient) close() error {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	logger.Infow("Closing client", "uuid", c.uuid)
 
 	if err := c.connection.WriteMessage(ws.CloseMessage, []byte{}); err != nil {
@@ -83,6 +90,10 @@ func (c *WebSocketClient) sendPingMessage() error {
 }
 
 func (c *WebSocketClient) run() {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	closed := false
 	pingTicker := time.NewTicker(PingInterval)
 	messagePopTicker := time.NewTicker(MessagePopInterval)
@@ -111,14 +122,12 @@ func (c *WebSocketClient) run() {
 			message := c.buffer[0]
 			c.buffer = c.buffer[1:]
 
-
 			c.isSending = true
 			if err := c.send(message); err != nil {
 				logger.Errorw("Failed to send message to client", "uuid", c.uuid)
 				c.manager.unregisterChan <- c
 			}
 			c.isSending = false
-
 
 		case <-c.closeChan:
 			closed = true

@@ -28,6 +28,12 @@ type Specification struct {
 	MysqlDatabase string `default:"goref"`
 }
 
+var Spec Specification
+
+func init() {
+	Spec = GetSpecification()
+}
+
 func GetSpecification() Specification {
 	var s Specification
 	err := envconfig.Process("", &s)

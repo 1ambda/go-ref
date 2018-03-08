@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/logger"
+	"go.uber.org/zap"
 	"sync"
 )
 
@@ -10,7 +10,7 @@ type WebSocketManager struct {
 	registerChan     chan *WebSocketClient
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
-	broadcastChan    chan [] byte
+	broadcastChan    chan []byte
 	lock             sync.Mutex
 }
 
@@ -29,6 +29,10 @@ func NewWebSocketManager() *WebSocketManager {
 }
 
 func (m *WebSocketManager) register(c *WebSocketClient) error {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	logger.Infow("Requesting client registration", "uuid", c.uuid)
 
 	m.clients[c] = true
@@ -48,6 +52,10 @@ func (m *WebSocketManager) register(c *WebSocketClient) error {
 }
 
 func (m *WebSocketManager) unregister(c *WebSocketClient) error {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	logger.Infow("Requesting client removal", "uuid", c.uuid)
 
 	if _, ok := m.clients[c]; ok {
@@ -76,7 +84,11 @@ func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, msg *WebSocke
 }
 
 func (m *WebSocketManager) run() {
-	// TODO: close
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
+	logger.Info("Starting WebSocketManager")
 
 	for {
 		select {
@@ -91,4 +103,5 @@ func (m *WebSocketManager) run() {
 
 	close(m.registerChan)
 	close(m.unregisterChan)
+	logger.Info("Stopped WebSocketManager")
 }

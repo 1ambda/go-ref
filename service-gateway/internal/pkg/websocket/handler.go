@@ -1,9 +1,9 @@
 package websocket
 
 import (
-	"net/http"
 	ws "github.com/gorilla/websocket"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 var upgrader = ws.Upgrader{
@@ -16,13 +16,13 @@ var upgrader = ws.Upgrader{
 
 func Configure(mux *http.ServeMux, m *WebSocketManager) {
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
-		logger, _ := zap.NewProduction()
-		defer logger.Sync()
-		sugar := logger.Sugar()
+		log, _ := zap.NewProduction()
+		defer log.Sync() // flushes buffer, if any
+		logger := log.Sugar()
 
 		conn, err := upgrader.Upgrade(res, req, nil)
 		if err != nil {
-			sugar.Errorw("Failed to get WS connection", "error", err)
+			logger.Errorw("Failed to get WS connection", "error", err)
 			return
 		}
 

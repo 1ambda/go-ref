@@ -1,12 +1,12 @@
 package service
 
 import (
-	"sync"
-	"go.uber.org/zap"
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/codes"
-	"github.com/jinzhu/gorm"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"sync"
 )
 
 type RealtimeStatService struct {
@@ -18,21 +18,17 @@ type RealtimeStatService struct {
 
 func NewRealtimeStatService(db *gorm.DB) *RealtimeStatService {
 	return &RealtimeStatService{
-		lock:                        sync.RWMutex{},
-		db:                          db,
+		lock: sync.RWMutex{},
+		db:   db,
 		currentUserCountSubscribers: map[string]chan<- int64{},
 		totalAccessCountSubscribers: map[string]chan<- int64{},
 	}
 }
 
 func (r *RealtimeStatService) IncreaseCurrentUserCountSubscriber(uuid string, subscriber chan<- int64) error {
-	if r == nil {
-		return nil
-	}
-
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
 
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -43,7 +39,7 @@ func (r *RealtimeStatService) IncreaseCurrentUserCountSubscriber(uuid string, su
 
 	r.currentUserCountSubscribers[uuid] = subscriber
 	count := int64(len(r.currentUserCountSubscribers))
-	sugar.Infow("Increased current connection count", "count", count)
+	logger.Infow("Increased current connection count", "count", count)
 
 	go func() {
 		r.lock.Lock()
@@ -60,13 +56,9 @@ func (r *RealtimeStatService) IncreaseCurrentUserCountSubscriber(uuid string, su
 }
 
 func (r *RealtimeStatService) DecreaseCurrentUserCountSubscriber(uuid string) {
-	if r == nil {
-		return
-	}
-
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
 
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -76,7 +68,7 @@ func (r *RealtimeStatService) DecreaseCurrentUserCountSubscriber(uuid string) {
 		delete(r.currentUserCountSubscribers, uuid)
 
 		count := int64(len(r.currentUserCountSubscribers))
-		sugar.Infow("Decreased current connection count", "count", count)
+		logger.Infow("Decreased current connection count", "count", count)
 
 		go func() {
 			r.lock.Lock()
@@ -92,15 +84,11 @@ func (r *RealtimeStatService) DecreaseCurrentUserCountSubscriber(uuid string) {
 }
 
 func (r *RealtimeStatService) AddTotalAccessCountSubscriber(uuid string, subscriber chan<- int64) error {
-	if r == nil {
-		return nil
-	}
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
 
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
-
-	sugar.Infow("Adding TotalAccessCount Subscriber", "uuid", uuid)
+	logger.Infow("Adding TotalAccessCount Subscriber", "uuid", uuid)
 
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -115,15 +103,11 @@ func (r *RealtimeStatService) AddTotalAccessCountSubscriber(uuid string, subscri
 }
 
 func (r *RealtimeStatService) DeleteTotalAccessCountSubscriber(uuid string) {
-	if r == nil {
-		return
-	}
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
 
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
-
-	sugar.Infow("Deleting TotalAccessCount Subscriber", "uuid", uuid)
+	logger.Infow("Deleting TotalAccessCount Subscriber", "uuid", uuid)
 
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -135,23 +119,19 @@ func (r *RealtimeStatService) DeleteTotalAccessCountSubscriber(uuid string) {
 }
 
 func (r *RealtimeStatService) BroadcastToTalAccessCount() error {
-	if r == nil {
-		return nil
-	}
-
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
 
 	var totalAccessCount int64
 	err := r.db.Table(model.AccessTable).Count(&totalAccessCount).Error
 	if err != nil {
-		sugar.Errorf("Failed to get total access count", "error", err)
+		logger.Errorf("Failed to get total access count", "error", err)
 		return status.Errorf(codes.Internal, "Failed to get total access count")
 	}
 
 	go func() {
-		sugar.Infow("Broadcasting Total Access Count", "count", totalAccessCount)
+		logger.Infow("Broadcasting Total Access Count", "count", totalAccessCount)
 
 		r.lock.Lock()
 		defer r.lock.Unlock()
@@ -162,7 +142,6 @@ func (r *RealtimeStatService) BroadcastToTalAccessCount() error {
 			}
 		}
 	}()
-
 
 	return nil
 }

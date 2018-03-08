@@ -1,18 +1,18 @@
 package rest
 
 import (
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 
-	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
-	"github.com/jinzhu/gorm"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
-	"github.com/go-openapi/swag"
-	"time"
-	"github.com/satori/go.uuid"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
+	"github.com/jinzhu/gorm"
+	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
+	"time"
 )
 
 func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, r *service.RealtimeStatService) {
@@ -71,15 +71,15 @@ func buildRestError(err error) *rest_model.Error {
 func buildAccessAddOneHandler(db *gorm.DB, r *service.RealtimeStatService) access.AddOneHandlerFunc {
 	return access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
-			sugar := logger.Sugar()
-			sugar.Infow("Creating Access record", "request", params.Body)
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			logger := log.Sugar()
+			logger.Infow("Creating Access record", "request", params.Body)
 
 			record := convertAccessToDbModel(params.Body)
 
 			if err := db.Create(record).Error; err != nil {
-				sugar.Errorw("Failed to create new Access record: %v", "error", err)
+				logger.Errorw("Failed to create new Access record: %v", "error", err)
 				restError := buildRestError(err)
 				access.NewAddOneDefault(500).WithPayload(restError)
 			}
@@ -93,15 +93,15 @@ func buildAccessAddOneHandler(db *gorm.DB, r *service.RealtimeStatService) acces
 func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 	return access.FindOneHandlerFunc(
 		func(params access.FindOneParams) middleware.Responder {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
-			sugar := logger.Sugar()
-			sugar.Infow("Finding Access record", "id", params.ID)
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			logger := log.Sugar()
+			logger.Infow("Finding Access record", "id", params.ID)
 
 			var record model.Access
 
 			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
-				sugar.Errorw("Failed to create new Access record", "error", err)
+				logger.Errorw("Failed to create new Access record", "error", err)
 				restError := buildRestError(err)
 				access.NewFindOneDefault(404).WithPayload(restError)
 			}
@@ -114,10 +114,10 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 	return access.FindAllHandlerFunc(
 		func(params access.FindAllParams) middleware.Responder {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
-			sugar := logger.Sugar()
-			sugar.Info("Finding All Access records")
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			logger := log.Sugar()
+			logger.Info("Finding All Access records")
 
 			var records []model.Access
 			var count int64 = 0
@@ -134,7 +134,7 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 				Find(&records).
 				Error
 			if err != nil {
-				sugar.Errorw("Failed to find all Access records", "error", err)
+				logger.Errorw("Failed to find all Access records", "error", err)
 				restError := buildRestError(err)
 				access.NewFindAllDefault(500).WithPayload(restError)
 			}
@@ -162,13 +162,13 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
 	return access.RemoveOneHandlerFunc(
 		func(params access.RemoveOneParams) middleware.Responder {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
-			sugar := logger.Sugar()
-			sugar.Infow("Deleting Access record", "id", params.ID)
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			logger := log.Sugar()
+			logger.Infow("Deleting Access record", "id", params.ID)
 
 			if err := db.Where("id = ?", params.ID).Delete(&model.Access{}).Error; err != nil {
-				sugar.Errorw("Failed to delete new Access record: %v", "error", err)
+				logger.Errorw("Failed to delete new Access record: %v", "error", err)
 				restError := buildRestError(err)
 				access.NewAddOneDefault(500).WithPayload(restError)
 			}
@@ -180,16 +180,16 @@ func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
 func buildAccessUpdateOneHandler(db *gorm.DB) access.UpdateOneHandlerFunc {
 	return access.UpdateOneHandlerFunc(
 		func(params access.UpdateOneParams) middleware.Responder {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
-			sugar := logger.Sugar()
-			sugar.Infow("Updating Access record", "id", params.ID)
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			logger := log.Sugar()
+			logger.Infow("Updating Access record", "id", params.ID)
 
 			record := convertAccessToDbModel(params.Body)
 			var updated model.Access
 
 			if err := db.Model(&updated).Where("id = ?", params.ID).Update(record).Error; err != nil {
-				sugar.Errorw("Failed to update new Access record: %v", "error", err)
+				logger.Errorw("Failed to update new Access record: %v", "error", err)
 				restError := buildRestError(err)
 				access.NewAddOneDefault(500).WithPayload(restError)
 			}

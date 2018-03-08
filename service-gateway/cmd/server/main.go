@@ -1,17 +1,17 @@
 package main
 
 import (
-	"os"
 	"fmt"
-	"net/http"
 	"github.com/go-openapi/loads"
-	"github.com/jessevdk/go-flags"
 	"github.com/go-openapi/runtime"
+	"github.com/jessevdk/go-flags"
+	"net/http"
+	"os"
 
 	"github.com/rs/cors"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
@@ -20,14 +20,18 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
 
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/logger"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
+	"go.uber.org/zap"
 )
 
 func main() {
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
 	// get config
-	spec := config.GetSpecification()
+	spec := config.Spec
 	logger.Infow("Starting server...",
 		"version", config.Version,
 		"build_date", config.BuildDate,

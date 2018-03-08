@@ -70,6 +70,7 @@ func main() {
 	//	AllowCredentials: true,
 	//})
 	//wsHandler := wsCors.Handler(mux)
+
 	go func() {
 		wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
 		if err := http.ListenAndServe(wsServerPort, mux); err != nil {
@@ -122,6 +123,7 @@ func main() {
 
 	api.ServerShutdown = func() {
 		logger.Info("Handling shutdown hook")
+		wsClientManager.Stop()
 	}
 
 	if err := server.Serve(); err != nil {

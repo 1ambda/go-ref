@@ -17,7 +17,7 @@ var upgrader = ws.Upgrader{
 func Configure(mux *http.ServeMux, m *WebSocketManager) {
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
 		log, _ := zap.NewProduction()
-		defer log.Sync() // flushes buffer, if any
+		defer log.Sync()
 		logger := log.Sugar()
 
 		conn, err := upgrader.Upgrade(res, req, nil)

@@ -10,7 +10,8 @@ type WebSocketManager struct {
 	registerChan     chan *WebSocketClient
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
-	broadcastChan    chan []byte
+	closeChan        chan bool
+	finishedChan     chan bool
 	lock             sync.Mutex
 }
 
@@ -20,7 +21,8 @@ func NewWebSocketManager() *WebSocketManager {
 		registerChan:     make(chan *WebSocketClient),
 		unregisterChan:   make(chan *WebSocketClient),
 		disconnectedChan: make(chan *WebSocketClient),
-		broadcastChan:    make(chan []byte),
+		closeChan:        make(chan bool),
+		finishedChan:     make(chan bool),
 	}
 
 	go m.run()
@@ -30,10 +32,10 @@ func NewWebSocketManager() *WebSocketManager {
 
 func (m *WebSocketManager) register(c *WebSocketClient) error {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
-	logger.Infow("Requesting client registration", "uuid", c.uuid)
+	logger.Infow("Register client", "uuid", c.uuid)
 
 	m.clients[c] = true
 
@@ -53,10 +55,10 @@ func (m *WebSocketManager) register(c *WebSocketClient) error {
 
 func (m *WebSocketManager) unregister(c *WebSocketClient) error {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
-	logger.Infow("Requesting client removal", "uuid", c.uuid)
+	logger.Infow("Unregister client", "uuid", c.uuid)
 
 	if _, ok := m.clients[c]; ok {
 		delete(m.clients, c)
@@ -67,7 +69,7 @@ func (m *WebSocketManager) unregister(c *WebSocketClient) error {
 		count := len(m.clients)
 		message, err := NewConnectionCountWebsocketMessage(count)
 		if err != nil {
-			logger.Errorw("Failed to build UpdateConnectionCount message")
+			logger.Errorw("Failed to build UpdateConnectionCount message", "error", err)
 			return err
 		}
 
@@ -85,23 +87,38 @@ func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, msg *WebSocke
 
 func (m *WebSocketManager) run() {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
 	logger.Info("Starting WebSocketManager")
 
-	for {
+	done := false
+	for !done {
 		select {
 		case client := <-m.registerChan:
 			m.register(client)
 
 		case client := <-m.unregisterChan:
-			// TODO: broadcast
 			m.unregister(client)
+
+		case <-m.closeChan:
+			for c, _ := range m.clients {
+				m.unregister(c)
+			}
+
+			done = true
+			break
 		}
 	}
 
 	close(m.registerChan)
 	close(m.unregisterChan)
 	logger.Info("Stopped WebSocketManager")
+	m.finishedChan <- true
+}
+
+func (m *WebSocketManager) Stop() {
+	m.closeChan <- true
+	<-m.finishedChan
+	close(m.finishedChan)
 }

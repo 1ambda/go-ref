@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	MessageWriteTimeout = 2 * time.Second
-	MessageReadTimeout  = 5 * time.Second
-	MessagePopInterval  = 1 * time.Second
-	PingInterval        = 4 * time.Second
+	MessageWriteTimeout = 300 * time.Millisecond
+	MessageReadTimeout  = 3 * time.Second // should be greater than `PingInterval`
+	PingInterval        = 2 * time.Second
 	PongTimeout         = MessageReadTimeout
+	MessagePopInterval  = 1 * time.Second // delay until pop the next message from buffer
 )
 
 type WebSocketClient struct {
@@ -44,7 +44,7 @@ func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn) *WebSocketClient {
 
 func (c *WebSocketClient) send(message *WebSocketMessage) error {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
 	w, err := c.connection.NextWriter(ws.TextMessage)
@@ -67,17 +67,17 @@ func (c *WebSocketClient) send(message *WebSocketMessage) error {
 
 func (c *WebSocketClient) close() error {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
 	logger.Infow("Closing client", "uuid", c.uuid)
 
 	if err := c.connection.WriteMessage(ws.CloseMessage, []byte{}); err != nil {
-		logger.Errorw("Failed to send `CloseMessage`", "uuid", c.uuid, "error", err)
+		logger.Warnw("Failed to send `CloseMessage`", "uuid", c.uuid)
 	}
 
 	if err := c.connection.Close(); err != nil {
-		logger.Errorw("Failed to close client", "uuid", c.uuid, "error", err)
+		logger.Warnw("Failed to close client", "uuid", c.uuid)
 		return err
 	}
 
@@ -91,10 +91,10 @@ func (c *WebSocketClient) sendPingMessage() error {
 
 func (c *WebSocketClient) run() {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
-	closed := false
+	done := false
 	pingTicker := time.NewTicker(PingInterval)
 	messagePopTicker := time.NewTicker(MessagePopInterval)
 
@@ -103,14 +103,14 @@ func (c *WebSocketClient) run() {
 		return nil
 	})
 
-	for !closed {
+	for !done {
 		select {
 		case message := <-c.sendChan:
 			c.buffer = append(c.buffer, message)
 
 		case <-pingTicker.C:
 			if err := c.sendPingMessage(); err != nil {
-				logger.Errorw("Failed to ping message to client", "uuid", c.uuid)
+				logger.Warnw("Failed to ping message to client", "uuid", c.uuid)
 				c.manager.unregisterChan <- c
 			}
 
@@ -124,13 +124,14 @@ func (c *WebSocketClient) run() {
 
 			c.isSending = true
 			if err := c.send(message); err != nil {
-				logger.Errorw("Failed to send message to client", "uuid", c.uuid)
+				// don't write log, client is disconnected
+				logger.Warnw("Failed to send message to client", "uuid", c.uuid)
 				c.manager.unregisterChan <- c
 			}
 			c.isSending = false
 
 		case <-c.closeChan:
-			closed = true
+			done = true
 			break
 		}
 	}

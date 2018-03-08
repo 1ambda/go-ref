@@ -26,10 +26,8 @@ func Configure(mux *http.ServeMux, m *WebSocketManager) {
 			return
 		}
 
-		sugar.Infow("Register WebSocketClient")
-
 		// register a client
 		client := NewWebSocketClient(m, conn)
-		m.register(client)
+		m.registerChan <- client
 	})
 }

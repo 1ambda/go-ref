@@ -34,7 +34,7 @@ func (m *WebSocketManager) register(c *WebSocketClient) error {
 	m.clients[c] = true
 
 	count := len(m.clients)
-	message, err := buildConnectionCountMessage(count)
+	message, err := NewConnectionCountWebsocketMessage(count)
 	if err != nil {
 		logger.Errorw("Failed to build UpdateConnectionCount message")
 		return err
@@ -48,13 +48,16 @@ func (m *WebSocketManager) register(c *WebSocketClient) error {
 }
 
 func (m *WebSocketManager) unregister(c *WebSocketClient) error {
-	logger.Infow("Requesting client deregisteration", "uuid", c.uuid)
+	logger.Infow("Requesting client removal", "uuid", c.uuid)
 
 	if _, ok := m.clients[c]; ok {
 		delete(m.clients, c)
-		
+		go func(deletedClient *WebSocketClient) {
+			deletedClient.closeChan <- true
+		}(c)
+
 		count := len(m.clients)
-		message, err := buildConnectionCountMessage(count)
+		message, err := NewConnectionCountWebsocketMessage(count)
 		if err != nil {
 			logger.Errorw("Failed to build UpdateConnectionCount message")
 			return err
@@ -63,19 +66,13 @@ func (m *WebSocketManager) unregister(c *WebSocketClient) error {
 		for client := range m.clients {
 			m.signalToSendMessage(client, message)
 		}
-
-		go func(deletedClient *WebSocketClient) {
-			deletedClient.closeChan <- true
-		}(c)
 	}
 
 	return nil
 }
 
-func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, b *[]byte) {
-	go func(c *WebSocketClient) {
-		c.sendChan <- b
-	}(c)
+func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, msg *WebSocketMessage) {
+	c.sendChan <- msg
 }
 
 func (m *WebSocketManager) run() {

@@ -1,6 +1,8 @@
 lint:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - linting"
-	@$(GOLINT) --vendor --errors ./... --skip=internal/mock
+	@$(GOLINT) --vendor --errors ./... \
+		--skip=internal/mock --skip=pkg/generated \
+		--enable=unparam --enable=nakedret --enable=staticcheck
 
 style:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - checking code style"

@@ -1,25 +1,31 @@
 package websocket
 
 import (
-	"sync"
 	"context"
 
 	"go.uber.org/zap"
 	ws "github.com/gorilla/websocket"
 )
 
-type WebSocketManager struct {
+type WebSocketManager interface {
+	Run(ctx context.Context)
+	Stop()
+
+	register(c *WebSocketClient) error
+	unregister(c *WebSocketClient) error
+}
+
+type webSocketManagerImpl struct {
 	clients          map[*WebSocketClient]bool
 	registerChan     chan *ws.Conn
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
 	finishedChan     chan bool
-	lock             sync.Mutex
 	cancelFunc       context.CancelFunc
 }
 
-func NewWebSocketManager(cancelFunc context.CancelFunc) *WebSocketManager {
-	m := &WebSocketManager{
+func NewWebSocketManager(cancelFunc context.CancelFunc) *webSocketManagerImpl {
+	m := &webSocketManagerImpl{
 		clients:          make(map[*WebSocketClient]bool),
 		registerChan:     make(chan *ws.Conn),
 		unregisterChan:   make(chan *WebSocketClient),
@@ -31,7 +37,7 @@ func NewWebSocketManager(cancelFunc context.CancelFunc) *WebSocketManager {
 	return m
 }
 
-func (m *WebSocketManager) register(conn *ws.Conn) error {
+func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
@@ -52,13 +58,13 @@ func (m *WebSocketManager) register(conn *ws.Conn) error {
 	}
 
 	for client := range m.clients {
-		m.signalToSendMessage(client, message)
+		client.sendChan <- message
 	}
 
 	return nil
 }
 
-func (m *WebSocketManager) unregister(c *WebSocketClient) error {
+func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
@@ -79,18 +85,14 @@ func (m *WebSocketManager) unregister(c *WebSocketClient) error {
 		}
 
 		for client := range m.clients {
-			m.signalToSendMessage(client, message)
+			client.sendChan <- message
 		}
 	}
 
 	return nil
 }
 
-func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, msg *WebSocketMessage) {
-	c.sendChan <- msg
-}
-
-func (m *WebSocketManager) Run(ctx context.Context) {
+func (m *webSocketManagerImpl) Run(ctx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
@@ -105,7 +107,7 @@ func (m *WebSocketManager) Run(ctx context.Context) {
 		case client := <-m.unregisterChan:
 			m.unregister(client)
 
-		case <- ctx.Done():
+		case <-ctx.Done():
 			for c, _ := range m.clients {
 				m.unregister(c)
 			}
@@ -119,7 +121,7 @@ func (m *WebSocketManager) Run(ctx context.Context) {
 	}
 }
 
-func (m *WebSocketManager) Stop() {
+func (m *webSocketManagerImpl) Stop() {
 	m.cancelFunc()
 	<-m.finishedChan
 	close(m.finishedChan)

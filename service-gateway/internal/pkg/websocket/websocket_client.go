@@ -18,7 +18,7 @@ const (
 )
 
 type WebSocketClient struct {
-	manager    *WebSocketManager
+	manager    *webSocketManagerImpl
 	connection *ws.Conn
 	sendChan   chan *WebSocketMessage
 	buffer     []*WebSocketMessage
@@ -27,7 +27,7 @@ type WebSocketClient struct {
 	cancelFunc context.CancelFunc
 }
 
-func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
+func NewWebSocketClient(m *webSocketManagerImpl, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
 
 	c := &WebSocketClient{
 		manager:    m,

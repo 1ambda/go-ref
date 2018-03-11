@@ -4,6 +4,7 @@ import (
 	ws "github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
+	"context"
 )
 
 var upgrader = ws.Upgrader{
@@ -14,7 +15,13 @@ var upgrader = ws.Upgrader{
 	},
 }
 
-func Configure(mux *http.ServeMux, m *WebSocketManager) {
+func Configure(mux *http.ServeMux) *webSocketManagerImpl {
+	// start websocket manager
+	ctx, cancel := context.WithCancel(context.Background())
+	webSocketManager := NewWebSocketManager(cancel)
+	go webSocketManager.Run(ctx)
+
+	// setup endpoint
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
 		log, _ := zap.NewProduction()
 		defer log.Sync()
@@ -27,6 +34,8 @@ func Configure(mux *http.ServeMux, m *WebSocketManager) {
 		}
 
 		// register a client
-		m.registerChan <- conn
+		webSocketManager.registerChan <- conn
 	})
+
+	return webSocketManager
 }

@@ -1,43 +1,48 @@
 package websocket
 
 import (
-	"go.uber.org/zap"
 	"sync"
+	"context"
+
+	"go.uber.org/zap"
+	ws "github.com/gorilla/websocket"
 )
 
 type WebSocketManager struct {
 	clients          map[*WebSocketClient]bool
-	registerChan     chan *WebSocketClient
+	registerChan     chan *ws.Conn
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
-	closeChan        chan bool
 	finishedChan     chan bool
 	lock             sync.Mutex
+	cancelFunc       context.CancelFunc
 }
 
-func NewWebSocketManager() *WebSocketManager {
+func NewWebSocketManager(cancelFunc context.CancelFunc) *WebSocketManager {
 	m := &WebSocketManager{
 		clients:          make(map[*WebSocketClient]bool),
-		registerChan:     make(chan *WebSocketClient),
+		registerChan:     make(chan *ws.Conn),
 		unregisterChan:   make(chan *WebSocketClient),
 		disconnectedChan: make(chan *WebSocketClient),
-		closeChan:        make(chan bool),
 		finishedChan:     make(chan bool),
+		cancelFunc:       cancelFunc,
 	}
-
-	go m.run()
 
 	return m
 }
 
-func (m *WebSocketManager) register(c *WebSocketClient) error {
+func (m *WebSocketManager) register(conn *ws.Conn) error {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	logger.Infow("Register client", "uuid", c.uuid)
+	ctx, cancel := context.WithCancel(context.Background())
+	client := NewWebSocketClient(m, conn, cancel)
 
-	m.clients[c] = true
+	logger.Infow("Register client", "uuid", client.uuid)
+
+	m.clients[client] = true
+	go client.run(ctx)
 
 	count := len(m.clients)
 	message, err := NewConnectionCountWebsocketMessage(count)
@@ -63,7 +68,7 @@ func (m *WebSocketManager) unregister(c *WebSocketClient) error {
 	if _, ok := m.clients[c]; ok {
 		delete(m.clients, c)
 		go func(deletedClient *WebSocketClient) {
-			deletedClient.closeChan <- true
+			deletedClient.cancelFunc()
 		}(c)
 
 		count := len(m.clients)
@@ -85,15 +90,14 @@ func (m *WebSocketManager) signalToSendMessage(c *WebSocketClient, msg *WebSocke
 	c.sendChan <- msg
 }
 
-func (m *WebSocketManager) run() {
+func (m *WebSocketManager) Run(ctx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
 	logger.Info("Starting WebSocketManager")
 
-	done := false
-	for !done {
+	for {
 		select {
 		case client := <-m.registerChan:
 			m.register(client)
@@ -101,24 +105,22 @@ func (m *WebSocketManager) run() {
 		case client := <-m.unregisterChan:
 			m.unregister(client)
 
-		case <-m.closeChan:
+		case <- ctx.Done():
 			for c, _ := range m.clients {
 				m.unregister(c)
 			}
 
-			done = true
-			break
+			close(m.registerChan)
+			close(m.unregisterChan)
+			logger.Info("Stopped WebSocketManager")
+			m.finishedChan <- true
+			return
 		}
 	}
-
-	close(m.registerChan)
-	close(m.unregisterChan)
-	logger.Info("Stopped WebSocketManager")
-	m.finishedChan <- true
 }
 
 func (m *WebSocketManager) Stop() {
-	m.closeChan <- true
+	m.cancelFunc()
 	<-m.finishedChan
 	close(m.finishedChan)
 }

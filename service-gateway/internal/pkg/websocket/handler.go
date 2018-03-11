@@ -27,7 +27,6 @@ func Configure(mux *http.ServeMux, m *WebSocketManager) {
 		}
 
 		// register a client
-		client := NewWebSocketClient(m, conn)
-		m.registerChan <- client
+		m.registerChan <- conn
 	})
 }

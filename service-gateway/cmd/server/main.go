@@ -23,6 +23,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"go.uber.org/zap"
+	"context"
 )
 
 func main() {
@@ -59,12 +60,14 @@ func main() {
 
 	// create services
 	realtimeService := service.NewRealtimeStatService(db)
-	wsClientManager := websocket.NewWebSocketManager()
+	ctx, cancel := context.WithCancel(context.Background())
+	webSocketManager := websocket.NewWebSocketManager(cancel)
+	go webSocketManager.Run(ctx)
 
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
-	websocket.Configure(mux, wsClientManager)
+	websocket.Configure(mux, webSocketManager)
 	//wsCors := cors.New(cors.Options{
 	//	AllowedOrigins: []string{"http://localhost:3000"},
 	//	AllowCredentials: true,
@@ -123,7 +126,7 @@ func main() {
 
 	api.ServerShutdown = func() {
 		logger.Info("Handling shutdown hook")
-		wsClientManager.Stop()
+		webSocketManager.Stop()
 	}
 
 	if err := server.Serve(); err != nil {

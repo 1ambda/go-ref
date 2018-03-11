@@ -1,10 +1,12 @@
 package websocket
 
 import (
+	"time"
+	"context"
+
 	ws "github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
-	"time"
 )
 
 const (
@@ -19,25 +21,23 @@ type WebSocketClient struct {
 	manager    *WebSocketManager
 	connection *ws.Conn
 	sendChan   chan *WebSocketMessage
-	closeChan  chan bool
 	buffer     []*WebSocketMessage
 	uuid       string
 	isSending  bool
+	cancelFunc context.CancelFunc
 }
 
-func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn) *WebSocketClient {
+func NewWebSocketClient(m *WebSocketManager, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
 
 	c := &WebSocketClient{
 		manager:    m,
 		connection: conn,
 		sendChan:   make(chan *WebSocketMessage),
-		closeChan:  make(chan bool),
 		buffer:     make([]*WebSocketMessage, 0),
 		uuid:       uuid.NewV4().String(),
 		isSending:  false,
+		cancelFunc: cancel,
 	}
-
-	go c.run()
 
 	return c
 }
@@ -89,12 +89,11 @@ func (c *WebSocketClient) sendPingMessage() error {
 	return c.connection.WriteMessage(ws.PingMessage, []byte{})
 }
 
-func (c *WebSocketClient) run() {
+func (c *WebSocketClient) run(ctx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	done := false
 	pingTicker := time.NewTicker(PingInterval)
 	messagePopTicker := time.NewTicker(MessagePopInterval)
 
@@ -103,7 +102,7 @@ func (c *WebSocketClient) run() {
 		return nil
 	})
 
-	for !done {
+	for {
 		select {
 		case message := <-c.sendChan:
 			c.buffer = append(c.buffer, message)
@@ -130,13 +129,10 @@ func (c *WebSocketClient) run() {
 			}
 			c.isSending = false
 
-		case <-c.closeChan:
-			done = true
-			break
+		case <-ctx.Done():
+			c.close()
+			close(c.sendChan)
+			return
 		}
 	}
-
-	c.close()
-	close(c.sendChan)
-	close(c.closeChan)
 }

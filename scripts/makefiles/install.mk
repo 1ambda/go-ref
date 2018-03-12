@@ -17,7 +17,7 @@ prepare:
 
 	# swagger
 	$(GOGET) github.com/go-swagger/go-swagger/cmd/swagger
-	$(BREW) upgrade swagger-codegen
+	$(BREW) install swagger-codegen
 
 	$(GOGET) github.com/bcicen/grmon/cmd/grmon
 

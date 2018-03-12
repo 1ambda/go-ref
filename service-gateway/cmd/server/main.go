@@ -23,6 +23,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"go.uber.org/zap"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
+	"context"
 )
 
 func main() {
@@ -59,14 +60,18 @@ func main() {
 	db.SingularTable(true)
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
 
+	//
+	appCtx, appCancelFunc := context.WithCancel(context.Background())
+
 	// setup etcd
 	logger.Info("Configure distributed client (etcd)")
-	dClient := realtime.NewDistributedClient(spec.EtcdEndpoints)
+	dClient := realtime.NewDistributedClient(appCtx, spec.EtcdEndpoints)
 
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
-	wsManager := websocket.Configure(mux)
+
+	wsManager := websocket.Configure(appCtx, mux)
 	//wsCors := cors.New(cors.Options{
 	//	AllowedOrigins: []string{"http://localhost:3000"},
 	//	AllowCredentials: true,
@@ -125,8 +130,9 @@ func main() {
 
 	api.ServerShutdown = func() {
 		logger.Info("Handling shutdown hook")
-		wsManager.Stop()
+		appCancelFunc()
 		dClient.Stop()
+		<-wsManager.Stop()
 	}
 
 	if err := server.Serve(); err != nil {

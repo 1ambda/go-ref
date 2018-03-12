@@ -15,11 +15,10 @@ var upgrader = ws.Upgrader{
 	},
 }
 
-func Configure(mux *http.ServeMux) *webSocketManagerImpl {
+func Configure(appCtx context.Context, mux *http.ServeMux) *webSocketManagerImpl {
 	// start websocket manager
-	ctx, cancel := context.WithCancel(context.Background())
-	webSocketManager := NewWebSocketManager(cancel)
-	go webSocketManager.run(ctx)
+	webSocketManager := NewWebSocketManager()
+	go webSocketManager.run(appCtx)
 
 	// setup endpoint
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {

@@ -10,21 +10,20 @@ import (
 
 type DistributedClient interface {
 	attendMembership() error
-	extendMembership() error
+	renewMembership() error
 	run(ctx context.Context)
 	Stop()
 }
 
-const MembershipTTL = 10 // seconds
-const MembershipExtendInterval = 5
+const MembershipTTL = 60 // seconds
+const MembershipExtendInterval = 5 * time.Second
 
 type etcdDistributedClient struct {
-	client     *clientv3.Client
-	leaseId    clientv3.LeaseID
-	cancelFunc context.CancelFunc
+	client  *clientv3.Client
+	leaseId clientv3.LeaseID
 }
 
-func NewDistributedClient(ctx context.Context, cancelFunc context.CancelFunc, endpoints []string) DistributedClient {
+func NewDistributedClient(appCtx context.Context, endpoints []string) DistributedClient {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
@@ -46,10 +45,9 @@ func NewDistributedClient(ctx context.Context, cancelFunc context.CancelFunc, en
 	if err := dClient.attendMembership(); err != nil {
 		logger.Fatalw("Failed to attend membership", "error", err)
 	}
-	//
-	//ctx, cancel := context.WithCancel(context.Background())
-	//dClient.cancelFunc = cancel
-	//dClient.run(ctx)
+
+	go dClient.run(appCtx)
+	go dClient.runRenewMembership(appCtx)
 
 	return dClient
 }
@@ -71,18 +69,11 @@ func (d *etcdDistributedClient) attendMembership() error {
 	return nil
 }
 
-func (d *etcdDistributedClient) extendMembership() error {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
-
-	ch, err := d.client.KeepAlive(context.Background(), d.leaseId)
+func (d *etcdDistributedClient) renewMembership() error {
+	_, err := d.client.KeepAliveOnce(context.Background(), d.leaseId)
 	if err != nil {
 		return err
 	}
-
-	keepAlive := <-ch
-	logger.Infow("Extended membership", "ttl", keepAlive.TTL)
 
 	return nil
 }
@@ -93,8 +84,6 @@ func (d *etcdDistributedClient) run(ctx context.Context) {
 	logger := log.Sugar()
 
 	logger.Infow("Running distributed client main loop", "lease_id", d.leaseId)
-
-	go d.runMembershipExtension(ctx)
 
 	for {
 		select {
@@ -107,7 +96,7 @@ func (d *etcdDistributedClient) run(ctx context.Context) {
 	}
 }
 
-func (d *etcdDistributedClient) runMembershipExtension(ctx context.Context) {
+func (d *etcdDistributedClient) runRenewMembership(ctx context.Context) {
 	extendMembershipTicker := time.NewTicker(MembershipExtendInterval)
 
 	log, _ := zap.NewProduction()
@@ -122,7 +111,7 @@ func (d *etcdDistributedClient) runMembershipExtension(ctx context.Context) {
 			return
 
 		case <-extendMembershipTicker.C:
-			err := d.extendMembership()
+			err := d.renewMembership()
 			if err != nil {
 				logger.Errorw("Failed to keep alive for this etcd client",
 					"lease_id", d.leaseId, "error", err)
@@ -137,7 +126,6 @@ func (d *etcdDistributedClient) Stop() {
 	logger := log.Sugar()
 
 	d.client.Close()
-	d.cancelFunc()
 
 	logger.Info("Closed etcd client connection")
 }

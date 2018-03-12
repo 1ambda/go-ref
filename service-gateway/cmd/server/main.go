@@ -17,12 +17,12 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/service"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"go.uber.org/zap"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
 )
 
 func main() {
@@ -43,6 +43,7 @@ func main() {
 		"websocket_port", spec.WebSocketPort,
 		"http_port", spec.HttpPort,
 		"debug", spec.Debug,
+		"etcd_endpoints", spec.EtcdEndpoints,
 	)
 
 	// setup db connection
@@ -57,8 +58,11 @@ func main() {
 	db.SingularTable(true)
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
 
-	// create services
-	realtimeService := service.NewRealtimeStatService(db)
+	// setup etcd
+	logger.Info("Configure distributed client (etcd)")
+	dClient := realtime.NewDistributedClient(spec.EtcdEndpoints)
+
+
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
@@ -112,7 +116,7 @@ func main() {
 
 	// configure REST server handlers, middlewares
 	logger.Info("Configure REST handlers")
-	rest.Configure(db, api, realtimeService)
+	rest.Configure(db, api)
 	handler := api.Serve(nil)
 
 	logger.Info("Configure REST middleware")
@@ -122,6 +126,7 @@ func main() {
 	api.ServerShutdown = func() {
 		logger.Info("Handling shutdown hook")
 		wsManager.Stop()
+		dClient.Stop()
 	}
 
 	if err := server.Serve(); err != nil {

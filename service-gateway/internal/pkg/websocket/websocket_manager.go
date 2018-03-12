@@ -92,7 +92,7 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 	return nil
 }
 
-func (m *webSocketManagerImpl) Run(ctx context.Context) {
+func (m *webSocketManagerImpl) Start(ctx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
@@ -116,6 +116,7 @@ func (m *webSocketManagerImpl) Run(ctx context.Context) {
 			close(m.unregisterChan)
 			logger.Info("Stopped WebSocketManager")
 			m.finishedChan <- true
+			close(m.finishedChan)
 			return
 		}
 	}
@@ -124,5 +125,4 @@ func (m *webSocketManagerImpl) Run(ctx context.Context) {
 func (m *webSocketManagerImpl) Stop() {
 	m.cancelFunc()
 	<-m.finishedChan
-	close(m.finishedChan)
 }

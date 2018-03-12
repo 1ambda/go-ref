@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"log"
+	"go.uber.org/zap"
 )
 
 var (
@@ -16,16 +16,17 @@ var (
 )
 
 type Specification struct {
-	Env           string `default:"LOCAL"`
-	Debug         bool   `default:"true"`
-	WebSocketPort int    `default:"50001"`
-	HttpPort      int    `default:"50002"`
-	Host          string `default:"localhost"`
-	MysqlHost     string `default:"localhost"`
-	MysqlPort     string `default:"3306"`
-	MysqlUserName string `default:"root"`
-	MysqlPassword string `default:"root"`
-	MysqlDatabase string `default:"goref"`
+	Env           string   `default:"LOCAL"`
+	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
+	Debug         bool     `default:"true"`
+	WebSocketPort int      `default:"50001"`
+	HttpPort      int      `default:"50002"`
+	Host          string   `default:"localhost"`
+	MysqlHost     string   `default:"localhost"`
+	MysqlPort     string   `default:"3306"`
+	MysqlUserName string   `default:"root"`
+	MysqlPassword string   `default:"root"`
+	MysqlDatabase string   `default:"goref"`
 }
 
 var Spec Specification
@@ -35,11 +36,16 @@ func init() {
 }
 
 func GetSpecification() Specification {
+	log, _ := zap.NewProduction()
+	defer log.Sync()
+	logger := log.Sugar()
+
 	var s Specification
 	err := envconfig.Process("", &s)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatalw("Failed to create startup specification", "error", err)
 	}
 
 	return s
 }
+

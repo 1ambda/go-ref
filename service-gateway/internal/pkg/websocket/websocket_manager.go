@@ -92,7 +92,7 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 	return nil
 }
 
-func (m *webSocketManagerImpl) Start(ctx context.Context) {
+func (m *webSocketManagerImpl) run(ctx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()

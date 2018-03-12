@@ -19,7 +19,7 @@ func Configure(mux *http.ServeMux) *webSocketManagerImpl {
 	// start websocket manager
 	ctx, cancel := context.WithCancel(context.Background())
 	webSocketManager := NewWebSocketManager(cancel)
-	go webSocketManager.Start(ctx)
+	go webSocketManager.run(ctx)
 
 	// setup endpoint
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {

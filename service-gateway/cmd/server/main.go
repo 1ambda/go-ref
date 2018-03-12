@@ -44,6 +44,7 @@ func main() {
 		"http_port", spec.HttpPort,
 		"debug", spec.Debug,
 		"etcd_endpoints", spec.EtcdEndpoints,
+		"server_name", "gateway-0",
 	)
 
 	// setup db connection
@@ -61,7 +62,6 @@ func main() {
 	// setup etcd
 	logger.Info("Configure distributed client (etcd)")
 	dClient := realtime.NewDistributedClient(spec.EtcdEndpoints)
-
 
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")

@@ -19,7 +19,9 @@ prepare:
 	$(GOGET) github.com/go-swagger/go-swagger/cmd/swagger
 	$(BREW) upgrade swagger-codegen
 
-	$(GOGET) github.com/bcicen/grmon/cmd/grmon
+	# etcd cli: https://github.com/coreos/etcd/tree/master/etcdctl
+	$(GOGET) github.com/coreos/etcd/etcdctl
+
 
 install:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"

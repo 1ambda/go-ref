@@ -19,7 +19,7 @@ type DistributedClient interface {
 
 const LeaderCheckInterval = 5 * time.Second
 const ElectionTimeout = 10 * time.Second
-const ElectionPath = "/election-summary"
+const ElectionPath = "/gateway-leader"
 
 type etcdDistributedClient struct {
 	client  *clientv3.Client

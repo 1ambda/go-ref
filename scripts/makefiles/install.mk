@@ -17,7 +17,7 @@ prepare:
 
 	# swagger
 	$(GOGET) github.com/go-swagger/go-swagger/cmd/swagger
-	$(BREW) upgrade swagger-codegen
+	$(BREW) install swagger-codegen
 
 	# etcd cli: https://github.com/coreos/etcd/tree/master/etcdctl
 	$(GOGET) github.com/coreos/etcd/etcdctl

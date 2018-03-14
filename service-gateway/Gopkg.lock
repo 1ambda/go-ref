@@ -24,6 +24,7 @@
   packages = [
     "auth/authpb",
     "clientv3",
+    "clientv3/concurrency",
     "etcdserver/api/v3rpc/rpctypes",
     "etcdserver/etcdserverpb",
     "mvcc/mvccpb",
@@ -318,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4a9a05097f4e835380b187963aa85ddc0189f0cc127f3b80a9d0daa018989d65"
+  inputs-digest = "67136f169f61d7d249eddcdb7af36b80c05d926f930ab006d21069a4170cc62b"
   solver-name = "gps-cdcl"
   solver-version = 1

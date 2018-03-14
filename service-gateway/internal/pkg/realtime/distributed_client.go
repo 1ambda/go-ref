@@ -1,26 +1,30 @@
 package realtime
 
 import (
-	"time"
 	"context"
+	"time"
 
-	"go.uber.org/zap"
+	"fmt"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
 	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/clientv3/concurrency"
+	"go.uber.org/zap"
+	"sync"
 )
 
 type DistributedClient interface {
-	attendMembership() error
-	renewMembership() error
 	run(ctx context.Context)
 	Stop()
 }
 
-const MembershipTTL = 60 // seconds
-const MembershipExtendInterval = 5 * time.Second
+const LeaderCheckInterval = 5 * time.Second
+const ElectionTimeout = 10 * time.Second
+const ElectionPath = "/election-summary"
 
 type etcdDistributedClient struct {
 	client  *clientv3.Client
-	leaseId clientv3.LeaseID
+	session *concurrency.Session
+	lock    sync.Mutex
 }
 
 func NewDistributedClient(appCtx context.Context, endpoints []string) DistributedClient {
@@ -28,12 +32,13 @@ func NewDistributedClient(appCtx context.Context, endpoints []string) Distribute
 	defer log.Sync()
 	logger := log.Sugar()
 
-	cli, err := clientv3.New(clientv3.Config{
+	etcdClient, err := clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: 3 * time.Second,
 	})
 
 	if err != nil {
+		etcdClient.Close()
 		if err == context.DeadlineExceeded {
 			logger.Fatalw("Failed to connect etcd due to dial timeout", "error", err)
 		}
@@ -41,83 +46,104 @@ func NewDistributedClient(appCtx context.Context, endpoints []string) Distribute
 		logger.Fatalw("Failed to connect etcd due to unknown error", "error", err)
 	}
 
-	dClient := &etcdDistributedClient{client: cli}
-	if err := dClient.attendMembership(); err != nil {
-		logger.Fatalw("Failed to attend membership", "error", err)
+	dClient := &etcdDistributedClient{client: etcdClient}
+
+	session, err := concurrency.NewSession(etcdClient)
+	if err != nil {
+		session.Close()
+		etcdClient.Close()
+		logger.Fatalw("Failed to get etcd session", "error", err)
 	}
+	dClient.session = session
+
+	logger.Infow("Got etdc session", "lease_id", session.Lease())
 
 	go dClient.run(appCtx)
-	go dClient.runRenewMembership(appCtx)
+	go dClient.runElectionCampaign(appCtx)
 
 	return dClient
 }
 
-func (d *etcdDistributedClient) attendMembership() error {
+func (d *etcdDistributedClient) run(appCtx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	response, err := d.client.Grant(context.Background(), MembershipTTL)
-	if err != nil {
-		return err
-	}
-
-	d.leaseId = response.ID
-
-	logger.Infow("Granted etcd client lease", "lease_id", response.ID)
-
-	return nil
-}
-
-func (d *etcdDistributedClient) renewMembership() error {
-	_, err := d.client.KeepAliveOnce(context.Background(), d.leaseId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (d *etcdDistributedClient) run(ctx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
-
-	logger.Infow("Running distributed client main loop", "lease_id", d.leaseId)
+	logger.Infow("Running distributed client main loop",
+		"lease_id", d.session.Lease())
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-appCtx.Done():
 			logger.Infow("Stopping distributed client main loop",
-				"lease_id", d.leaseId)
+				"lease_id", d.session.Lease())
 			return
 
 		}
 	}
 }
 
-func (d *etcdDistributedClient) runRenewMembership(ctx context.Context) {
-	extendMembershipTicker := time.NewTicker(MembershipExtendInterval)
-
+func (d *etcdDistributedClient) runElectionCampaign(appCtx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
+	leaderCheckTicker := time.NewTicker(LeaderCheckInterval)
+	election := concurrency.NewElection(d.session, ElectionPath)
+
+	d.campaign(appCtx, election)
+
 	for {
 		select {
-		case <-ctx.Done():
-			logger.Infow("Stopping membership renew goroutine for etcd client",
-				"lease_id", d.leaseId)
+		case <-appCtx.Done():
+			logger.Infow("Stopping election campaign goroutine",
+				"lease_id", d.session.Lease())
 			return
 
-		case <-extendMembershipTicker.C:
-			err := d.renewMembership()
-			if err != nil {
-				logger.Errorw("Failed to keep alive for this etcd client",
-					"lease_id", d.leaseId, "error", err)
-			}
+		case <-leaderCheckTicker.C:
+			d.campaign(appCtx, election)
 		}
 	}
+}
+
+// Check leader and if there is a no leader, try to take leadership.
+func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concurrency.Election) {
+	log, _ := zap.NewProduction()
+	defer log.Sync()
+	logger := log.Sugar()
+	electionCtx, electionCancelFunc := context.WithTimeout(appCtx, ElectionTimeout)
+
+	resp, err := election.Leader(electionCtx)
+
+	if err == nil {
+		if len(resp.Kvs) == 0 {
+			logger.Warnw("Got invalid Leader response from etcd. Will try next time",
+				"path", ElectionPath)
+			return
+		}
+
+		kv := resp.Kvs[0]
+		leader := fmt.Sprintf("%s", kv.Value)
+		logger.Infow("Got current leader", "path", ElectionPath, "leader", leader)
+		return
+	}
+
+	if err != concurrency.ErrElectionNoLeader {
+		logger.Errorw("Failed to get the leader",
+			"path", ElectionPath, "error", err)
+		return
+	}
+
+	logger.Infow("No leader found. Will campaign", "path", ElectionPath)
+	if err := election.Campaign(electionCtx, config.Spec.ServiceName); err != nil {
+		logger.Errorw("Failed to take leadership. Will try next time",
+			"path", ElectionPath, "error", err)
+		return
+	}
+
+	logger.Infow("Took leadership", "path", ElectionPath, "server_name", config.Spec.ServiceName)
+
+	electionCancelFunc()
 }
 
 func (d *etcdDistributedClient) Stop() {
@@ -125,6 +151,7 @@ func (d *etcdDistributedClient) Stop() {
 	defer log.Sync() // flushes buffer, if any
 	logger := log.Sugar()
 
+	d.session.Close()
 	d.client.Close()
 
 	logger.Info("Closed etcd client connection")

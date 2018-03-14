@@ -4,6 +4,4 @@ type RealtimeManager interface {
 }
 
 type realtimeManagerImpl struct {
-
 }
-

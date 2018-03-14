@@ -19,11 +19,11 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
 
+	"context"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"go.uber.org/zap"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
-	"context"
 )
 
 func main() {

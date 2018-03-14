@@ -1,10 +1,10 @@
 package websocket
 
 import (
+	"context"
 	ws "github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
-	"context"
 )
 
 var upgrader = ws.Upgrader{

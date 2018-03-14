@@ -3,8 +3,8 @@ package websocket
 import (
 	"context"
 
-	"go.uber.org/zap"
 	ws "github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type WebSocketManager interface {

@@ -1,8 +1,8 @@
 package websocket
 
 import (
-	"time"
 	"context"
+	"time"
 
 	ws "github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"

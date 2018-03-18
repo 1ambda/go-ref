@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/asaskevich/govalidator"
   packages = ["."]
-  revision = "521b25f4b05fd26bec69d9dedeb8f9c9a83939a8"
-  version = "v8"
+  revision = "ccb8e960c48f04d6935e72476ae4a51028f9e22f"
+  version = "v9"
 
 [[projects]]
   name = "github.com/coreos/etcd"
@@ -82,7 +82,7 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "09fac855d8504674b22594470227bd94e5005025"
+  revision = "b1db76181cbf53cf97a98980762a2bbf7cca8a0f"
 
 [[projects]]
   branch = "master"
@@ -177,7 +177,7 @@
     "jlexer",
     "jwriter"
   ]
-  revision = "4a8a4c12c4d1b0c0a7de630426ce6dcb07141b17"
+  revision = "f594efddfa171111dc4349cd6e78e8f61dc7936f"
 
 [[projects]]
   branch = "master"
@@ -240,7 +240,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "d0aafc73d5cdc42264b0af071c261abac580695e"
+  revision = "24dd3780ca4f75fed9f321890729414a4b5d3f13"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -268,7 +268,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "df60624c1e9b9d2973e889c7a1cff73155da81c4"
+  revision = "f8c8703595236ae70fdf8789ecb656ea0bcdcf46"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -319,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "67136f169f61d7d249eddcdb7af36b80c05d926f930ab006d21069a4170cc62b"
+  inputs-digest = "6ed226ffdbac19990b471e8c738cbaf5c979d5352d1c50d075433afb7595fbe7"
   solver-name = "gps-cdcl"
   solver-version = 1

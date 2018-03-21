@@ -34,6 +34,25 @@ var Spec Specification
 
 func init() {
 	Spec = GetSpecification()
+
+	log, _ := zap.NewProduction()
+	defer log.Sync() // flushes buffer, if any
+	logger := log.Sugar()
+
+	logger.Infow("Starting server...",
+		"version", Version,
+		"build_date", BuildDate,
+		"git_commit", GitCommit,
+		"git_branch", GitBranch,
+		"git_state", GitState,
+		"git_summary", GitSummary,
+		"env", Spec.Env,
+		"websocket_port", Spec.WebSocketPort,
+		"http_port", Spec.HttpPort,
+		"debug", Spec.Debug,
+		"etcd_endpoints", Spec.EtcdEndpoints,
+		"server_name", Spec.ServerName,
+	)
 }
 
 func GetSpecification() Specification {

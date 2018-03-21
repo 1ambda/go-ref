@@ -33,20 +33,6 @@ func main() {
 
 	// get config
 	spec := config.Spec
-	logger.Infow("Starting server...",
-		"version", config.Version,
-		"build_date", config.BuildDate,
-		"git_commit", config.GitCommit,
-		"git_branch", config.GitBranch,
-		"git_state", config.GitState,
-		"git_summary", config.GitSummary,
-		"env", spec.Env,
-		"websocket_port", spec.WebSocketPort,
-		"http_port", spec.HttpPort,
-		"debug", spec.Debug,
-		"etcd_endpoints", spec.EtcdEndpoints,
-		"server_name", spec.ServerName,
-	)
 
 	// setup db connection
 	logger.Info("Connecting to MySQL")
@@ -60,23 +46,17 @@ func main() {
 	db.SingularTable(true)
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
 
-	//
+	// create app context
 	appCtx, appCancelFunc := context.WithCancel(context.Background())
-
-	// setup etcd
-	logger.Info("Configure distributed client (etcd)")
-	dClient := realtime.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName)
 
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
-
 	wsManager := websocket.Configure(appCtx, mux)
-	//wsCors := cors.New(cors.Options{
-	//	AllowedOrigins: []string{"http://localhost:3000"},
-	//	AllowCredentials: true,
-	//})
-	//wsHandler := wsCors.Handler(mux)
+
+	// setup etcd client
+	logger.Info("Configure distributed client (etcd)")
+	dClient := realtime.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
 
 	go func() {
 		wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)

@@ -8,28 +8,31 @@ import (
 )
 
 type WebSocketManager interface {
-	Run(ctx context.Context)
-	Stop()
-
-	register(c *WebSocketClient) error
-	unregister(c *WebSocketClient) error
+	Stop() <-chan bool
+	GetClientCount() int
+	Broadcast(message *WebSocketMessage)
 }
 
 type webSocketManagerImpl struct {
-	clients          map[*WebSocketClient]bool
+	clients               map[*WebSocketClient]bool
+	broadcastMessageCache map[string]*WebSocketMessage // used to cache recent values
+
 	registerChan     chan *ws.Conn
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
+	broadcastChan    chan *WebSocketMessage
 	finishedChan     chan bool
 }
 
 func NewWebSocketManager() *webSocketManagerImpl {
 	m := &webSocketManagerImpl{
-		clients:          make(map[*WebSocketClient]bool),
-		registerChan:     make(chan *ws.Conn),
-		unregisterChan:   make(chan *WebSocketClient),
-		disconnectedChan: make(chan *WebSocketClient),
-		finishedChan:     make(chan bool),
+		clients:               make(map[*WebSocketClient]bool),
+		broadcastMessageCache: make(map[string]*WebSocketMessage),
+		registerChan:          make(chan *ws.Conn),
+		unregisterChan:        make(chan *WebSocketClient),
+		disconnectedChan:      make(chan *WebSocketClient),
+		broadcastChan:         make(chan *WebSocketMessage),
+		finishedChan:          make(chan bool),
 	}
 
 	return m
@@ -48,8 +51,14 @@ func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 	m.clients[client] = true
 	go client.run(ctx)
 
+
+	// send cached broadcast messages
+	for _, message := range m.broadcastMessageCache {
+		client.sendChan <- message
+	}
+
 	count := len(m.clients)
-	message, err := NewConnectionCountWebsocketMessage(count)
+	message, err := NewConnectionCountMessage(count)
 	if err != nil {
 		logger.Errorw("Failed to build UpdateConnectionCount message")
 		return err
@@ -69,22 +78,24 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 
 	logger.Infow("Unregister client", "uuid", c.uuid)
 
-	if _, ok := m.clients[c]; ok {
-		delete(m.clients, c)
-		go func(deletedClient *WebSocketClient) {
-			deletedClient.cancelFunc()
-		}(c)
+	if _, ok := m.clients[c]; !ok {
+		return nil // ignore a request for an invalid client
+	}
 
-		count := len(m.clients)
-		message, err := NewConnectionCountWebsocketMessage(count)
-		if err != nil {
-			logger.Errorw("Failed to build UpdateConnectionCount message", "error", err)
-			return err
-		}
+	delete(m.clients, c)
+	go func(deletedClient *WebSocketClient) {
+		deletedClient.cancelFunc()
+	}(c)
 
-		for client := range m.clients {
-			client.sendChan <- message
-		}
+	count := len(m.clients)
+	message, err := NewConnectionCountMessage(count)
+	if err != nil {
+		logger.Errorw("Failed to build UpdateConnectionCount message", "error", err)
+		return err
+	}
+
+	for client := range m.clients {
+		client.sendChan <- message
 	}
 
 	return nil
@@ -99,6 +110,14 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 
 	for {
 		select {
+		case message := <-m.broadcastChan:
+			// update cache. this will be used for newly joined clients
+			m.broadcastMessageCache[message.event] = message
+
+			for client := range m.clients {
+				client.sendChan <- message
+			}
+
 		case client := <-m.registerChan:
 			m.register(client)
 
@@ -112,13 +131,22 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 
 			close(m.registerChan)
 			close(m.unregisterChan)
-			logger.Info("Stopped WebSocketManager")
+			close(m.broadcastChan)
 
+			logger.Info("Stopped WebSocketManager")
 			m.finishedChan <- true
 			close(m.finishedChan)
 			return
 		}
 	}
+}
+
+func (m *webSocketManagerImpl) GetClientCount() int {
+	return len(m.clients)
+}
+
+func (m *webSocketManagerImpl) Broadcast(message *WebSocketMessage) {
+	m.broadcastChan <- message
 }
 
 func (m *webSocketManagerImpl) Stop() <-chan bool {

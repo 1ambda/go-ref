@@ -114,20 +114,21 @@ func (c *WebSocketClient) run(ctx context.Context) {
 			}
 
 		case <-messagePopTicker.C:
-			if len(c.buffer) == 0 || c.isSending {
+			if len(c.buffer) == 0 {
 				continue
 			}
 
-			message := c.buffer[0]
-			c.buffer = c.buffer[1:]
-
-			c.isSending = true
-			if err := c.send(message); err != nil {
-				// don't write log, client is disconnected
-				logger.Warnw("Failed to send message to client", "uuid", c.uuid)
-				c.manager.unregisterChan <- c
+			for _, message := range c.buffer {
+				if err := c.send(message); err != nil {
+					// don't write log, client is disconnected
+					logger.Warnw("Failed to send message to client. Closing this client",
+						"uuid", c.uuid)
+					c.manager.unregisterChan <- c
+					break
+				}
 			}
-			c.isSending = false
+
+			c.buffer = nil
 
 		case <-ctx.Done():
 			c.close()

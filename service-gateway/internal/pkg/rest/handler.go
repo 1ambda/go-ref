@@ -12,10 +12,12 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"time"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
+	"fmt"
 )
 
-func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI) {
-	api.AccessAddOneHandler = buildAccessAddOneHandler(db)
+func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient realtime.DistributedClient) {
+	api.AccessAddOneHandler = buildAccessAddOneHandler(db, dClient)
 	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
 	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
 	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
@@ -67,7 +69,7 @@ func buildRestError(err error) *rest_model.Error {
 	}
 }
 
-func buildAccessAddOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
+func buildAccessAddOneHandler(db *gorm.DB, dClient realtime.DistributedClient) access.AddOneHandlerFunc {
 	return access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
 			log, _ := zap.NewProduction()
@@ -80,10 +82,17 @@ func buildAccessAddOneHandler(db *gorm.DB) access.AddOneHandlerFunc {
 			if err := db.Create(record).Error; err != nil {
 				logger.Errorw("Failed to create new Access record: %v", "error", err)
 				restError := buildRestError(err)
-				access.NewAddOneDefault(500).WithPayload(restError)
+				return access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
-			//r.BroadcastToTalAccessCount()
+			var count int64 = 0
+			if err := db.Table(model.AccessTable).Count(&count).Error; err != nil {
+				logger.Errorw("Failed to create new Access record: %v", "error", err)
+			} else {
+				logger.Info("Hello", "count", count)
+				stringified := fmt.Sprintf("%d", count)
+				dClient.Publish(realtime.NewTotalAccessCountMessage(stringified))
+			}
 
 			return access.NewAddOneCreated().WithPayload(params.Body)
 		})
@@ -102,7 +111,7 @@ func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
 			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
 				logger.Errorw("Failed to create new Access record", "error", err)
 				restError := buildRestError(err)
-				access.NewFindOneDefault(404).WithPayload(restError)
+				return access.NewFindOneDefault(404).WithPayload(restError)
 			}
 
 			response := convertAccessToRestModel(&record)
@@ -132,10 +141,11 @@ func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
 				Limit(int(*itemCountPerPage)).
 				Find(&records).
 				Error
+
 			if err != nil {
 				logger.Errorw("Failed to find all Access records", "error", err)
 				restError := buildRestError(err)
-				access.NewFindAllDefault(500).WithPayload(restError)
+				return access.NewFindAllDefault(500).WithPayload(restError)
 			}
 
 			rows := make([]*rest_model.Access, 0)
@@ -169,7 +179,7 @@ func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
 			if err := db.Where("id = ?", params.ID).Delete(&model.Access{}).Error; err != nil {
 				logger.Errorw("Failed to delete new Access record: %v", "error", err)
 				restError := buildRestError(err)
-				access.NewAddOneDefault(500).WithPayload(restError)
+				return access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
 			return access.NewRemoveOneNoContent()
@@ -190,7 +200,7 @@ func buildAccessUpdateOneHandler(db *gorm.DB) access.UpdateOneHandlerFunc {
 			if err := db.Model(&updated).Where("id = ?", params.ID).Update(record).Error; err != nil {
 				logger.Errorw("Failed to update new Access record: %v", "error", err)
 				restError := buildRestError(err)
-				access.NewAddOneDefault(500).WithPayload(restError)
+				return access.NewAddOneDefault(500).WithPayload(restError)
 			}
 
 			response := convertAccessToRestModel(&updated)

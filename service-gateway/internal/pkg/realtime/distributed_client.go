@@ -8,16 +8,15 @@ import (
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
 	"go.uber.org/zap"
-	"sync"
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
 )
 
 type DistributedClient interface {
+	Publish(message *DistributedMessage)
 	Stop()
 }
 
-const UpdateStatTaskInterval = 3 * time.Second
 const CampaignInterval = 5 * time.Second
 const ElectionTimeout = 10 * time.Second
 const ElectionPath = "/gateway-leader"
@@ -27,15 +26,13 @@ const EtcdPutGetTimeout = 5 * time.Second
 type etcdDistributedClient struct {
 	client     *clientv3.Client
 	session    *concurrency.Session
-	lock       sync.RWMutex
 	leader     string
 	serverName string
+
+	publishChan chan *DistributedMessage
+
 	wsManager  websocket.WebSocketManager
 }
-
-const KeyWsConnectionStat = "gateway/stat/wsConnectionCount"
-const KeyTotalAccessStat = "gateway/stat/totalAccessCount"
-const KeyLeaderNameStat = "gateway/stat/leaderName"
 
 func NewDistributedClient(appCtx context.Context, endpoints []string,
 	serverName string, wsManager websocket.WebSocketManager) DistributedClient {
@@ -59,7 +56,8 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 	}
 
 	dClient := &etcdDistributedClient{
-		client: etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
+		client:      etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
+		publishChan: make(chan *DistributedMessage),
 	}
 
 	session, err := concurrency.NewSession(etcdClient, concurrency.WithTTL(EtcdSessionTTL))
@@ -72,7 +70,7 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 
 	logger.Infow("Got etdc session", "lease_id", session.Lease())
 
-	//go dClient.runPutStatTask(appCtx)
+	go dClient.runPublishTask(appCtx)
 	go dClient.runWatchTask(appCtx)
 	go dClient.runElectionCampaign(appCtx)
 
@@ -84,8 +82,9 @@ func (d *etcdDistributedClient) put(appCtx context.Context, key string, value st
 	defer log.Sync()
 	logger := log.Sugar()
 
-	ctx, cancel := context.WithTimeout(context.Background(), EtcdPutGetTimeout)
+	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
 	defer cancel()
+
 	_, err := d.client.Put(ctx, key, value, clientv3.WithLease(d.session.Lease()))
 
 	if err != nil {
@@ -102,12 +101,12 @@ func (d *etcdDistributedClient) put(appCtx context.Context, key string, value st
 	}
 }
 
-func (d *etcdDistributedClient) runPutStatTask(appCtx context.Context) {
+func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	ticker := time.NewTicker(UpdateStatTaskInterval)
+	defer close(d.publishChan)
 
 	for {
 		select {
@@ -115,9 +114,8 @@ func (d *etcdDistributedClient) runPutStatTask(appCtx context.Context) {
 			logger.Infow("Stopping follower task goroutine")
 			return
 
-		case <-ticker.C:
-			logger.Infow("Follower Task")
-			// 1. Update this server specific stats (websocket), ...
+		case message := <-d.publishChan:
+			d.put(appCtx, message.key, message.value)
 		}
 	}
 }
@@ -142,7 +140,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 		case watchResponse := <-wchWsConnection:
 			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", KeyWsConnectionStat)
+				logger.Errorw("etcd watch channel is about to close", "key", KeyLeaderNameStat)
 				stop = true
 				break
 			}
@@ -156,6 +154,20 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 		case watchResponse := <-wchTotalAccess:
 			if watchResponse.Canceled {
+				logger.Errorw("etcd watch channel is about to close", "key", KeyTotalAccessStat)
+				stop = true
+				break
+			}
+
+			if err := watchResponse.Err(); err != nil {
+				logger.Errorw("Unknown watch response error", "error", err)
+				continue
+			}
+
+			d.subscribeTotalAccessCount(&watchResponse)
+
+		case watchResponse := <-wchLeaderName:
+			if watchResponse.Canceled {
 				logger.Errorw("etcd watch channel is about to close", "key", KeyWsConnectionStat)
 				stop = true
 				break
@@ -166,34 +178,40 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 				continue
 			}
 
-			// TODO
-
-		case watchResponse := <-wchLeaderName:
-			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", KeyWsConnectionStat)
-				stop = true
-				break
-			}
-
-			d.handleLeaderWatch(&watchResponse)
+			d.subscribeLeaderName(&watchResponse)
 		}
 	}
 
 	logger.Infow("Stopping watch task goroutine")
 }
 
-func (d *etcdDistributedClient) handleLeaderWatch(watchResponse *clientv3.WatchResponse) {
+func (d *etcdDistributedClient) subscribeTotalAccessCount(response *clientv3.WatchResponse) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	if err := watchResponse.Err(); err != nil {
-		logger.Errorw("Unknown watch response error", "error", err)
-		return
-	}
+	for _, ev := range response.Events {
+		key := fmt.Sprintf("%s", ev.Kv.Key)
+		value := fmt.Sprintf("%s", ev.Kv.Value)
+		logger.Infow("WatchEvent", "event_type", ev.Type,
+			"event_key", key, "event_value", value)
 
-	// TODO: Update this server specific stats (websocket), ...
-	for _, ev := range watchResponse.Events {
+		message, err := websocket.NewTotalAccessCountMessage(value)
+		if err != nil {
+			logger.Errorw("Failed to build NewTotalAccessCountMessage", "error", err)
+			continue
+		}
+
+		d.wsManager.Broadcast(message)
+	}
+}
+
+func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResponse) {
+	log, _ := zap.NewProduction()
+	defer log.Sync()
+	logger := log.Sugar()
+
+	for _, ev := range response.Events {
 		key := fmt.Sprintf("%s", ev.Kv.Key)
 		value := fmt.Sprintf("%s", ev.Kv.Value)
 		logger.Infow("WatchEvent", "event_type", ev.Type,
@@ -257,10 +275,8 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 			return
 		}
 
-		d.lock.Lock()
 		d.leader = leader
-		d.lock.Unlock()
-		// TODO broadcast
+		d.put(appCtx, KeyLeaderNameStat, d.leader)
 
 		return
 	}
@@ -279,10 +295,12 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 	}
 
 	logger.Infow("Took leadership", "path", ElectionPath, "server_name", d.serverName)
-	d.lock.Lock()
 	d.leader = d.serverName
-	d.lock.Unlock()
 	d.put(appCtx, KeyLeaderNameStat, d.leader)
+}
+
+func (d *etcdDistributedClient) Publish(message *DistributedMessage) {
+	d.publishChan <- message
 }
 
 func (d *etcdDistributedClient) Stop() {

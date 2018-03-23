@@ -101,7 +101,7 @@ func main() {
 
 	// configure REST server handlers, middlewares
 	logger.Info("Configure REST handlers")
-	rest.Configure(db, api)
+	rest.Configure(db, api, dClient)
 	handler := api.Serve(nil)
 
 	logger.Info("Configure REST middleware")

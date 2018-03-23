@@ -49,3 +49,22 @@ func NewLeaderNameMessage(leaderName string) (*WebSocketMessage, error) {
 
 	return &WebSocketMessage{content: &serialized, event: eventType}, nil
 }
+
+func NewTotalAccessCountMessage(count string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateTotalAccessCount
+	stringified := fmt.Sprintf("%s", count)
+
+	message := ws_model.WebSocketRealtimeResponse{
+		Header: &ws_model.WebSocketResponseHeader{ResponseType: &eventType},
+		Body: &ws_model.WebSocketRealtimeResponseBody{
+			Value: &stringified,
+		},
+	}
+
+	serialized, err := json.Marshal(message)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WebSocketMessage{content: &serialized, event: eventType}, nil
+}

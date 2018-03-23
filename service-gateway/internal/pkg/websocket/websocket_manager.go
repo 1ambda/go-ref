@@ -8,9 +8,8 @@ import (
 )
 
 type WebSocketManager interface {
-	Stop() <-chan bool
-	GetClientCount() int
 	Broadcast(message *WebSocketMessage)
+	Stop() <-chan bool
 }
 
 type webSocketManagerImpl struct {
@@ -50,7 +49,6 @@ func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 
 	m.clients[client] = true
 	go client.run(ctx)
-
 
 	// send cached broadcast messages
 	for _, message := range m.broadcastMessageCache {
@@ -139,10 +137,6 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 			return
 		}
 	}
-}
-
-func (m *webSocketManagerImpl) GetClientCount() int {
-	return len(m.clients)
 }
 
 func (m *webSocketManagerImpl) Broadcast(message *WebSocketMessage) {

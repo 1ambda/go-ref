@@ -1,5 +1,5 @@
 /**
- * Gateway Websocket API
+ * GatewayWebsocketApi
  * Websocket API Spec for Gateway
  *
  * OpenAPI spec version: 0.0.1

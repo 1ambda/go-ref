@@ -42,10 +42,10 @@ export class HomeComponent implements OnInit {
   /**
    * server-side streamed variables
    */
-  totalAccessCount = 0
-  currentUserCount: string = "0"
+  totalAccessCount = "0"
+  currentUserCount = "0"
   currentNodeCount = 1
-  currentMasterIdentifier = "GATEWAY-0"
+  currentMasterIdentifier = "UNKNOWN"
 
   constructor(
     private accessService: AccessService,
@@ -58,7 +58,11 @@ export class HomeComponent implements OnInit {
     this.sendAccess()
       .subscribe(created => {
         this.fetchAllAccessList()
+
+        // TODO: re-subscribe when websocket is disconnected
         this.subscribeCurrentConnectionCount()
+        this.subscribeTotalAccessCount()
+        this.subscribeLMasterIdentifier()
       })
 
   }
@@ -77,6 +81,7 @@ export class HomeComponent implements OnInit {
       language: client.getLanguage(),
       userAgent: window.navigator.userAgent,
     };
+
 
     return this.accessService.addOne(access)
   }
@@ -107,11 +112,26 @@ export class HomeComponent implements OnInit {
       })
   }
 
+  subscribeTotalAccessCount() {
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateTotalAccessCount
+    this.webSocketService.watch(eventType)
+      .subscribe((response: WebSocketRealtimeResponse) => {
+        this.totalAccessCount = response.body.value
+      })
+  }
+
+  subscribeLMasterIdentifier() {
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateMasterIdentifier
+    this.webSocketService.watch(eventType)
+      .subscribe((response: WebSocketRealtimeResponse) => {
+        this.currentMasterIdentifier = response.body.value
+      })
+  }
+
   /**
    * @param event { count, pageSize, limit, offset }
    */
   onPageChange(event) {
-    console.log(event)
     this.currentPageOffset = event.offset;
     this.fetchAllAccessList()
   }

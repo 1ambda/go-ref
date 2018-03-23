@@ -1,5 +1,5 @@
 /**
- * Gateway REST API
+ * GatewayRestApi
  * REST API Spec for Gateway
  *
  * OpenAPI spec version: 0.0.1

@@ -10,7 +10,7 @@ type WebSocketMessage struct {
 	event   string  // message type
 }
 
-func NewServerCountMessage(count string) (*WebSocketMessage, error) {
+func NewNodeCountMessage(count string) (*WebSocketMessage, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateMasterNodeCount
 
 	message := ws_model.WebSocketRealtimeResponse{

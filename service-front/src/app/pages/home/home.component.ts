@@ -125,7 +125,7 @@ export class HomeComponent implements OnInit {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateMasterIdentifier
     this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
-        this.currentMasterIdentifier = response.body.value
+        this.currentMasterIdentifier = "gateway-" + response.body.value
       })
   }
 

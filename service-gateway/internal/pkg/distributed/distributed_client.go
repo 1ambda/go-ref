@@ -233,10 +233,10 @@ func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Contex
 		logger.Errorw("Failed to build NewConnectionCountMessage", "error", err)
 	}
 
-	message, err = websocket.NewServerCountMessage(fmt.Sprintf("%d", serverCount))
+	message, err = websocket.NewNodeCountMessage(fmt.Sprintf("%d", serverCount))
 	d.wsManager.Broadcast(message)
 	if err != nil {
-		logger.Errorw("Failed to build NewServerCountMessage", "error", err)
+		logger.Errorw("Failed to build NewNodeCountMessage", "error", err)
 	}
 }
 

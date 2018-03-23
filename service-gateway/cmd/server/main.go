@@ -58,10 +58,13 @@ func main() {
 	logger.Info("Configure distributed client (etcd)")
 	dClient := realtime.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
 
+	wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
+	logger.Infof("Serving gateway ws at http://127.0.0.1:%d", spec.WebSocketPort)
+	wsServer := &http.Server{Addr: wsServerPort, Handler: mux}
+
 	go func() {
-		wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
-		if err := http.ListenAndServe(wsServerPort, mux); err != nil {
-			logger.Fatalw("failed starting websocket server", "error", err)
+		if err := wsServer.ListenAndServe(); err != nil {
+			logger.Infof("Stopped serving gateway ws at http://127.0.0.1:%d", spec.WebSocketPort)
 		}
 	}()
 
@@ -112,7 +115,11 @@ func main() {
 		logger.Info("Handling shutdown hook")
 		appCancelFunc()
 		dClient.Stop()
+
 		<-wsManager.Stop()
+		if err := wsServer.Shutdown(nil); err != nil {
+			logger.Errorw("Failed to shutdown wsServer gracefully", "error", err)
+		}
 	}
 
 	if err := server.Serve(); err != nil {
@@ -127,3 +134,5 @@ func connectToMySQL(spec config.Specification) (*gorm.DB, error) {
 
 	return db, err
 }
+
+

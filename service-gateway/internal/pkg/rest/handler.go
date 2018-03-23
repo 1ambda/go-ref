@@ -12,7 +12,7 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"time"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/realtime"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/distributed"
 	"fmt"
 )
 

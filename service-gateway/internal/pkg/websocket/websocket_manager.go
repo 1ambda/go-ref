@@ -106,6 +106,11 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 
 	logger.Info("Starting WebSocketManager")
 
+	defer close(m.registerChan)
+	defer close(m.unregisterChan)
+	defer close(m.broadcastChan)
+	defer close(m.finishedChan)
+
 	for {
 		select {
 		case message := <-m.broadcastChan:
@@ -127,13 +132,8 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 				m.unregister(c)
 			}
 
-			close(m.registerChan)
-			close(m.unregisterChan)
-			close(m.broadcastChan)
-
 			logger.Info("Stopped WebSocketManager")
 			m.finishedChan <- true
-			close(m.finishedChan)
 			return
 		}
 	}

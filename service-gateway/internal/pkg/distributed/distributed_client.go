@@ -31,7 +31,7 @@ type etcdDistributedClient struct {
 
 	publishChan chan *DistributedMessage
 
-	wsManager  websocket.WebSocketManager
+	wsManager websocket.WebSocketManager
 }
 
 func NewDistributedClient(appCtx context.Context, endpoints []string,
@@ -108,6 +108,8 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 
 	defer close(d.publishChan)
 
+	wsConnCountChan := d.wsManager.SubscribeConnectionCount()
+
 	for {
 		select {
 		case <-appCtx.Done():
@@ -116,7 +118,11 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 
 		case message := <-d.publishChan:
 			d.put(appCtx, message.key, message.value)
+
+		case wsConnCount := <-wsConnCountChan:
+			d.put(appCtx, KeyWsConnectionStat, wsConnCount)
 		}
+
 	}
 }
 
@@ -150,7 +156,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 				continue
 			}
 
-			// TODO
+			d.subscribeWsConnectionCount(&watchResponse)
 
 		case watchResponse := <-wchTotalAccess:
 			if watchResponse.Canceled {
@@ -185,17 +191,30 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 	logger.Infow("Stopping watch task goroutine")
 }
 
+func (d *etcdDistributedClient) subscribeWsConnectionCount(response *clientv3.WatchResponse) {
+	log, _ := zap.NewProduction()
+	defer log.Sync()
+	logger := log.Sugar()
+
+	for _, ev := range response.Events {
+		value := fmt.Sprintf("%s", ev.Kv.Value)
+		message, err := websocket.NewConnectionCountMessage(value)
+		if err != nil {
+			logger.Errorw("Failed to build NewConnectionCountMessage", "error", err)
+			continue
+		}
+
+		d.wsManager.Broadcast(message)
+	}
+}
+
 func (d *etcdDistributedClient) subscribeTotalAccessCount(response *clientv3.WatchResponse) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
 	for _, ev := range response.Events {
-		key := fmt.Sprintf("%s", ev.Kv.Key)
 		value := fmt.Sprintf("%s", ev.Kv.Value)
-		logger.Infow("WatchEvent", "event_type", ev.Type,
-			"event_key", key, "event_value", value)
-
 		message, err := websocket.NewTotalAccessCountMessage(value)
 		if err != nil {
 			logger.Errorw("Failed to build NewTotalAccessCountMessage", "error", err)
@@ -212,11 +231,7 @@ func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResp
 	logger := log.Sugar()
 
 	for _, ev := range response.Events {
-		key := fmt.Sprintf("%s", ev.Kv.Key)
 		value := fmt.Sprintf("%s", ev.Kv.Value)
-		logger.Infow("WatchEvent", "event_type", ev.Type,
-			"event_key", key, "event_value", value)
-
 		message, err := websocket.NewLeaderNameMessage(value)
 		if err != nil {
 			logger.Errorw("Failed to build NewLeaderNameMessage", "error", err)

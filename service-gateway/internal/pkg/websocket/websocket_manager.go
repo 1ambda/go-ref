@@ -5,10 +5,12 @@ import (
 
 	ws "github.com/gorilla/websocket"
 	"go.uber.org/zap"
+	"fmt"
 )
 
 type WebSocketManager interface {
 	Broadcast(message *WebSocketMessage)
+	SubscribeConnectionCount() <-chan string // subscribed by DistributedClient
 	Stop() <-chan bool
 }
 
@@ -21,17 +23,22 @@ type webSocketManagerImpl struct {
 	disconnectedChan chan *WebSocketClient
 	broadcastChan    chan *WebSocketMessage
 	finishedChan     chan bool
+
+	wsConnCountChan chan string
 }
 
 func NewWebSocketManager() *webSocketManagerImpl {
 	m := &webSocketManagerImpl{
 		clients:               make(map[*WebSocketClient]bool),
 		broadcastMessageCache: make(map[string]*WebSocketMessage),
+
 		registerChan:          make(chan *ws.Conn),
 		unregisterChan:        make(chan *WebSocketClient),
 		disconnectedChan:      make(chan *WebSocketClient),
 		broadcastChan:         make(chan *WebSocketMessage),
 		finishedChan:          make(chan bool),
+
+		wsConnCountChan: make(chan string),
 	}
 
 	return m
@@ -55,16 +62,8 @@ func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 		client.sendChan <- message
 	}
 
-	count := len(m.clients)
-	message, err := NewConnectionCountMessage(count)
-	if err != nil {
-		logger.Errorw("Failed to build UpdateConnectionCount message")
-		return err
-	}
-
-	for client := range m.clients {
-		client.sendChan <- message
-	}
+	count := fmt.Sprintf("%d", len(m.clients))
+	m.wsConnCountChan <- count
 
 	return nil
 }
@@ -85,16 +84,8 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 		deletedClient.cancelFunc()
 	}(c)
 
-	count := len(m.clients)
-	message, err := NewConnectionCountMessage(count)
-	if err != nil {
-		logger.Errorw("Failed to build UpdateConnectionCount message", "error", err)
-		return err
-	}
-
-	for client := range m.clients {
-		client.sendChan <- message
-	}
+	count := fmt.Sprintf("%d", len(m.clients))
+	m.wsConnCountChan <- count
 
 	return nil
 }
@@ -137,6 +128,10 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 			return
 		}
 	}
+}
+
+func (m *webSocketManagerImpl) SubscribeConnectionCount() <-chan string {
+	return m.wsConnCountChan
 }
 
 func (m *webSocketManagerImpl) Broadcast(message *WebSocketMessage) {

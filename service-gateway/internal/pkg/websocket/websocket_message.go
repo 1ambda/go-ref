@@ -10,6 +10,24 @@ type WebSocketMessage struct {
 	event   string  // message type
 }
 
+func NewServerCountMessage(count string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateMasterNodeCount
+
+	message := ws_model.WebSocketRealtimeResponse{
+		Header: &ws_model.WebSocketResponseHeader{ResponseType: &eventType},
+		Body: &ws_model.WebSocketRealtimeResponseBody{
+			Value: &count,
+		},
+	}
+
+	serialized, err := json.Marshal(message)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WebSocketMessage{content: &serialized, event: eventType}, nil
+}
+
 func NewConnectionCountMessage(count string) (*WebSocketMessage, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateConnectionCount
 

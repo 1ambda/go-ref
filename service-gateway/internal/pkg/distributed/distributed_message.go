@@ -1,14 +1,16 @@
 package realtime
 
-const KeyWsConnectionStat = "gateway/stat/wsConnectionCount"
-const KeyTotalAccessStat = "gateway/stat/totalAccessCount"
-const KeyLeaderNameStat = "gateway/stat/leaderName"
+const SingleKeyWsConnectionCount = "gateway/single/count-websocket-connection"
+const SingleKeyTotalAccessCount = "gateway/single/count-total-access"
+const SingleKeyLeaderName = "gateway/single/leader-name"
+
+const RangeKeyPrefixWebSocket = "gateway/range/websocket/gateway-"
 
 type DistributedMessage struct {
-	key string
+	key   string
 	value string
 }
 
 func NewTotalAccessCountMessage(count string) *DistributedMessage {
-	return &DistributedMessage{key: KeyTotalAccessStat, value: count}
+	return &DistributedMessage{key: SingleKeyTotalAccessCount, value: count}
 }

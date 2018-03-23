@@ -3,13 +3,16 @@ package realtime
 import (
 	"context"
 	"time"
-
+	"strconv"
 	"fmt"
+
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
 	"go.uber.org/zap"
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
+	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
+	"google.golang.org/grpc"
 )
 
 type DistributedClient interface {
@@ -77,28 +80,19 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 	return dClient
 }
 
-func (d *etcdDistributedClient) put(appCtx context.Context, key string, value string) {
+func (d *etcdDistributedClient) Publish(message *DistributedMessage) {
+	d.publishChan <- message
+}
+
+func (d *etcdDistributedClient) Stop() {
 	log, _ := zap.NewProduction()
-	defer log.Sync()
+	defer log.Sync() // flushes buffer, if any
 	logger := log.Sugar()
 
-	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
-	defer cancel()
+	d.session.Close()
+	d.client.Close()
 
-	_, err := d.client.Put(ctx, key, value, clientv3.WithLease(d.session.Lease()))
-
-	if err != nil {
-		switch err {
-		case context.Canceled:
-			logger.Errorf("ctx is canceled by another routine", "error", err)
-		case context.DeadlineExceeded:
-			logger.Errorf("ctx is attached with a deadline is exceeded", "error", err)
-		case rpctypes.ErrEmptyKey:
-			logger.Errorf("Empty etdc key", "error", err)
-		default:
-			logger.Errorf("bad cluster endpoints, which are not etcd servers", "error", err)
-		}
-	}
+	logger.Info("Closed etcd client connection")
 }
 
 func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
@@ -109,6 +103,7 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 	defer close(d.publishChan)
 
 	wsConnCountChan := d.wsManager.SubscribeConnectionCount()
+	wsConnCountKey := fmt.Sprintf("%s%s", RangeKeyPrefixWebSocket, config.Spec.ServerName)
 
 	for {
 		select {
@@ -120,9 +115,8 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 			d.put(appCtx, message.key, message.value)
 
 		case wsConnCount := <-wsConnCountChan:
-			d.put(appCtx, KeyWsConnectionStat, wsConnCount)
+			d.put(appCtx, wsConnCountKey, wsConnCount)
 		}
-
 	}
 }
 
@@ -133,9 +127,9 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 	// TODO: make variables for watched values
 
-	wchWsConnection := d.client.Watch(appCtx, KeyWsConnectionStat, clientv3.WithPrefix())
-	wchTotalAccess := d.client.Watch(appCtx, KeyTotalAccessStat, clientv3.WithPrefix())
-	wchLeaderName := d.client.Watch(appCtx, KeyLeaderNameStat, clientv3.WithPrefix())
+	wchWsConnection := d.client.Watch(appCtx, RangeKeyPrefixWebSocket, clientv3.WithPrefix())
+	wchTotalAccess := d.client.Watch(appCtx, SingleKeyTotalAccessCount, clientv3.WithPrefix())
+	wchLeaderName := d.client.Watch(appCtx, SingleKeyLeaderName, clientv3.WithPrefix())
 
 	stop := false
 	for !stop {
@@ -146,7 +140,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 		case watchResponse := <-wchWsConnection:
 			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", KeyLeaderNameStat)
+				logger.Errorw("etcd watch channel is about to close", "key", RangeKeyPrefixWebSocket)
 				stop = true
 				break
 			}
@@ -156,11 +150,11 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 				continue
 			}
 
-			d.subscribeWsConnectionCount(&watchResponse)
+			d.subscribeWsConnectionCount(appCtx, &watchResponse)
 
 		case watchResponse := <-wchTotalAccess:
 			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", KeyTotalAccessStat)
+				logger.Errorw("etcd watch channel is about to close", "key", SingleKeyTotalAccessCount)
 				stop = true
 				break
 			}
@@ -174,7 +168,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 		case watchResponse := <-wchLeaderName:
 			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", KeyWsConnectionStat)
+				logger.Errorw("etcd watch channel is about to close", "key", SingleKeyWsConnectionCount)
 				stop = true
 				break
 			}
@@ -191,20 +185,58 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 	logger.Infow("Stopping watch task goroutine")
 }
 
-func (d *etcdDistributedClient) subscribeWsConnectionCount(response *clientv3.WatchResponse) {
+func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Context, response *clientv3.WatchResponse) {
 	log, _ := zap.NewProduction()
 	defer log.Sync()
 	logger := log.Sugar()
 
-	for _, ev := range response.Events {
-		value := fmt.Sprintf("%s", ev.Kv.Value)
-		message, err := websocket.NewConnectionCountMessage(value)
-		if err != nil {
-			logger.Errorw("Failed to build NewConnectionCountMessage", "error", err)
+	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
+	defer cancel()
+
+	// watch for websocket connection count is triggered.
+	// retrieve all instances' connection count and sum them
+	resp, err := d.client.Get(ctx, RangeKeyPrefixWebSocket, clientv3.WithPrefix())
+
+	if err != nil {
+		if err == context.Canceled {
+			// grpc balancer calls 'Get' with an inflight client.Close
+			logger.Errorw("context is canceled. grpc balancer calls 'Get' with an inflight client.Close", "error", err)
+		} else if err == grpc.ErrClientConnClosing {
+			// grpc balancer calls 'Get' after client.Close.
+			logger.Errorw("grpc balancer calls 'Get' after client.Close.", "error", err)
+		} else {
+			logger.Errorw("Unknown etcd client Get error", "error", err)
+		}
+
+		return
+	}
+
+	var wsConnCount int64 = 0
+	serverCount := 0
+	for _, kv := range resp.Kvs {
+		key := fmt.Sprintf("%s", kv.Key)
+		value := fmt.Sprintf("%s", kv.Value)
+
+		count, err := strconv.ParseInt(value, 10, 64)
+		if err != nil || count < 0 {
+			logger.Errorf("Failed to parse websocket connection count", "key", key, "count", count)
 			continue
 		}
 
-		d.wsManager.Broadcast(message)
+		wsConnCount += count
+		serverCount += 1
+	}
+
+	message, err := websocket.NewConnectionCountMessage(fmt.Sprintf("%d", wsConnCount))
+	d.wsManager.Broadcast(message)
+	if err != nil {
+		logger.Errorw("Failed to build NewConnectionCountMessage", "error", err)
+	}
+
+	message, err = websocket.NewServerCountMessage(fmt.Sprintf("%d", serverCount))
+	d.wsManager.Broadcast(message)
+	if err != nil {
+		logger.Errorw("Failed to build NewServerCountMessage", "error", err)
 	}
 }
 
@@ -291,7 +323,7 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 		}
 
 		d.leader = leader
-		d.put(appCtx, KeyLeaderNameStat, d.leader)
+		d.put(appCtx, SingleKeyLeaderName, d.leader)
 
 		return
 	}
@@ -311,20 +343,29 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 
 	logger.Infow("Took leadership", "path", ElectionPath, "server_name", d.serverName)
 	d.leader = d.serverName
-	d.put(appCtx, KeyLeaderNameStat, d.leader)
+	d.put(appCtx, SingleKeyLeaderName, d.leader)
 }
 
-func (d *etcdDistributedClient) Publish(message *DistributedMessage) {
-	d.publishChan <- message
-}
-
-func (d *etcdDistributedClient) Stop() {
+func (d *etcdDistributedClient) put(appCtx context.Context, key string, value string) {
 	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
+	defer log.Sync()
 	logger := log.Sugar()
 
-	d.session.Close()
-	d.client.Close()
+	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
+	defer cancel()
 
-	logger.Info("Closed etcd client connection")
+	_, err := d.client.Put(ctx, key, value, clientv3.WithLease(d.session.Lease()))
+
+	if err != nil {
+		switch err {
+		case context.Canceled:
+			logger.Errorf("ctx is canceled by another routine", "error", err)
+		case context.DeadlineExceeded:
+			logger.Errorf("ctx is attached with a deadline is exceeded", "error", err)
+		case rpctypes.ErrEmptyKey:
+			logger.Errorf("Empty etdc key", "error", err)
+		default:
+			logger.Errorf("bad cluster endpoints, which are not etcd servers", "error", err)
+		}
+	}
 }

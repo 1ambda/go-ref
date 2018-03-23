@@ -18,7 +18,7 @@ var (
 type Specification struct {
 	Env           string   `default:"LOCAL"`
 	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
-	ServerName    string   `default:"gateway-0"`
+	ServerName    string   `default:"0"`
 	Debug         bool     `default:"true"`
 	WebSocketPort int      `default:"50001"`
 	HttpPort      int      `default:"50002"`

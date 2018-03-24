@@ -9,7 +9,10 @@ prepare:
 	$(GOLINT) --install --update --force
 	$(GOGET) github.com/ahmetb/govvv
 	$(GOGET) github.com/githubnemo/CompileDaemon
+
+	# testing framework
 	$(GOGET) github.com/onsi/ginkgo/ginkgo
+	$(GOGET) github.com/onsi/gomega/...
 
 	# protobuf
 	$(GOGET) github.com/golang/protobuf/protoc-gen-go

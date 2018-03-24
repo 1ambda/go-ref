@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit {
         this.subscribeCurrentConnectionCount()
         this.subscribeTotalAccessCount()
         this.subscribeLMasterIdentifier()
-        this.subscribeLMasterNodeCount()
+        this.subscribeGatewayNodeCount()
       })
 
   }
@@ -129,7 +129,7 @@ export class HomeComponent implements OnInit {
       })
   }
 
-  subscribeLMasterNodeCount() {
+  subscribeGatewayNodeCount() {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateNodeCount
     this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {

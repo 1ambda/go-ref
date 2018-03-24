@@ -35,7 +35,7 @@ definitions:
           - UpdateTotalAccessCount
           - UpdateConnectionCount
           - UpdateMasterIdentifier
-          - UpdateMasterNodeCount
+          - UpdateNodeCount
       error:
         $ref: "#/definitions/error"
 

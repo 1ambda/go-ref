@@ -71,7 +71,7 @@ var webSocketResponseHeaderTypeResponseTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Error","UpdateTotalAccessCount","UpdateConnectionCount","UpdateMasterIdentifier","UpdateMasterNodeCount"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Error","UpdateTotalAccessCount","UpdateConnectionCount","UpdateMasterIdentifier","UpdateNodeCount"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -93,8 +93,8 @@ const (
 	// WebSocketResponseHeaderResponseTypeUpdateMasterIdentifier captures enum value "UpdateMasterIdentifier"
 	WebSocketResponseHeaderResponseTypeUpdateMasterIdentifier string = "UpdateMasterIdentifier"
 
-	// WebSocketResponseHeaderResponseTypeUpdateMasterNodeCount captures enum value "UpdateMasterNodeCount"
-	WebSocketResponseHeaderResponseTypeUpdateMasterNodeCount string = "UpdateMasterNodeCount"
+	// WebSocketResponseHeaderResponseTypeUpdateNodeCount captures enum value "UpdateNodeCount"
+	WebSocketResponseHeaderResponseTypeUpdateNodeCount string = "UpdateNodeCount"
 )
 
 // prop value enum

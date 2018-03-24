@@ -541,15 +541,11 @@ func init() {
           "$ref": "#/definitions/pagination"
         },
         "rows": {
-          "$ref": "#/definitions/findAllOKBodyRows"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/access"
+          }
         }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "findAllOKBodyRows": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/access"
       },
       "x-go-gen-location": "operations"
     },

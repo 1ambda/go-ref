@@ -6,6 +6,8 @@ package rest_model
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -20,7 +22,7 @@ type FindAllOKBody struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 
 	// rows
-	Rows FindAllOKBodyRows `json:"rows"`
+	Rows []*Access `json:"rows"`
 }
 
 // Validate validates this find all o k body
@@ -28,6 +30,11 @@ func (m *FindAllOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validatePagination(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateRows(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -51,6 +58,34 @@ func (m *FindAllOKBody) validatePagination(formats strfmt.Registry) error {
 				return ve.ValidateName("pagination")
 			}
 			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (m *FindAllOKBody) validateRows(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Rows) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Rows); i++ {
+
+		if swag.IsZero(m.Rows[i]) { // not required
+			continue
+		}
+
+		if m.Rows[i] != nil {
+
+			if err := m.Rows[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("rows" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+
 		}
 
 	}

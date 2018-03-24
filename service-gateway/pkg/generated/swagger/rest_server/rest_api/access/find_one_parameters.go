@@ -60,6 +60,8 @@ func (o *FindOneParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
+
+			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
 				res = append(res, err)
 			}
@@ -68,9 +70,7 @@ func (o *FindOneParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 				o.Body = &body
 			}
 		}
-
 	}
-
 	rID, rhkID, _ := route.Params.GetOK("id")
 	if err := o.bindID(rID, rhkID, route.Formats); err != nil {
 		res = append(res, err)

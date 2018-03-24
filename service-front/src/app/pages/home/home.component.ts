@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit {
   /**
    * server-side streamed variables
    */
-  totalAccessCount = "0"
+  currentTotalAccessCount = "0"
   currentUserCount = "0"
   currentNodeCount = "0"
   currentMasterIdentifier = "UNKNOWN"
@@ -117,7 +117,7 @@ export class HomeComponent implements OnInit {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateTotalAccessCount
     this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
-        this.totalAccessCount = response.body.value
+        this.currentTotalAccessCount = response.body.value
       })
   }
 
@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
   }
 
   subscribeLMasterNodeCount() {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateMasterNodeCount
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateNodeCount
     this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentNodeCount = response.body.value

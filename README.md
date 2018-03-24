@@ -5,14 +5,34 @@
 # Golang Reference Project
 
 ## Component
-- [service-gateway](https://github.com/1ambda/go-ref/tree/master/service-gateway): App serving REST endpoints
-  * generate model using [go-swagger](https://github.com/go-swagger)
-  * call backend gRPC server (*TODO*)
-- [service-backend](https://github.com/1ambda/go-ref/tree/master/service-backend): App serving gRPC endpoints
-  * persist data into storage (*TODO*)
-- [service-front](https://github.com/1ambda/go-ref/tree/master/service-front): App web dashboard
+- [service-front](https://github.com/1ambda/go-ref/tree/master/service-front): webapp
+  * generate rest, websocket models from [swagger spec](https://github.com/1ambda/go-ref/tree/master/schema/swagger) using [swagger-codegen](https://github.com/swagger-api/swagger-codegen)
+  - written in Angular 5+
+- [service-gateway](https://github.com/1ambda/go-ref/tree/master/service-gateway): serving Websocket and REST endpoints
+  * generate rest, websocket model + server stub using [go-swagger](https://github.com/go-swagger/go-swagger)
+  * while working as a gRPC client
+- [service-backend](https://github.com/1ambda/go-ref/tree/master/service-backend): serving gRPC endpoints
 
-- [etcd](https://github.com/coreos/etcd): Distributed reliable key-value store
+
+```                                                                                                  
+                                                                                                     
+    +---------------+   WS   (50001)  +-----------------+                  +-----------------+       
+    |               |   REST (50002)  |                 |   gRPC (50000)   |                 |       
+    | service-front |<--------------->| service-gateway |<---------------->| service-backend |       
+    |               |                 |                 |                  |                 |       
+    +---------------+                 +-----------------+                  +-----------------+       
+         (webapp)                           (server)                             (server)            
+                                                                                                     
+                                                                                                     
+                                                                                                     
+                                                   +--------------+  +-------------+                 
+                                                   |              |  |             |                 
+                                                   | etcd cluster |  |    mysql    |                 
+                                                   |              |  |             |                 
+                                                   +--------------+  +-------------+                 
+                                                   (distributed kv)  (transactional)                 
+                                                                                       
+```
 
 ## build & start project
 

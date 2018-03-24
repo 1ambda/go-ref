@@ -5,14 +5,14 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
 
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
+	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"time"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/distributed"
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"fmt"
 )
 

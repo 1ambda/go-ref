@@ -10,8 +10,8 @@ import (
 	"github.com/coreos/etcd/clientv3/concurrency"
 	"go.uber.org/zap"
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/websocket"
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"google.golang.org/grpc"
 )
 
@@ -359,13 +359,13 @@ func (d *etcdDistributedClient) put(appCtx context.Context, key string, value st
 	if err != nil {
 		switch err {
 		case context.Canceled:
-			logger.Errorf("ctx is canceled by another routine", "error", err)
+			logger.Errorw("ctx is canceled by another routine", "error", err)
 		case context.DeadlineExceeded:
-			logger.Errorf("ctx is attached with a deadline is exceeded", "error", err)
+			logger.Errorw("ctx is attached with a deadline is exceeded", "error", err)
 		case rpctypes.ErrEmptyKey:
-			logger.Errorf("Empty etdc key", "error", err)
+			logger.Errorw("Empty etdc key", "error", err)
 		default:
-			logger.Errorf("bad cluster endpoints, which are not etcd servers", "error", err)
+			logger.Errorw("bad cluster endpoints, which are not etcd servers", "error", err)
 		}
 	}
 }

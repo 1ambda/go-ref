@@ -14,13 +14,13 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/config"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/model"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/rest"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/websocket"
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/model"
+	"github.com/1ambda/go-ref/service-gateway/internal/rest"
+	"github.com/1ambda/go-ref/service-gateway/internal/websocket"
 
 	"context"
-	"github.com/1ambda/go-ref/service-gateway/internal/pkg/distributed"
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"go.uber.org/zap"

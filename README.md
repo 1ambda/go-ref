@@ -23,7 +23,7 @@
     +---------------+                 +-----------------+                  +-----------------+       
          (webapp)                           (server)                             (server)            
                                                                                                      
-                                                                                                     
+                                                              < storage >                                            
                                                                                                      
                                                    +--------------+  +-------------+                 
                                                    |              |  |             |                 
@@ -34,43 +34,34 @@
                                                                                        
 ```
 
-## build & start project
-
-### Requirements
+## Requirements
 | name | version | description |
 |---|---|---|
-| [go](https://github.com/golang/go) | 1.9.2+ | use [gvm](https://github.com/moovweb/gvm) |
+| [go](https://github.com/golang/go) | 1.10+ | use [gvm](https://github.com/moovweb/gvm) |
 | [dep](https://github.com/golang/dep) |  | `go get -u github.com/golang/dep/cmd/dep` |
 | [protobuf](https://github.com/google/protobuf) | 3.5.0+ | `brew install protobuf` |
 | [nodejs](https://nodejs.org/) | 9.8.0+ | use [nvm](https://github.com/creationix/nvm) |
-| [Docker](https://www.docker.com/) | | |
 
-### build & start
-- start etcd, etcd-ui, MySQL using docker
+Please check [make prepare](https://github.com/1ambda/go-ref/blob/master/scripts/makefiles/install.mk#L6) command for more description.
+
+## Quick Start
+
 ```bash
-$ cd {go-ref-dir}
+# start dockerized storages: etcd, mysql, ...
 $ docker-compose up
 ```
 
-
-- start service-gateway
 ```bash
+# start gateway service 
+$ cd service-gateway
 $ make prepare install
+$ make run 
 ```
 
-- start service-front
 ```bash
-$ npm i; npm run server:dev;
-```
+# start front (webapp) service 
+$ cd service-front
+$ npm install; npm run server:dev;
 
-### Web UI
-- etcd-ui
-```bash
-http://localhost:2381/
+# visit: http://localhost:3000 
 ```
-- service-front UI
-```bash
-http://localhost:3000/
-```
-
-  

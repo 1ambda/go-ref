@@ -20,6 +20,12 @@ PROTO_DIR  = ../schema/protobuf
 PROTO_FILE = $(PROTO_DIR)/gateway.proto
 GENERATED_GRPC_SERVER_DIR = "pkg/grpc"
 
+#MOCK_PKG_DIRS = "internal/distributed" "internal/websocket"
+
+MOCKGEN = mockgen
+MOCK_PREFIX = mock_
+MOCK_PKG_DIRS := "internal/distributed" "internal/websocket"
+
 swagger-version:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - updating swagger spec version: $(VERSION)"
 	@VERSION=$(VERSION) SWAGGER_FILE=$(SWAGGER_REST_SPEC) ../scripts/update-swagger-version.sh
@@ -56,6 +62,18 @@ $(APPS):
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))
 	$(GOBUILD) -race -i -ldflags="$(LDFLAG)" -o $(BIN_DIR)/$(TARGET) -v $(CMD_DIR)/$(TARGET)/$(MAIN)
+
+$(MOCK_PKG_DIRS):
+	@$(eval TARGET := $@)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning mock files under $(TARGET)"
+	rm -rf $(TARGET)/$(MOCK_PREFIX)*
+	@echo ""
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating mock files for $(TARGET)"
+	PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
+	@echo ""
+
+mock-generate: $(MOCK_PKG_DIRS)
 
 build: clean swagger-server $(APPS)
 

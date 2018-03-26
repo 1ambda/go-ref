@@ -25,6 +25,9 @@ prepare:
 	# etcd cli: https://github.com/coreos/etcd/tree/master/etcdctl
 	$(GOGET) github.com/coreos/etcd/etcdctl
 
+	# mock
+	$(GOGET) github.com/golang/mock/gomock
+	$(GOGET) github.com/golang/mock/mockgen
 
 install:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"

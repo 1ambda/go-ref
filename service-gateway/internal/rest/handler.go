@@ -5,23 +5,72 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
 
+	"errors"
+	"fmt"
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
-	"go.uber.org/zap"
 	"time"
-	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
-	"fmt"
 )
 
-func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient realtime.DistributedClient) {
-	api.AccessAddOneHandler = buildAccessAddOneHandler(db, dClient)
-	api.AccessFindOneHandler = buildAccessFindOneHandler(db)
-	api.AccessFindAllHandler = buildAccessFindAllHandler(db)
-	api.AccessRemoveOneHandler = buildAccessRemoveOneHandler(db)
-	api.AccessUpdateOneHandler = buildAccessUpdateOneHandler(db)
+func getCode(e *rest_model.Error) int {
+	return int(e.Code)
+}
+
+func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.DistributedClient) {
+	api.AccessAddOneHandler = access.AddOneHandlerFunc(
+		func(params access.AddOneParams) middleware.Responder {
+			restResp, restErr := addOneAccess(params, db, dClient)
+			if restErr != nil {
+				return access.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
+			}
+
+			return access.NewAddOneCreated().WithPayload(restResp)
+		})
+
+	api.AccessFindAllHandler = access.FindAllHandlerFunc(
+		func(params access.FindAllParams) middleware.Responder {
+			pagination, rows, restErr := findAllAccess(params, db)
+			if restErr != nil {
+				return access.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
+			}
+
+			return access.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
+				Pagination: pagination, Rows: rows,
+			})
+		})
+
+	api.AccessFindOneHandler = access.FindOneHandlerFunc(
+		func(params access.FindOneParams) middleware.Responder {
+			restResp, restErr := findOneAccess(params, db)
+			if restErr != nil {
+				return access.NewFindOneDefault(getCode(restErr)).WithPayload(restErr)
+			}
+			return access.NewFindOneOK().WithPayload(restResp)
+		})
+
+	api.AccessRemoveOneHandler = access.RemoveOneHandlerFunc(
+		func(params access.RemoveOneParams) middleware.Responder {
+			restErr := removeOneAccess(params, db)
+			if restErr != nil {
+				return access.NewRemoveOneDefault(getCode(restErr))
+			}
+			return access.NewRemoveOneNoContent()
+		})
+
+	api.AccessUpdateOneHandler = access.UpdateOneHandlerFunc(
+		func(params access.UpdateOneParams) middleware.Responder {
+			restResp, restErr := updateOneAccess(params, db)
+			if restErr != nil {
+				return access.NewAddOneDefault(getCode(restErr)).WithPayload(restErr)
+			}
+			return access.NewUpdateOneOK().WithPayload(restResp)
+		})
+
 }
 
 func convertAccessToDbModel(swaggerModel *rest_model.Access) *model.Access {
@@ -61,150 +110,153 @@ func convertAccessToRestModel(record *model.Access) *rest_model.Access {
 	return &swaggerModel
 }
 
-func buildRestError(err error) *rest_model.Error {
+func buildRestError(err error, code int64) *rest_model.Error {
 	return &rest_model.Error{
-		Code:      500,
+		Code:      code,
 		Message:   swag.String(err.Error()),
 		Timestamp: time.Now().UTC().String(),
 	}
 }
 
-func buildAccessAddOneHandler(db *gorm.DB, dClient realtime.DistributedClient) access.AddOneHandlerFunc {
-	return access.AddOneHandlerFunc(
-		func(params access.AddOneParams) middleware.Responder {
-			log, _ := zap.NewProduction()
-			defer log.Sync() // flushes buffer, if any
-			logger := log.Sugar()
-			logger.Infow("Creating Access record", "request", params.Body)
+func addOneAccess(params access.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*rest_model.Access, *rest_model.Error) {
+	logger := config.GetLogger()
+	logger.Infow("Creating Access record", "request", params.Body)
 
-			record := convertAccessToDbModel(params.Body)
+	record := convertAccessToDbModel(params.Body)
 
-			if err := db.Create(record).Error; err != nil {
-				logger.Errorw("Failed to create new Access record: %v", "error", err)
-				restError := buildRestError(err)
-				return access.NewAddOneDefault(500).WithPayload(restError)
-			}
+	if err := db.Create(record).Error; err != nil {
+		logger.Errorw("Failed to create new Access record: %v", "error", err)
+		restError := buildRestError(err, 500)
+		return nil, restError
+	}
 
-			var count int64 = 0
-			if err := db.Table(model.AccessTable).Count(&count).Error; err != nil {
-				logger.Errorw("Failed to create new Access record: %v", "error", err)
-			} else {
-				logger.Info("Hello", "count", count)
-				stringified := fmt.Sprintf("%d", count)
-				dClient.Publish(realtime.NewTotalAccessCountMessage(stringified))
-			}
+	var count int64 = 0
+	err := db.Table(model.AccessTable).Count(&count).Error;
+	if err != nil {
+		logger.Errorw("Failed to create new Access record: %v", "error", err)
+		restError := buildRestError(err, 500)
+		return nil, restError
+	}
 
-			return access.NewAddOneCreated().WithPayload(params.Body)
-		})
+	logger.Info("Hello", "count", count)
+	stringified := fmt.Sprintf("%d", count)
+	dClient.Publish(distributed.NewTotalAccessCountMessage(stringified))
+
+	restResp := convertAccessToRestModel(record)
+
+	return restResp, nil
 }
 
-func buildAccessFindOneHandler(db *gorm.DB) access.FindOneHandlerFunc {
-	return access.FindOneHandlerFunc(
-		func(params access.FindOneParams) middleware.Responder {
-			log, _ := zap.NewProduction()
-			defer log.Sync() // flushes buffer, if any
-			logger := log.Sugar()
-			logger.Infow("Finding Access record", "id", params.ID)
+func findOneAccess(params access.FindOneParams, db *gorm.DB) (*rest_model.Access, *rest_model.Error) {
+	logger := config.GetLogger()
+	logger.Infow("Finding Access record", "id", params.ID)
 
-			var record model.Access
+	var record model.Access
 
-			if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
-				logger.Errorw("Failed to create new Access record", "error", err)
-				restError := buildRestError(err)
-				return access.NewFindOneDefault(404).WithPayload(restError)
-			}
+	if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			logger.Infow("Failed to find Access record", "id", params.ID)
+			return nil, buildRestError(err, 404)
+		}
 
-			response := convertAccessToRestModel(&record)
-			return access.NewFindOneOK().WithPayload(response)
-		})
+		logger.Errorw("Failed to find Access record due to unknown error",
+			"id", params.ID, "error", err)
+		return nil, buildRestError(err, 500)
+	}
+
+	response := convertAccessToRestModel(&record)
+	return response, nil
 }
 
-func buildAccessFindAllHandler(db *gorm.DB) access.FindAllHandlerFunc {
-	return access.FindAllHandlerFunc(
-		func(params access.FindAllParams) middleware.Responder {
-			log, _ := zap.NewProduction()
-			defer log.Sync() // flushes buffer, if any
-			logger := log.Sugar()
-			logger.Info("Finding All Access records")
+func findAllAccess(params access.FindAllParams, db *gorm.DB) (*rest_model.Pagination, []*rest_model.Access, *rest_model.Error) {
+	logger := config.GetLogger()
+	logger.Info("Finding All Access records")
 
-			var records []model.Access
-			var count int64 = 0
-			currentPageOffset := params.CurrentPageOffset
-			itemCountPerPage := params.ItemCountPerPage
+	var records []model.Access
+	var count int64 = 0
+	currentPageOffset := params.CurrentPageOffset
+	itemCountPerPage := params.ItemCountPerPage
 
-			dbOffset := int64(*currentPageOffset) * (*itemCountPerPage)
+	dbOffset := int64(*currentPageOffset) * (*itemCountPerPage)
 
-			err := db.
-				Table(model.AccessTable).
-				Count(&count).
-				Offset(int(dbOffset)).
-				Limit(int(*itemCountPerPage)).
-				Find(&records).
-				Error
+	err := db.
+		Table(model.AccessTable).
+		Count(&count).
+		Offset(int(dbOffset)).
+		Limit(int(*itemCountPerPage)).
+		Find(&records).
+		Error
 
-			if err != nil {
-				logger.Errorw("Failed to find all Access records", "error", err)
-				restError := buildRestError(err)
-				return access.NewFindAllDefault(500).WithPayload(restError)
-			}
+	if err != nil {
+		logger.Errorw("Failed to find all Access records", "error", err)
+		restError := buildRestError(err, 500)
+		return nil, nil, restError
+	}
 
-			rows := make([]*rest_model.Access, 0)
-			for i, _ := range records {
-				record := records[i]
-				restmodel := convertAccessToRestModel(&record)
-				rows = append(rows, restmodel)
-			}
+	rows := make([]*rest_model.Access, 0)
+	for i := range records {
+		record := records[i]
+		restmodel := convertAccessToRestModel(&record)
+		rows = append(rows, restmodel)
+	}
 
-			pagination := rest_model.Pagination{
-				ItemCountPerPage:  itemCountPerPage,
-				CurrentPageOffset: currentPageOffset,
-				TotalItemCount:    &count,
-			}
+	pagination := rest_model.Pagination{
+		ItemCountPerPage:  itemCountPerPage,
+		CurrentPageOffset: currentPageOffset,
+		TotalItemCount:    &count,
+	}
 
-			return access.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
-				Pagination: &pagination,
-				Rows:       rows,
-			})
-		})
+	return &pagination, rows, nil
 }
 
-func buildAccessRemoveOneHandler(db *gorm.DB) access.RemoveOneHandlerFunc {
-	return access.RemoveOneHandlerFunc(
-		func(params access.RemoveOneParams) middleware.Responder {
-			log, _ := zap.NewProduction()
-			defer log.Sync() // flushes buffer, if any
-			logger := log.Sugar()
-			logger.Infow("Deleting Access record", "id", params.ID)
+func removeOneAccess(params access.RemoveOneParams, db *gorm.DB) *rest_model.Error {
+	logger := config.GetLogger()
+	logger.Infow("Deleting Access record", "id", params.ID)
 
-			if err := db.Where("id = ?", params.ID).Delete(&model.Access{}).Error; err != nil {
-				logger.Errorw("Failed to delete new Access record: %v", "error", err)
-				restError := buildRestError(err)
-				return access.NewAddOneDefault(500).WithPayload(restError)
-			}
+	// https://github.com/jinzhu/gorm/issues/1380
+	// https://github.com/jinzhu/gorm/issues/371
+	result := db.Where("id = ?", params.ID).Delete(&model.Access{})
 
-			return access.NewRemoveOneNoContent()
-		})
+	if result.RowsAffected < 1 {
+		logger.Infow("Failed to find Access record before removing", "id", params.ID)
+		err := errors.New(gorm.ErrRecordNotFound.Error())
+		restError := buildRestError(err, 404)
+		return restError
+	}
+
+	if result.Error != nil {
+		logger.Errorw("Failed to delete Access record due to unknown error",
+			"id", params.ID, "error", result.Error)
+		restError := buildRestError(result.Error, 500)
+		return restError
+	}
+
+	return nil
 }
 
-func buildAccessUpdateOneHandler(db *gorm.DB) access.UpdateOneHandlerFunc {
-	return access.UpdateOneHandlerFunc(
-		func(params access.UpdateOneParams) middleware.Responder {
-			log, _ := zap.NewProduction()
-			defer log.Sync() // flushes buffer, if any
-			logger := log.Sugar()
-			logger.Infow("Updating Access record", "id", params.ID)
+func updateOneAccess(params access.UpdateOneParams, db *gorm.DB) (*rest_model.Access, *rest_model.Error) {
+	logger := config.GetLogger()
+	logger.Infow("Updating Access record", "id", params.ID)
 
-			record := convertAccessToDbModel(params.Body)
-			var updated model.Access
+	record := convertAccessToDbModel(params.Body)
+	var updated model.Access
 
-			if err := db.Model(&updated).Where("id = ?", params.ID).Update(record).Error; err != nil {
-				logger.Errorw("Failed to update new Access record: %v", "error", err)
-				restError := buildRestError(err)
-				return access.NewAddOneDefault(500).WithPayload(restError)
-			}
+	// https://github.com/jinzhu/gorm/issues/891
+	result := db.Model(&updated).Where("id = ?", params.ID).Update(record)
+	if result.RowsAffected < 1 {
+		logger.Infow("Failed to find Access record before updating", "id", params.ID)
+		err := errors.New(gorm.ErrRecordNotFound.Error())
+		restError := buildRestError(err, 404)
+		return nil, restError
+	}
 
-			response := convertAccessToRestModel(&updated)
+	if result.Error != nil {
+		logger.Errorw("Failed to update Access record due to unknown error",
+			"id", params.ID, "error", result.Error)
+		restError := buildRestError(result.Error, 500)
+		return nil, restError
+	}
 
-			return access.NewUpdateOneOK().WithPayload(response)
-		})
+	response := convertAccessToRestModel(&updated)
+	return response, nil
 }

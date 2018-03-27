@@ -3,9 +3,9 @@ package websocket
 import (
 	"context"
 
-	ws "github.com/gorilla/websocket"
-	"go.uber.org/zap"
 	"fmt"
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	ws "github.com/gorilla/websocket"
 )
 
 type WebSocketManager interface {
@@ -32,11 +32,11 @@ func NewWebSocketManager() *webSocketManagerImpl {
 		clients:               make(map[*WebSocketClient]bool),
 		broadcastMessageCache: make(map[string]*WebSocketMessage),
 
-		registerChan:          make(chan *ws.Conn),
-		unregisterChan:        make(chan *WebSocketClient),
-		disconnectedChan:      make(chan *WebSocketClient),
-		broadcastChan:         make(chan *WebSocketMessage),
-		finishedChan:          make(chan bool),
+		registerChan:     make(chan *ws.Conn),
+		unregisterChan:   make(chan *WebSocketClient),
+		disconnectedChan: make(chan *WebSocketClient),
+		broadcastChan:    make(chan *WebSocketMessage),
+		finishedChan:     make(chan bool),
 
 		wsConnCountChan: make(chan string),
 	}
@@ -45,13 +45,10 @@ func NewWebSocketManager() *webSocketManagerImpl {
 }
 
 func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	client := NewWebSocketClient(m, conn, cancel)
-
 	logger.Infow("Register client", "uuid", client.uuid)
 
 	m.clients[client] = true
@@ -69,10 +66,7 @@ func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 }
 
 func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
-
+	logger := config.GetLogger()
 	logger.Infow("Unregister client", "uuid", c.uuid)
 
 	if _, ok := m.clients[c]; !ok {
@@ -91,10 +85,7 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 }
 
 func (m *webSocketManagerImpl) run(appCtx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
-
+	logger := config.GetLogger()
 	logger.Info("Starting WebSocketManager")
 
 	for {

@@ -1,17 +1,16 @@
-package realtime
+package distributed
 
 import (
 	"context"
-	"time"
-	"strconv"
 	"fmt"
+	"strconv"
+	"time"
 
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/websocket"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
-	"go.uber.org/zap"
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"github.com/1ambda/go-ref/service-gateway/internal/websocket"
-	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"google.golang.org/grpc"
 )
 
@@ -39,10 +38,7 @@ type etcdDistributedClient struct {
 
 func NewDistributedClient(appCtx context.Context, endpoints []string,
 	serverName string, wsManager websocket.WebSocketManager) DistributedClient {
-
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	etcdClient, err := clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
@@ -59,7 +55,7 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 	}
 
 	dClient := &etcdDistributedClient{
-		client:      etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
+		client: etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
 		publishChan: make(chan *DistributedMessage),
 	}
 
@@ -85,9 +81,7 @@ func (d *etcdDistributedClient) Publish(message *DistributedMessage) {
 }
 
 func (d *etcdDistributedClient) Stop() {
-	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	d.session.Close()
 	d.client.Close()
@@ -96,9 +90,7 @@ func (d *etcdDistributedClient) Stop() {
 }
 
 func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	defer close(d.publishChan)
 
@@ -121,9 +113,7 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 }
 
 func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	// TODO: make variables for watched values
 
@@ -186,9 +176,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 }
 
 func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Context, response *clientv3.WatchResponse) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
 	defer cancel()
@@ -241,9 +229,7 @@ func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Contex
 }
 
 func (d *etcdDistributedClient) subscribeTotalAccessCount(response *clientv3.WatchResponse) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	for _, ev := range response.Events {
 		value := fmt.Sprintf("%s", ev.Kv.Value)
@@ -258,9 +244,7 @@ func (d *etcdDistributedClient) subscribeTotalAccessCount(response *clientv3.Wat
 }
 
 func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResponse) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	for _, ev := range response.Events {
 		value := fmt.Sprintf("%s", ev.Kv.Value)
@@ -275,9 +259,7 @@ func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResp
 }
 
 func (d *etcdDistributedClient) runElectionCampaign(appCtx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	ticker := time.NewTicker(CampaignInterval)
 	election := concurrency.NewElection(d.session, ElectionPath)
@@ -299,9 +281,7 @@ func (d *etcdDistributedClient) runElectionCampaign(appCtx context.Context) {
 
 // Check leader and if there is a no leader, try to take leadership.
 func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concurrency.Election) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	electionCtx, electionCancelFunc := context.WithTimeout(appCtx, ElectionTimeout)
 	defer electionCancelFunc()
@@ -347,9 +327,7 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 }
 
 func (d *etcdDistributedClient) put(appCtx context.Context, key string, value string) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
 	defer cancel()

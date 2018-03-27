@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	ws "github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"
-	"go.uber.org/zap"
 )
 
 const (
@@ -43,9 +43,7 @@ func NewWebSocketClient(m *webSocketManagerImpl, conn *ws.Conn, cancel context.C
 }
 
 func (c *WebSocketClient) send(message *WebSocketMessage) error {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	w, err := c.connection.NextWriter(ws.TextMessage)
 	if err != nil {
@@ -66,9 +64,7 @@ func (c *WebSocketClient) send(message *WebSocketMessage) error {
 }
 
 func (c *WebSocketClient) close() error {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	logger.Infow("Closing client", "uuid", c.uuid)
 
@@ -90,9 +86,7 @@ func (c *WebSocketClient) sendPingMessage() error {
 }
 
 func (c *WebSocketClient) run(ctx context.Context) {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	pingTicker := time.NewTicker(PingInterval)
 	messagePopTicker := time.NewTicker(MessagePopInterval)

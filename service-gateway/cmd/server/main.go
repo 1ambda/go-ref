@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
@@ -8,43 +9,41 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/rs/cors"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"github.com/1ambda/go-ref/service-gateway/internal/rest"
 	"github.com/1ambda/go-ref/service-gateway/internal/websocket"
+	"github.com/rs/cors"
 
-	"context"
-	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
-	"go.uber.org/zap"
 )
 
 func main() {
-	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
-	logger := log.Sugar()
+	logger := config.GetLogger()
 
 	// get config
 	spec := config.Spec
+	logger.Infow("Starting server...",
+		"version", config.Version,
+		"build_date", config.BuildDate,
+		"git_commit", config.GitCommit,
+		"git_branch", config.GitBranch,
+		"git_state", config.GitState,
+		"git_summary", config.GitSummary,
+		"env", spec.Env,
+		"websocket_port", spec.WebSocketPort,
+		"http_port", spec.HttpPort,
+		"debug", spec.Debug,
+		"etcd_endpoints", spec.EtcdEndpoints,
+		"server_name", spec.ServerName,
+	)
 
 	// setup db connection
-	logger.Info("Connecting to MySQL")
-	db, err := connectToMySQL(spec)
+	logger.Info("Configure database")
+	db := model.GetDatabase(spec)
 	defer db.Close()
-	if err != nil {
-		logger.Fatalw("Failed to connect MySQL", "error", err)
-	}
-
-	logger.Info("Auto-migrate MySQL tables")
-	db.SingularTable(true)
-	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&model.Access{})
 
 	// create app context
 	appCtx, appCancelFunc := context.WithCancel(context.Background())
@@ -56,7 +55,7 @@ func main() {
 
 	// setup etcd client
 	logger.Info("Configure distributed client (etcd)")
-	dClient := realtime.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
+	dClient := distributed.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
 
 	wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
 	logger.Infof("Serving gateway ws at http://127.0.0.1:%d", spec.WebSocketPort)
@@ -126,13 +125,3 @@ func main() {
 		logger.Fatalw("Failed to start REST server", "error", err)
 	}
 }
-
-func connectToMySQL(spec config.Specification) (*gorm.DB, error) {
-	dbConnString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		spec.MysqlUserName, spec.MysqlPassword, spec.MysqlHost, spec.MysqlPort, spec.MysqlDatabase)
-	db, err := gorm.Open("mysql", dbConnString)
-
-	return db, err
-}
-
-

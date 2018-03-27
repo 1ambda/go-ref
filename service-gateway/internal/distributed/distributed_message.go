@@ -1,4 +1,4 @@
-package realtime
+package distributed
 
 const SingleKeyWsConnectionCount = "gateway/single/count-websocket-connection"
 const SingleKeyTotalAccessCount = "gateway/single/count-total-access"

@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"go.uber.org/zap"
 )
 
 var (
@@ -15,8 +14,13 @@ var (
 	Version    string
 )
 
+const ENV_LOCAL = "LOCAL"
+const ENV_TEST = "TEST"
+const ENV_DEV = "DEV"
+const ENV_PROD = "PROD"
+
 type Specification struct {
-	Env           string   `default:"LOCAL"`
+	Env           string   `default:"LOCAL"` // `LOCAL`, `TEST`, `DEV`, `PROD`
 	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
 	ServerName    string   `default:"0"`
 	Debug         bool     `default:"true"`
@@ -34,37 +38,22 @@ var Spec Specification
 
 func init() {
 	Spec = GetSpecification()
-
-	log, _ := zap.NewProduction()
-	defer log.Sync() // flushes buffer, if any
-	logger := log.Sugar()
-
-	logger.Infow("Starting server...",
-		"version", Version,
-		"build_date", BuildDate,
-		"git_commit", GitCommit,
-		"git_branch", GitBranch,
-		"git_state", GitState,
-		"git_summary", GitSummary,
-		"env", Spec.Env,
-		"websocket_port", Spec.WebSocketPort,
-		"http_port", Spec.HttpPort,
-		"debug", Spec.Debug,
-		"etcd_endpoints", Spec.EtcdEndpoints,
-		"server_name", Spec.ServerName,
-	)
 }
 
 func GetSpecification() Specification {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-	logger := log.Sugar()
-
 	var s Specification
 	err := envconfig.Process("", &s)
 	if err != nil {
-		logger.Fatalw("Failed to create startup specification", "error", err)
+		panic("Failed to get specification")
 	}
 
 	return s
+}
+
+func IsTestEnv(spec Specification) bool {
+	return spec.Env == ENV_TEST
+}
+
+func IsLocalEnv(spec Specification) bool {
+	return spec.Env == ENV_LOCAL
 }

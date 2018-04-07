@@ -131,7 +131,7 @@ func addOneAccess(params access.AddOneParams, db *gorm.DB, dClient distributed.D
 	}
 
 	var count int64 = 0
-	err := db.Table(model.AccessTable).Count(&count).Error;
+	err := db.Table(model.AccessTable).Count(&count).Error
 	if err != nil {
 		logger.Errorw("Failed to create new Access record: %v", "error", err)
 		restError := buildRestError(err, 500)

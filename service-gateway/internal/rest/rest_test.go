@@ -2,14 +2,14 @@ package rest
 
 import (
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/golang/mock/gomock"
-	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 )
 
 func createAccessRecord() *model.Access {

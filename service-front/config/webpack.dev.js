@@ -1,14 +1,14 @@
-const helpers = require('./helpers');
-const buildUtils = require('./build-utils');
-const webpackMerge = require('webpack-merge'); // used to merge webpack configs
-const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
+const helpers = require('./helpers')
+const buildUtils = require('./build-utils')
+const webpackMerge = require('webpack-merge') // used to merge webpack configs
+const commonConfig = require('./webpack.common.js') // the settings that are common to prod and dev
 
 /**
  * Webpack Plugins
  */
-const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
-const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin');
-const EvalSourceMapDevToolPlugin = require('webpack/lib/EvalSourceMapDevToolPlugin');
+const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin')
+const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin')
+const EvalSourceMapDevToolPlugin = require('webpack/lib/EvalSourceMapDevToolPlugin')
 
 
 /**
@@ -17,7 +17,7 @@ const EvalSourceMapDevToolPlugin = require('webpack/lib/EvalSourceMapDevToolPlug
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function (options) {
-  const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
+  const ENV = process.env.ENV = process.env.NODE_ENV = 'development'
   const HOST = process.env.HOST || 'localhost';
   const PORT = process.env.PORT || 3000;
 
@@ -29,7 +29,7 @@ module.exports = function (options) {
     PUBLIC: process.env.PUBLIC_DEV || HOST + ':' + PORT
   });
 
-  return webpackMerge(commonConfig({ env: ENV, metadata: METADATA  }), {
+  return webpackMerge(commonConfig({env: ENV, metadata: METADATA}), {
     /**
      * Options affecting the output of the compilation.
      *
@@ -122,7 +122,7 @@ module.exports = function (options) {
        */
       new LoaderOptionsPlugin({
         debug: true,
-        options: { }
+        options: {}
       }),
 
       // TODO: HMR
@@ -149,11 +149,11 @@ module.exports = function (options) {
         ignored: /node_modules/
       },
       /**
-      * Here you can access the Express app object and add your own custom middleware to it.
-      *
-      * See: https://webpack.github.io/docs/webpack-dev-server.html
-      */
-      setup: function(app) {
+       * Here you can access the Express app object and add your own custom middleware to it.
+       *
+       * See: https://webpack.github.io/docs/webpack-dev-server.html
+       */
+      setup: function (app) {
         // For example, to define custom handlers for some paths:
         // app.get('/some/path', function(req, res) {
         //   res.json({ custom: 'response' });

@@ -1,17 +1,17 @@
-const helpers = require('./helpers');
+const helpers = require('./helpers')
 
-const DefinePlugin = require('webpack/lib/DefinePlugin');
-const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlElementsPlugin = require('./html-elements-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
-const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
-const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
-const ngcWebpack = require('ngc-webpack');
-const Jarvis = require("webpack-jarvis");
+const DefinePlugin = require('webpack/lib/DefinePlugin')
+const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlElementsPlugin = require('./html-elements-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
+const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin')
+const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
+const ngcWebpack = require('ngc-webpack')
+const Jarvis = require("webpack-jarvis")
 
-const buildUtils = require('./build-utils');
+const buildUtils = require('./build-utils')
 
 
 /**
@@ -19,14 +19,17 @@ const buildUtils = require('./build-utils');
  * : http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function (options) {
-  const isProd = options.env === 'production';
+  const isProd = options.env === 'production'
   const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, options.metadata || {});
   const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA);
   const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath);
 
+  // keys for service-front
+  const GOOGLE_API_KEY_MAP = process.env.GOOGLE_API_KEY_MAP || ''
+
   const entry = {
     polyfills: './src/polyfills.browser.ts',
-    main:      './src/main.browser.ts'
+    main: './src/main.browser.ts'
   };
 
   Object.assign(ngcWebpackConfig.plugin, {
@@ -49,7 +52,7 @@ module.exports = function (options) {
      * See: http://webpack.github.io/docs/configuration.html#resolve
      */
     resolve: {
-      mainFields: [ ...(supportES2015 ? ['es2015'] : []), 'browser', 'module', 'main' ],
+      mainFields: [...(supportES2015 ? ['es2015'] : []), 'browser', 'module', 'main'],
 
       /**
        * An array of extensions that should be used to resolve modules.
@@ -168,6 +171,7 @@ module.exports = function (options) {
         'ENV': JSON.stringify(METADATA.ENV),
         'HMR': METADATA.HMR,
         'AOT': METADATA.AOT,
+        'GOOGLE_API_KEY_MAP': JSON.stringify(GOOGLE_API_KEY_MAP),
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
         'process.env.HMR': METADATA.HMR
@@ -207,10 +211,10 @@ module.exports = function (options) {
        * See: https://www.npmjs.com/package/copy-webpack-plugin
        */
       new CopyWebpackPlugin([
-        { from: 'src/assets', to: 'assets' },
-        { from: 'src/meta'}
-      ],
-        isProd ? { ignore: [ 'mock-data/**/*' ] } : undefined
+          {from: 'src/assets', to: 'assets'},
+          {from: 'src/meta'}
+        ],
+        isProd ? {ignore: ['mock-data/**/*']} : undefined
       ),
 
       /*
@@ -225,7 +229,7 @@ module.exports = function (options) {
         template: 'src/index.html',
         title: METADATA.title,
         chunksSortMode: function (a, b) {
-          const entryPoints = ["inline","polyfills","sw-register","styles","vendor","main"];
+          const entryPoints = ["inline", "polyfills", "sw-register", "styles", "vendor", "main"];
           return entryPoints.indexOf(a.names[0]) - entryPoints.indexOf(b.names[0]);
         },
         metadata: METADATA,
@@ -238,7 +242,7 @@ module.exports = function (options) {
         } : false
       }),
 
-       /**
+      /**
        * Plugin: ScriptExtHtmlWebpackPlugin
        * Description: Enhances html-webpack-plugin functionality
        * with different deployment options for your scripts including:

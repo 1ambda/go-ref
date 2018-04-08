@@ -104,7 +104,7 @@ const APP_PROVIDERS = [
     }),
 
     AgmCoreModule.forRoot({
-      apiKey: 'MA KEY' // TODO(1ambda): Inject API KEY from env variable
+      apiKey: GOOGLE_API_KEY_MAP,
     }),
 
     MatCardModule,

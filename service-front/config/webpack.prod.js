@@ -1,28 +1,27 @@
-const helpers = require('./helpers');
-const buildUtils = require('./build-utils');
+const helpers = require('./helpers')
+const buildUtils = require('./build-utils')
 
 /**
  * Used to merge webpack configs
-*/
-const webpackMerge = require('webpack-merge');
+ */
+const webpackMerge = require('webpack-merge')
 /**
  * The settings that are common to prod and dev
-*/
-const commonConfig = require('./webpack.common.js');
+ */
+const commonConfig = require('./webpack.common.js')
 
 /**
  * Webpack Plugins
  */
-const SourceMapDevToolPlugin = require('webpack/lib/SourceMapDevToolPlugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const SourceMapDevToolPlugin = require('webpack/lib/SourceMapDevToolPlugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HashedModuleIdsPlugin = require('webpack/lib/HashedModuleIdsPlugin')
-const PurifyPlugin = require('@angular-devkit/build-optimizer').PurifyPlugin;
-const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const PurifyPlugin = require('@angular-devkit/build-optimizer').PurifyPlugin
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 
-
-function getUglifyOptions (supportES2015) {
+function getUglifyOptions(supportES2015) {
   const uglifyCompressOptions = {
     pure_getters: true, /* buildOptimizer */
     // PURE comments work best with 3 passes.
@@ -56,7 +55,7 @@ module.exports = function (env) {
   // set environment suffix so these environments are loaded.
   METADATA.envFileSuffix = METADATA.E2E ? 'e2e.prod' : 'prod';
 
-  return webpackMerge(commonConfig({ env: ENV, metadata: METADATA }), {
+  return webpackMerge(commonConfig({env: ENV, metadata: METADATA}), {
 
     /**
      * Options affecting the output of the compilation.

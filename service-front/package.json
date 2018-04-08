@@ -80,6 +80,7 @@
     "webpack": "node --max_old_space_size=4096 node_modules/webpack/bin/webpack.js"
   },
   "dependencies": {
+    "@agm/core": "^1.0.0-beta.2",
     "@angular/animations": "~5.2.8",
     "@angular/cdk": "^5.2.1",
     "@angular/common": "~5.2.8",

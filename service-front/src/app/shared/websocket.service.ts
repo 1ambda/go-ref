@@ -1,10 +1,10 @@
-import {Injectable,} from '@angular/core'
-import {Observable} from "rxjs/Observable"
-import {ReplaySubject} from "rxjs/ReplaySubject"
+import { Injectable, } from '@angular/core'
+import { Observable } from "rxjs/Observable"
+import { ReplaySubject } from "rxjs/ReplaySubject"
 
 // TODO: DEV, PROD, ...
 
-const ReconnectingWebSocket = require('reconnecting-websocket');
+const ReconnectingWebSocket = require('reconnecting-websocket')
 
 const SERVER_URL = "ws://localhost:50001/endpoint"
 
@@ -28,10 +28,10 @@ export class WebsocketService {
     }
 
     this.client.onopen = () => {
-      console.info("websocket: `onopen`")
+      console.debug("websocket: `onopen`")
 
       this.sendQueue.subscribe(data => {
-        this.client.send(JSON.stringify(data));
+        this.client.send(JSON.stringify(data))
       })
     }
 

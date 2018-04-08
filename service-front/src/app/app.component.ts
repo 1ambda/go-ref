@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { environment } from 'environments/environment';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core'
+import { environment } from 'environments/environment'
 
 @Component({
   selector: 'app',
@@ -13,9 +13,10 @@ import { environment } from 'environments/environment';
   `
 })
 export class AppComponent implements OnInit {
-  public showDevModule: boolean = environment.showDevModule;
+  public showDevModule: boolean = environment.showDevModule
 
-  constructor() {}
+  constructor() {
+  }
 
   public ngOnInit() {
   }

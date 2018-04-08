@@ -1,11 +1,11 @@
-import {Component, NgModule, OnInit, OnDestroy} from '@angular/core'
-import {MatButtonModule, MatToolbarModule, MatMenuModule} from '@angular/material'
-import {RouterModule} from '@angular/router'
+import { Component, NgModule, OnDestroy, OnInit } from '@angular/core'
+import { MatButtonModule, MatMenuModule, MatToolbarModule } from '@angular/material'
+import { RouterModule } from '@angular/router'
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.scss']
+  styleUrls: [ './navbar.scss' ]
 })
 export class Navbar implements OnInit, OnDestroy {
   constructor() {
@@ -19,8 +19,9 @@ export class Navbar implements OnInit, OnDestroy {
 }
 
 @NgModule({
-  imports: [MatButtonModule, MatToolbarModule, MatMenuModule, RouterModule],
-  exports: [Navbar],
-  declarations: [Navbar],
+  imports: [ MatButtonModule, MatToolbarModule, MatMenuModule, RouterModule ],
+  exports: [ Navbar ],
+  declarations: [ Navbar ],
 })
-export class NavbarModule {}
+export class NavbarModule {
+}

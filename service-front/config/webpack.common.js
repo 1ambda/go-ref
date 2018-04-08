@@ -20,12 +20,14 @@ const buildUtils = require('./build-utils')
  */
 module.exports = function (options) {
   const isProd = options.env === 'production'
-  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, options.metadata || {});
-  const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA);
-  const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath);
+  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, options.metadata || {})
+  const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA)
+  const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath)
 
-  // keys for service-front
-  const GOOGLE_API_KEY_MAP = process.env.GOOGLE_API_KEY_MAP || ''
+  // env values for service-front
+  const KEY_GOOGLE_MAP_API = process.env.KEY_GOOGLE_MAP_API || ''
+  const ENDPOINT_SERVICE_GATEWAY_REST = process.env.ENDPOINT_SERVICE_GATEWAY_REST || 'http://localhost:50002/api'
+  const ENDPOINT_SERVICE_GATEWAY_WS = process.env.ENDPOINT_SERVICE_GATEWAY_WS || 'ws://localhost:50001/endpoint'
 
   const entry = {
     polyfills: './src/polyfills.browser.ts',
@@ -171,7 +173,9 @@ module.exports = function (options) {
         'ENV': JSON.stringify(METADATA.ENV),
         'HMR': METADATA.HMR,
         'AOT': METADATA.AOT,
-        'GOOGLE_API_KEY_MAP': JSON.stringify(GOOGLE_API_KEY_MAP),
+        'KEY_GOOGLE_MAP_API': JSON.stringify(KEY_GOOGLE_MAP_API),
+        'ENDPOINT_SERVICE_GATEWAY_REST': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_REST),
+        'ENDPOINT_SERVICE_GATEWAY_WS': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_WS),
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
         'process.env.HMR': METADATA.HMR

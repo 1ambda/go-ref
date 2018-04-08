@@ -59,12 +59,7 @@ import { MatCardModule } from '@angular/material'
  */
 export function restApiConfigFactory(): Configuration {
   const params: ConfigurationParameters = {
-    // set configuration parameters here.
-  }
-
-  // TODO: dev, prod
-  if (!environment.production) {
-    params.basePath = "http://localhost:50002/api"
+    basePath: ENDPOINT_SERVICE_GATEWAY_REST
   }
 
   return new Configuration(params)
@@ -104,7 +99,7 @@ const APP_PROVIDERS = [
     }),
 
     AgmCoreModule.forRoot({
-      apiKey: GOOGLE_API_KEY_MAP,
+      apiKey: KEY_GOOGLE_MAP_API,
     }),
 
     MatCardModule,

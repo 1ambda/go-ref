@@ -1,12 +1,8 @@
-import { Injectable, } from '@angular/core'
+import { Injectable } from '@angular/core'
 import { Observable } from "rxjs/Observable"
 import { ReplaySubject } from "rxjs/ReplaySubject"
 
-// TODO: DEV, PROD, ...
-
 const ReconnectingWebSocket = require('reconnecting-websocket')
-
-const SERVER_URL = "ws://localhost:50001/endpoint"
 
 @Injectable()
 export class WebsocketService {
@@ -15,7 +11,7 @@ export class WebsocketService {
   private sendQueue: ReplaySubject<Object>
 
   constructor() {
-    this.client = new ReconnectingWebSocket(SERVER_URL)
+    this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
     this.sendQueue = new ReplaySubject()
     this.receiveQueue = new ReplaySubject()
 
@@ -52,7 +48,7 @@ export class WebsocketService {
 
   public watch(responseType: any): Observable<any> {
     return this.receiveQueue.filter((response: any) => {
-      console.debug(responseType, response)
+      console.info(responseType, response)
       return response.header.responseType === responseType
     })
   }

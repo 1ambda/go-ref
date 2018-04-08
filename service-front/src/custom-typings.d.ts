@@ -61,9 +61,6 @@ declare var ENV: string;
 declare var HMR: boolean;
 declare var System: SystemJS;
 
-// env variables injected by DefinePlugin
-declare const GOOGLE_API_KEY_MAP: string;
-
 interface SystemJS {
   import: (path?: string) => Promise<any>;
 }
@@ -138,3 +135,7 @@ interface Global extends GlobalEnvironment  {}
 
 declare var ClientJS: any;
 
+// env variables injected by DefinePlugin
+declare const KEY_GOOGLE_MAP_API: string;
+declare const ENDPOINT_SERVICE_GATEWAY_REST: string;
+declare const ENDPOINT_SERVICE_GATEWAY_WS: string;

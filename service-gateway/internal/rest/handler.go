@@ -138,7 +138,6 @@ func addOneAccess(params access.AddOneParams, db *gorm.DB, dClient distributed.D
 		return nil, restError
 	}
 
-	logger.Info("Hello", "count", count)
 	stringified := fmt.Sprintf("%d", count)
 	dClient.Publish(distributed.NewTotalAccessCountMessage(stringified))
 

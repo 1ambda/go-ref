@@ -3,8 +3,8 @@ package websocket
 import (
 	"context"
 	ws "github.com/gorilla/websocket"
-	"go.uber.org/zap"
 	"net/http"
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
 )
 
 var upgrader = ws.Upgrader{
@@ -22,9 +22,7 @@ func Configure(appCtx context.Context, mux *http.ServeMux) *webSocketManagerImpl
 
 	// setup endpoint
 	mux.HandleFunc("/endpoint", func(res http.ResponseWriter, req *http.Request) {
-		log, _ := zap.NewProduction()
-		defer log.Sync()
-		logger := log.Sugar()
+		logger := config.GetLogger()
 
 		conn, err := upgrader.Upgrade(res, req, nil)
 		if err != nil {

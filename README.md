@@ -61,11 +61,11 @@ $ make run
 ```bash
 # start front (webapp) service 
 $ cd service-front
-$ npm install; npm run server:dev;
+$ npm install; npm run server:local;
 
 # visit: http://localhost:3000 
 ```
 
 ## Screenshot
 
-<img src="https://raw.githubusercontent.com/1ambda/go-ref/master/docs/screenshots/screenshot.png" height="100%" width="100%">
+img src="https://raw.githubusercontent.com/1ambda/go-ref/master/docs/screenshots/screenshot.png" height="100%" width="100%">

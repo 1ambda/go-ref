@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Observable } from "rxjs/Observable"
-import { ReplaySubject } from "rxjs/ReplaySubject"
+import { BehaviorSubject } from "rxjs/BehaviorSubject"
+import { ReplaySubject } from 'rxjs/ReplaySubject'
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
 
@@ -48,8 +49,13 @@ export class WebsocketService {
 
   public watch(responseType: any): Observable<any> {
     return this.receiveQueue.filter((response: any) => {
-      console.info(responseType, response)
-      return response.header.responseType === responseType
+      const isTargetResponseType = response.header.responseType === responseType
+
+      if (isTargetResponseType) {
+        console.info(responseType, response)
+      }
+
+      return isTargetResponseType
     })
   }
 }

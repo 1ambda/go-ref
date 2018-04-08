@@ -12,7 +12,7 @@ import { ROUTES } from './app.routes'
 import { AppComponent } from './app.component'
 import { APP_RESOLVER_PROVIDERS } from './app.resolver'
 
-import { WebsocketService } from "./shared"
+import { WebsocketService, } from "./shared"
 
 import { HomeComponent } from './pages/home'
 import { LocationComponent } from './pages/location'

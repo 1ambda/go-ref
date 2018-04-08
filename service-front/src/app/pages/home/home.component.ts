@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 
 import 'clientjs'
 import * as moment from 'moment'
@@ -6,6 +6,9 @@ import * as moment from 'moment'
 import { Access, AccessService } from '../../generated/swagger/rest'
 import { WebsocketService } from "../../shared"
 import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
+import { Subscription } from 'rxjs/Subscription'
+
+let initialized = false
 
 @Component({
   selector: 'home',
@@ -13,7 +16,7 @@ import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../genera
   styleUrls: [ './home.component.css' ],
   templateUrl: './home.component.html'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   rows = []
   columns = [
     { name: 'id', prop: 'id' },
@@ -34,8 +37,7 @@ export class HomeComponent implements OnInit {
    */
   itemCountPerPage = 10
   totalItemCount = 0
-  currentPageOffset = 0
-  /** page_number -1 */
+  currentPageOffset = 0 // `page_number - 1`
   isTableLoading = true
 
   /**
@@ -46,25 +48,43 @@ export class HomeComponent implements OnInit {
   currentNodeCount = "0"
   currentMasterIdentifier = "UNKNOWN"
 
+  private subscriptions: Array<Subscription> = []
+
   constructor(
     private accessService: AccessService,
-    private webSocketService: WebsocketService) {
+    private webSocketService: WebsocketService,
+  ) {
+
   }
 
   public ngOnInit() {
     // send access record after then get all access records
+    if (initialized) {
+      console.warn("initialized")
+      this.initialize()
+    } else {
+      console.warn("not initialized")
+      this.sendAccess()
+        .subscribe(_ => {
+          this.initialize()
+        })
+    }
+  }
 
-    this.sendAccess()
-      .subscribe(created => {
-        this.fetchAllAccessList()
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      sub.unsubscribe()
+    })
+  }
 
-        // TODO: re-subscribe when websocket is disconnected
-        this.subscribeCurrentConnectionCount()
-        this.subscribeTotalAccessCount()
-        this.subscribeLMasterIdentifier()
-        this.subscribeGatewayNodeCount()
-      })
+  initialize() {
+    this.fetchAllAccessList()
+    this.subscriptions.push(this.subscribeCurrentConnectionCount())
+    this.subscriptions.push(this.subscribeTotalAccessCount())
+    this.subscriptions.push(this.subscribeLMasterIdentifier())
+    this.subscriptions.push(this.subscribeGatewayNodeCount())
 
+    initialized = true
   }
 
   sendAccess() {
@@ -104,33 +124,33 @@ export class HomeComponent implements OnInit {
       })
   }
 
-  subscribeCurrentConnectionCount() {
+  subscribeCurrentConnectionCount(): Subscription {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateConnectionCount
-    this.webSocketService.watch(eventType)
+    return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentUserCount = response.body.value
       })
   }
 
-  subscribeTotalAccessCount() {
+  subscribeTotalAccessCount(): Subscription {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateTotalAccessCount
-    this.webSocketService.watch(eventType)
+    return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentTotalAccessCount = response.body.value
       })
   }
 
-  subscribeLMasterIdentifier() {
+  subscribeLMasterIdentifier(): Subscription {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateMasterIdentifier
-    this.webSocketService.watch(eventType)
+    return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentMasterIdentifier = "gateway-" + response.body.value
       })
   }
 
-  subscribeGatewayNodeCount() {
+  subscribeGatewayNodeCount(): Subscription {
     const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateNodeCount
-    this.webSocketService.watch(eventType)
+    return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentNodeCount = response.body.value
       })

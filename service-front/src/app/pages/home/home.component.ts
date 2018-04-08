@@ -60,10 +60,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     // send access record after then get all access records
     if (initialized) {
-      console.warn("initialized")
       this.initialize()
     } else {
-      console.warn("not initialized")
       this.sendAccess()
         .subscribe(_ => {
           this.initialize()

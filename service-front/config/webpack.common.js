@@ -9,10 +9,11 @@ const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin')
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const ngcWebpack = require('ngc-webpack')
-const Jarvis = require("webpack-jarvis")
-
 const buildUtils = require('./build-utils')
-
+const Jarvis = require("webpack-jarvis")
+const GitRevisionPlugin = require('git-revision-webpack-plugin')
+const gitRevisionPlugin = new GitRevisionPlugin()
+const moment = require('moment')
 
 /**
  * Webpack configuration
@@ -173,12 +174,19 @@ module.exports = function (options) {
         'ENV': JSON.stringify(METADATA.ENV),
         'HMR': METADATA.HMR,
         'AOT': METADATA.AOT,
-        'KEY_GOOGLE_MAP_API': JSON.stringify(KEY_GOOGLE_MAP_API),
-        'ENDPOINT_SERVICE_GATEWAY_REST': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_REST),
-        'ENDPOINT_SERVICE_GATEWAY_WS': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_WS),
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
-        'process.env.HMR': METADATA.HMR
+        'process.env.HMR': METADATA.HMR,
+
+        'PROJECT_GIT_COMMIT': JSON.stringify(gitRevisionPlugin.commithash()),
+        'PROJECT_GIT_BRANCH': JSON.stringify(gitRevisionPlugin.branch()),
+        'PROJECT_VERSION': JSON.stringify(require("../package.json").version),
+        'PROJECT_BUILD_DATE': JSON.stringify(moment().format('MMMM Do YYYY, h:mm:ss A')),
+
+        'KEY_GOOGLE_MAP_API': JSON.stringify(KEY_GOOGLE_MAP_API),
+
+        'ENDPOINT_SERVICE_GATEWAY_REST': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_REST),
+        'ENDPOINT_SERVICE_GATEWAY_WS': JSON.stringify(ENDPOINT_SERVICE_GATEWAY_WS),
       }),
 
       /**

@@ -136,6 +136,10 @@ interface Global extends GlobalEnvironment  {}
 declare var ClientJS: any;
 
 // env variables injected by DefinePlugin
+declare const PROJECT_GIT_COMMIT: string;
+declare const PROJECT_GIT_BRANCH: string;
+declare const PROJECT_VERSION: string;
+declare const PROJECT_BUILD_DATE: string;
 declare const KEY_GOOGLE_MAP_API: string;
 declare const ENDPOINT_SERVICE_GATEWAY_REST: string;
 declare const ENDPOINT_SERVICE_GATEWAY_WS: string;

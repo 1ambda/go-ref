@@ -168,6 +168,7 @@ module.exports = function (env) {
        */
       new UglifyJsPlugin({
         sourceMap: true,
+        parallel: true,
         uglifyOptions: getUglifyOptions(supportES2015)
       })
 

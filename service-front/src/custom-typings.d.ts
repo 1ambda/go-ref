@@ -57,9 +57,9 @@ declare module 'modern-lru' {
 */
 
 // Extra variables that live on Global that will be replaced by webpack DefinePlugin
-declare var ENV: string;
-declare var HMR: boolean;
-declare var System: SystemJS;
+declare var ENV: string
+declare var HMR: boolean
+declare var System: SystemJS
 
 interface SystemJS {
   import: (path?: string) => Promise<any>;
@@ -80,16 +80,16 @@ type FactoryEs6PromiseLoader = () => Es6PromiseLoader;
 type FactoryPromise = () => Promise<any>;
 
 type AsyncRoutes = {
-  [component: string]: Es6PromiseLoader |
-                               Function |
-                FactoryEs6PromiseLoader |
-                         FactoryPromise ;
+  [ component: string ]: Es6PromiseLoader |
+    Function |
+    FactoryEs6PromiseLoader |
+    FactoryPromise;
 };
 
 type IdleCallbacks = Es6PromiseLoader |
-                             Function |
-              FactoryEs6PromiseLoader |
-                       FactoryPromise ;
+  Function |
+  FactoryEs6PromiseLoader |
+  FactoryPromise ;
 
 interface WebpackModule {
   hot: {
@@ -108,14 +108,17 @@ interface WebpackModule {
 }
 
 interface WebpackRequire {
-    (id: string): any;
-    (paths: string[], callback: (...modules: any[]) => void): void;
-    ensure(ids: string[], callback: (req: WebpackRequire) => void, chunkName?: string): void;
-    context(directory: string, useSubDirectories?: boolean, regExp?: RegExp): WebpackContext;
+  (id: string): any;
+
+  (paths: string[], callback: (...modules: any[]) => void): void;
+
+  ensure(ids: string[], callback: (req: WebpackRequire) => void, chunkName?: string): void;
+
+  context(directory: string, useSubDirectories?: boolean, regExp?: RegExp): WebpackContext;
 }
 
 interface WebpackContext extends WebpackRequire {
-    keys(): string[];
+  keys(): string[];
 }
 
 interface ErrorStackTraceLimit {
@@ -123,23 +126,32 @@ interface ErrorStackTraceLimit {
 }
 
 // Extend typings
-interface NodeRequire extends WebpackRequire {}
-interface ErrorConstructor extends ErrorStackTraceLimit {}
-interface NodeRequireFunction extends Es6PromiseLoader  {}
-interface NodeModule extends WebpackModule {}
-interface Global extends GlobalEnvironment  {}
+interface NodeRequire extends WebpackRequire {
+}
+
+interface ErrorConstructor extends ErrorStackTraceLimit {
+}
+
+interface NodeRequireFunction extends Es6PromiseLoader {
+}
+
+interface NodeModule extends WebpackModule {
+}
+
+interface Global extends GlobalEnvironment {
+}
 
 /**
  * custom typings
  */
 
-declare var ClientJS: any;
+declare var ClientJS: any
 
 // env variables injected by DefinePlugin
-declare const PROJECT_GIT_COMMIT: string;
-declare const PROJECT_GIT_BRANCH: string;
-declare const PROJECT_VERSION: string;
-declare const PROJECT_BUILD_DATE: string;
-declare const KEY_GOOGLE_MAP_API: string;
-declare const ENDPOINT_SERVICE_GATEWAY_REST: string;
-declare const ENDPOINT_SERVICE_GATEWAY_WS: string;
+declare const PROJECT_GIT_COMMIT: string
+declare const PROJECT_GIT_BRANCH: string
+declare const PROJECT_VERSION: string
+declare const PROJECT_BUILD_DATE: string
+declare const KEY_GOOGLE_MAP_API: string
+declare const ENDPOINT_SERVICE_GATEWAY_REST: string
+declare const ENDPOINT_SERVICE_GATEWAY_WS: string

@@ -12,13 +12,14 @@ import { ROUTES } from './app.routes'
 import { AppComponent } from './app.component'
 import { APP_RESOLVER_PROVIDERS } from './app.resolver'
 
-import { WebsocketService, } from "./shared"
-
 import { HomeComponent } from './pages/home'
 import { LocationComponent } from './pages/location'
 import { AboutComponent } from './pages/about'
 import { NoContentComponent } from './pages/no-content'
 import { DevModuleModule } from './pages/+dev-module'
+/**
+ * rxjs global import
+ */
 import 'rxjs/add/operator/filter'
 /**
  * swagger generated clients
@@ -33,25 +34,15 @@ import { ApiModule, Configuration, ConfigurationParameters } from './generated/s
  */
 import 'hammerjs'
 /**
- * angular flex layout
- *
- * See: https://github.com/angular/flex-layout/wiki/Webpack-Configuration
- */
-import { FlexLayoutModule } from '@angular/flex-layout'
-/**
  * ngx-datatable
  */
 import { NgxDatatableModule } from '@swimlane/ngx-datatable'
 import '../styles/styles.scss'
 /**
- * App Modules
+ * App Moduless
  */
 import { NavbarModule } from './pages/common/navbar'
-import { MatCardModule } from '@angular/material'
-
-/**
- * rxjs global import
- */
+import { SharedModule } from "./shared/shared.module"
 
 
 /**
@@ -88,7 +79,6 @@ const APP_PROVIDERS = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FlexLayoutModule,
     FormsModule,
     NgxDatatableModule,
     ApiModule.forRoot(restApiConfigFactory),
@@ -102,7 +92,7 @@ const APP_PROVIDERS = [
       apiKey: KEY_GOOGLE_MAP_API,
     }),
 
-    MatCardModule,
+    SharedModule.forRoot(),
     NavbarModule,
 
     /**
@@ -116,7 +106,6 @@ const APP_PROVIDERS = [
    * Expose our Services and Providers into Angular's dependency injection.
    */
   providers: [
-    WebsocketService,
     environment.ENV_PROVIDERS,
     APP_PROVIDERS
   ]

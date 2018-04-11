@@ -1,6 +1,6 @@
 import { Component, NgModule, OnDestroy, OnInit } from '@angular/core'
-import { MatButtonModule, MatMenuModule, MatToolbarModule } from '@angular/material'
 import { RouterModule } from '@angular/router'
+import { SharedModule } from "../../../shared/shared.module"
 
 @Component({
   selector: 'app-navbar',
@@ -19,7 +19,7 @@ export class Navbar implements OnInit, OnDestroy {
 }
 
 @NgModule({
-  imports: [ MatButtonModule, MatToolbarModule, MatMenuModule, RouterModule ],
+  imports: [ SharedModule, RouterModule ],
   exports: [ Navbar ],
   declarations: [ Navbar ],
 })

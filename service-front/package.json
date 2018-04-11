@@ -52,7 +52,7 @@
     "rimraf": "rimraf",
     "server:local:hmr": "npm run server:local-- --hotOnly --hot --inline",
     "server:aot:local": "cross-env BUILD_AOT=1 npm run server:local",
-    "server:local": "npm run webpack-dev-server -- --config config/webpack.local.js --progress --profile --watch --content-base src/",
+    "server:local": "npm run webpack-dev-server -- --https --config config/webpack.local.js --progress --profile --watch --content-base src/",
     "server:prod": "http-server dist -c-1 --cors",
     "server:prod:ci": "http-server dist -p 3000 -c-1 --cors",
     "server": "npm run server:local",

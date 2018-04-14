@@ -35,10 +35,10 @@ func init() {
   },
   "basePath": "/api",
   "paths": {
-    "/access": {
+    "/browser_history": {
       "get": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "findAll",
         "parameters": [
@@ -59,7 +59,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "access records with pagination info",
+            "description": "BrowserHistory records with pagination info",
             "schema": {
               "type": "object",
               "properties": {
@@ -69,7 +69,7 @@ func init() {
                 "rows": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/access"
+                    "$ref": "#/definitions/BrowserHistory"
                   }
                 }
               }
@@ -85,7 +85,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "addOne",
         "parameters": [
@@ -93,7 +93,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           }
         ],
@@ -101,7 +101,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           },
           "default": {
@@ -113,10 +113,10 @@ func init() {
         }
       }
     },
-    "/access/{id}": {
+    "/browser_history/{id}": {
       "get": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "findOne",
         "parameters": [
@@ -124,7 +124,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           }
         ],
@@ -132,36 +132,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/access"
-            }
-          },
-          "default": {
-            "description": "error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "access"
-        ],
-        "operationId": "updateOne",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/access"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           },
           "default": {
@@ -174,7 +145,7 @@ func init() {
       },
       "delete": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "removeOne",
         "responses": {
@@ -232,53 +203,7 @@ func init() {
     }
   },
   "definitions": {
-    "SessionRequest": {
-      "type": "object",
-      "required": [
-        "sessionID"
-      ],
-      "properties": {
-        "sessionID": {
-          "type": "string"
-        }
-      }
-    },
-    "SessionResponse": {
-      "type": "object",
-      "required": [
-        "sessionID",
-        "createdAt",
-        "updatedAt",
-        "expiredAt",
-        "refreshed",
-        "refreshCount"
-      ],
-      "properties": {
-        "createdAt": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "expiredAt": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "refreshCount": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "refreshed": {
-          "type": "boolean"
-        },
-        "sessionID": {
-          "type": "string"
-        },
-        "updatedAt": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "access": {
+    "BrowserHistory": {
       "type": "object",
       "required": [
         "browserName",
@@ -325,6 +250,52 @@ func init() {
         },
         "uuid": {
           "type": "string"
+        }
+      }
+    },
+    "SessionRequest": {
+      "type": "object",
+      "required": [
+        "sessionID"
+      ],
+      "properties": {
+        "sessionID": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionResponse": {
+      "type": "object",
+      "required": [
+        "sessionID",
+        "createdAt",
+        "updatedAt",
+        "expiredAt",
+        "refreshed",
+        "refreshCount"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expiredAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshed": {
+          "type": "boolean"
+        },
+        "sessionID": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
@@ -388,10 +359,10 @@ func init() {
   },
   "basePath": "/api",
   "paths": {
-    "/access": {
+    "/browser_history": {
       "get": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "findAll",
         "parameters": [
@@ -412,7 +383,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "access records with pagination info",
+            "description": "BrowserHistory records with pagination info",
             "schema": {
               "$ref": "#/definitions/findAllOKBody"
             }
@@ -427,7 +398,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "addOne",
         "parameters": [
@@ -435,7 +406,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           }
         ],
@@ -443,7 +414,7 @@ func init() {
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           },
           "default": {
@@ -455,10 +426,10 @@ func init() {
         }
       }
     },
-    "/access/{id}": {
+    "/browser_history/{id}": {
       "get": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "findOne",
         "parameters": [
@@ -466,7 +437,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           }
         ],
@@ -474,36 +445,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/access"
-            }
-          },
-          "default": {
-            "description": "error",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "access"
-        ],
-        "operationId": "updateOne",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/access"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/access"
+              "$ref": "#/definitions/BrowserHistory"
             }
           },
           "default": {
@@ -516,7 +458,7 @@ func init() {
       },
       "delete": {
         "tags": [
-          "access"
+          "BrowserHistory"
         ],
         "operationId": "removeOne",
         "responses": {
@@ -574,53 +516,7 @@ func init() {
     }
   },
   "definitions": {
-    "SessionRequest": {
-      "type": "object",
-      "required": [
-        "sessionID"
-      ],
-      "properties": {
-        "sessionID": {
-          "type": "string"
-        }
-      }
-    },
-    "SessionResponse": {
-      "type": "object",
-      "required": [
-        "sessionID",
-        "createdAt",
-        "updatedAt",
-        "expiredAt",
-        "refreshed",
-        "refreshCount"
-      ],
-      "properties": {
-        "createdAt": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "expiredAt": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "refreshCount": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "refreshed": {
-          "type": "boolean"
-        },
-        "sessionID": {
-          "type": "string"
-        },
-        "updatedAt": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "access": {
+    "BrowserHistory": {
       "type": "object",
       "required": [
         "browserName",
@@ -670,6 +566,52 @@ func init() {
         }
       }
     },
+    "SessionRequest": {
+      "type": "object",
+      "required": [
+        "sessionID"
+      ],
+      "properties": {
+        "sessionID": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionResponse": {
+      "type": "object",
+      "required": [
+        "sessionID",
+        "createdAt",
+        "updatedAt",
+        "expiredAt",
+        "refreshed",
+        "refreshCount"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expiredAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshed": {
+          "type": "boolean"
+        },
+        "sessionID": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "error": {
       "type": "object",
       "required": [
@@ -697,7 +639,7 @@ func init() {
         "rows": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/access"
+            "$ref": "#/definitions/BrowserHistory"
           }
         }
       },

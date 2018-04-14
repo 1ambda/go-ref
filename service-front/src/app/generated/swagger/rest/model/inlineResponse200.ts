@@ -9,11 +9,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Access } from './access';
+import { BrowserHistory } from './browserHistory';
 import { Pagination } from './pagination';
 
 
 export interface InlineResponse200 {
-    rows?: Array<Access>;
+    rows?: Array<BrowserHistory>;
     pagination?: Pagination;
 }

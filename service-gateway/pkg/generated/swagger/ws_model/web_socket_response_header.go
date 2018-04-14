@@ -71,7 +71,7 @@ var webSocketResponseHeaderTypeResponseTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Error","UpdateTotalAccessCount","UpdateConnectionCount","UpdateMasterIdentifier","UpdateNodeCount"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Error","UpdateBrowserHistoryCount","UpdateWebSocketConnectionCount","UpdateGatewayLeaderNodeName","UpdateGatewayNodeCount"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -84,17 +84,17 @@ const (
 	// WebSocketResponseHeaderResponseTypeError captures enum value "Error"
 	WebSocketResponseHeaderResponseTypeError string = "Error"
 
-	// WebSocketResponseHeaderResponseTypeUpdateTotalAccessCount captures enum value "UpdateTotalAccessCount"
-	WebSocketResponseHeaderResponseTypeUpdateTotalAccessCount string = "UpdateTotalAccessCount"
+	// WebSocketResponseHeaderResponseTypeUpdateBrowserHistoryCount captures enum value "UpdateBrowserHistoryCount"
+	WebSocketResponseHeaderResponseTypeUpdateBrowserHistoryCount string = "UpdateBrowserHistoryCount"
 
-	// WebSocketResponseHeaderResponseTypeUpdateConnectionCount captures enum value "UpdateConnectionCount"
-	WebSocketResponseHeaderResponseTypeUpdateConnectionCount string = "UpdateConnectionCount"
+	// WebSocketResponseHeaderResponseTypeUpdateWebSocketConnectionCount captures enum value "UpdateWebSocketConnectionCount"
+	WebSocketResponseHeaderResponseTypeUpdateWebSocketConnectionCount string = "UpdateWebSocketConnectionCount"
 
-	// WebSocketResponseHeaderResponseTypeUpdateMasterIdentifier captures enum value "UpdateMasterIdentifier"
-	WebSocketResponseHeaderResponseTypeUpdateMasterIdentifier string = "UpdateMasterIdentifier"
+	// WebSocketResponseHeaderResponseTypeUpdateGatewayLeaderNodeName captures enum value "UpdateGatewayLeaderNodeName"
+	WebSocketResponseHeaderResponseTypeUpdateGatewayLeaderNodeName string = "UpdateGatewayLeaderNodeName"
 
-	// WebSocketResponseHeaderResponseTypeUpdateNodeCount captures enum value "UpdateNodeCount"
-	WebSocketResponseHeaderResponseTypeUpdateNodeCount string = "UpdateNodeCount"
+	// WebSocketResponseHeaderResponseTypeUpdateGatewayNodeCount captures enum value "UpdateGatewayNodeCount"
+	WebSocketResponseHeaderResponseTypeUpdateGatewayNodeCount string = "UpdateGatewayNodeCount"
 )
 
 // prop value enum

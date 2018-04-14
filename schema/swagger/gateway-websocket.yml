@@ -32,10 +32,10 @@ definitions:
         type: string
         enum:
           - Error
-          - UpdateTotalAccessCount
-          - UpdateConnectionCount
-          - UpdateMasterIdentifier
-          - UpdateNodeCount
+          - UpdateBrowserHistoryCount
+          - UpdateWebSocketConnectionCount
+          - UpdateGatewayLeaderNodeName
+          - UpdateGatewayNodeCount
       error:
         $ref: "#/definitions/error"
 

@@ -32,10 +32,10 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-  /access:
+  /browser_history:
     get:
       tags:
-        - access
+        - BrowserHistory
       operationId: findAll
       parameters:
         - name: itemCountPerPage
@@ -50,14 +50,14 @@ paths:
           default: 0
       responses:
         200:
-          description: access records with pagination info
+          description: BrowserHistory records with pagination info
           schema:
             type: object
             properties:
               rows:
                 type: array
                 items:
-                  $ref: "#/definitions/access"
+                  $ref: "#/definitions/BrowserHistory"
               pagination:
                 $ref: "#/definitions/pagination"
 
@@ -67,23 +67,23 @@ paths:
             $ref: "#/definitions/error"
     post:
       tags:
-        - access
+        - BrowserHistory
       operationId: addOne
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/access"
+            $ref: "#/definitions/BrowserHistory"
       responses:
         201:
           description: Created
           schema:
-            $ref: "#/definitions/access"
+            $ref: "#/definitions/BrowserHistory"
         default:
           description: error
           schema:
             $ref: "#/definitions/error"
-  /access/{id}:
+  /browser_history/{id}:
     parameters:
       - type: integer
         format: int64
@@ -92,43 +92,26 @@ paths:
         required: true
     get:
       tags:
-        - access
+        - BrowserHistory
       operationId: findOne
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/access"
+            $ref: "#/definitions/BrowserHistory"
       responses:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/access"
+            $ref: "#/definitions/BrowserHistory"
         default:
           description: error
           schema:
             $ref: "#/definitions/error"
-    put:
-      tags:
-        - access
-      operationId: updateOne
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/access"
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: "#/definitions/access"
-        default:
-          description: error
-          schema:
-            $ref: "#/definitions/error"
+
     delete:
       tags:
-        - access
+        - BrowserHistory
       operationId: removeOne
       responses:
         204:
@@ -192,7 +175,7 @@ definitions:
         type: integer
         format: int64
 
-  access:
+  BrowserHistory:
     type: object
     required:
       - browserName

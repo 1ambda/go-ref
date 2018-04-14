@@ -12,8 +12,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func createAccessRecord() *model.Access {
-	record := model.Access{
+func createAccessRecord() *model.BrowserHistory {
+	record := model.BrowserHistory{
 		BrowserName:    "Chrome",
 		BrowserVersion: "67",
 		OsName:         "OSX",
@@ -33,7 +33,7 @@ func createAccessRequest() *rest_model.Access {
 	return convertAccessToRestModel(record)
 }
 
-func insertAccessRecord(db *gorm.DB) *model.Access {
+func insertAccessRecord(db *gorm.DB) *model.BrowserHistory {
 	record := createAccessRecord()
 
 	err := db.Create(record).Error
@@ -42,7 +42,7 @@ func insertAccessRecord(db *gorm.DB) *model.Access {
 	return record
 }
 
-func convertToAccessRequest(record *model.Access) *rest_model.Access {
+func convertToAccessRequest(record *model.BrowserHistory) *rest_model.Access {
 	return &rest_model.Access{
 		UUID:           record.UUID,
 		BrowserName:    &record.BrowserName,
@@ -57,7 +57,7 @@ func convertToAccessRequest(record *model.Access) *rest_model.Access {
 	}
 }
 
-var _ = Describe("Rest: Access", func() {
+var _ = Describe("Rest: BrowserHistory", func() {
 	spec := config.Spec
 	spec.Env = config.ENV_TEST
 
@@ -85,7 +85,7 @@ var _ = Describe("Rest: Access", func() {
 				}
 
 				mockDistributedClient = distributed.NewMockDistributedClient(ctrl)
-				expectedDMessage := distributed.NewTotalAccessCountMessage("1")
+				expectedDMessage := distributed.NewBrowserHistoryCountMessage("1")
 				mockDistributedClient.EXPECT().Publish(expectedDMessage).Times(1)
 
 				restResp, restErr := addOneAccess(params, db, mockDistributedClient)
@@ -133,7 +133,7 @@ var _ = Describe("Rest: Access", func() {
 		})
 
 		Context("When got valid ID", func() {
-			It("should find Access record", func() {
+			It("should find BrowserHistory record", func() {
 				record := insertAccessRecord(db)
 
 				params := access.FindOneParams{ID: int64(record.Id)}
@@ -158,7 +158,7 @@ var _ = Describe("Rest: Access", func() {
 		})
 
 		Context("When got valid ID", func() {
-			It("should delete Access record", func() {
+			It("should delete BrowserHistory record", func() {
 				record := insertAccessRecord(db)
 
 				params := access.RemoveOneParams{ID: int64(record.Id)}
@@ -184,7 +184,7 @@ var _ = Describe("Rest: Access", func() {
 		})
 
 		Context("When got valid ID", func() {
-			It("should update Access record", func() {
+			It("should update BrowserHistory record", func() {
 				record := insertAccessRecord(db)
 				request := convertToAccessRequest(record)
 

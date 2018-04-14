@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Configuration } from './configuration';
 
-import { AccessService } from './api/access.service';
+import { BrowserHistoryService } from './api/browserHistory.service';
 import { SessionService } from './api/session.service';
 
 @NgModule({
@@ -11,7 +11,7 @@ import { SessionService } from './api/session.service';
   declarations: [],
   exports:      [],
   providers: [
-    AccessService,
+    BrowserHistoryService,
     SessionService ]
 })
 export class ApiModule {

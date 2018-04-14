@@ -22,7 +22,7 @@ type FindAllOKBody struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 
 	// rows
-	Rows []*Access `json:"rows"`
+	Rows []*BrowserHistory `json:"rows"`
 }
 
 // Validate validates this find all o k body

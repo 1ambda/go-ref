@@ -44,7 +44,7 @@ func GetDatabase(spec config.Specification) *gorm.DB {
 		option = ""
 	}
 
-	db.Set("gorm:table_options", option).AutoMigrate(&Access{})
+	db.Set("gorm:table_options", option).AutoMigrate(&BrowserHistory{})
 	db.Set("gorm:table_options", option).AutoMigrate(&Session{})
 
 	return db

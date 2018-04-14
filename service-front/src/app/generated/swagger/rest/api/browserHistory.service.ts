@@ -18,7 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs/Observable';
 
-import { Access } from '../model/access';
+import { BrowserHistory } from '../model/browserHistory';
 import { InlineResponse200 } from '../model/inlineResponse200';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -26,7 +26,7 @@ import { Configuration }                                     from '../configurat
 
 
 @Injectable()
-export class AccessService {
+export class BrowserHistoryService {
 
     protected basePath = 'http://localhost/api';
     public defaultHeaders = new HttpHeaders();
@@ -64,10 +64,10 @@ export class AccessService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public addOne(body?: Access, observe?: 'body', reportProgress?: boolean): Observable<Access>;
-    public addOne(body?: Access, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Access>>;
-    public addOne(body?: Access, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Access>>;
-    public addOne(body?: Access, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public addOne(body?: BrowserHistory, observe?: 'body', reportProgress?: boolean): Observable<BrowserHistory>;
+    public addOne(body?: BrowserHistory, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<BrowserHistory>>;
+    public addOne(body?: BrowserHistory, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<BrowserHistory>>;
+    public addOne(body?: BrowserHistory, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -89,7 +89,7 @@ export class AccessService {
             headers = headers.set("Content-Type", httpContentTypeSelected);
         }
 
-        return this.httpClient.post<Access>(`${this.basePath}/access`,
+        return this.httpClient.post<BrowserHistory>(`${this.basePath}/browser_history`,
             body,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -137,7 +137,7 @@ export class AccessService {
             'application/json'
         ];
 
-        return this.httpClient.get<InlineResponse200>(`${this.basePath}/access`,
+        return this.httpClient.get<InlineResponse200>(`${this.basePath}/browser_history`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
@@ -156,10 +156,10 @@ export class AccessService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public findOne(id: number, body?: Access, observe?: 'body', reportProgress?: boolean): Observable<Access>;
-    public findOne(id: number, body?: Access, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Access>>;
-    public findOne(id: number, body?: Access, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Access>>;
-    public findOne(id: number, body?: Access, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public findOne(id: number, body?: BrowserHistory, observe?: 'body', reportProgress?: boolean): Observable<BrowserHistory>;
+    public findOne(id: number, body?: BrowserHistory, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<BrowserHistory>>;
+    public findOne(id: number, body?: BrowserHistory, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<BrowserHistory>>;
+    public findOne(id: number, body?: BrowserHistory, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling findOne.');
         }
@@ -184,7 +184,7 @@ export class AccessService {
             headers = headers.set("Content-Type", httpContentTypeSelected);
         }
 
-        return this.httpClient.get<Access>(`${this.basePath}/access/${encodeURIComponent(String(id))}`,
+        return this.httpClient.get<BrowserHistory>(`${this.basePath}/browser_history/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -225,54 +225,7 @@ export class AccessService {
             'application/json'
         ];
 
-        return this.httpClient.delete<any>(`${this.basePath}/access/${encodeURIComponent(String(id))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * 
-     * 
-     * @param id 
-     * @param body 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public updateOne(id: number, body?: Access, observe?: 'body', reportProgress?: boolean): Observable<Access>;
-    public updateOne(id: number, body?: Access, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Access>>;
-    public updateOne(id: number, body?: Access, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Access>>;
-    public updateOne(id: number, body?: Access, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updateOne.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            'application/json'
-        ];
-        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set("Accept", httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        let consumes: string[] = [
-            'application/json'
-        ];
-        let httpContentTypeSelected:string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set("Content-Type", httpContentTypeSelected);
-        }
-
-        return this.httpClient.put<Access>(`${this.basePath}/access/${encodeURIComponent(String(id))}`,
-            body,
+        return this.httpClient.delete<any>(`${this.basePath}/browser_history/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

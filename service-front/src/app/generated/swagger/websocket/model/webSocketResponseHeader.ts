@@ -16,12 +16,12 @@ export interface WebSocketResponseHeader {
     error?: Error;
 }
 export namespace WebSocketResponseHeader {
-    export type ResponseTypeEnum = 'Error' | 'UpdateTotalAccessCount' | 'UpdateConnectionCount' | 'UpdateMasterIdentifier' | 'UpdateNodeCount';
+    export type ResponseTypeEnum = 'Error' | 'UpdateBrowserHistoryCount' | 'UpdateWebSocketConnectionCount' | 'UpdateGatewayLeaderNodeName' | 'UpdateGatewayNodeCount';
     export const ResponseTypeEnum = {
         Error: 'Error' as ResponseTypeEnum,
-        UpdateTotalAccessCount: 'UpdateTotalAccessCount' as ResponseTypeEnum,
-        UpdateConnectionCount: 'UpdateConnectionCount' as ResponseTypeEnum,
-        UpdateMasterIdentifier: 'UpdateMasterIdentifier' as ResponseTypeEnum,
-        UpdateNodeCount: 'UpdateNodeCount' as ResponseTypeEnum
+        UpdateBrowserHistoryCount: 'UpdateBrowserHistoryCount' as ResponseTypeEnum,
+        UpdateWebSocketConnectionCount: 'UpdateWebSocketConnectionCount' as ResponseTypeEnum,
+        UpdateGatewayLeaderNodeName: 'UpdateGatewayLeaderNodeName' as ResponseTypeEnum,
+        UpdateGatewayNodeCount: 'UpdateGatewayNodeCount' as ResponseTypeEnum
     }
 }

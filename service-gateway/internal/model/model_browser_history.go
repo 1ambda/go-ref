@@ -6,9 +6,9 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-const AccessTable = "access"
+const BrowserHistoryTable = "browser_history"
 
-type Access struct {
+type BrowserHistory struct {
 	BaseModel
 
 	BrowserName    string `gorm:"not null"`
@@ -23,27 +23,27 @@ type Access struct {
 	UUID           string `gorm:"not null"`
 }
 
-func ConvertFromAccessDTO(swaggerModel *rest_model.Access) *Access {
+func ConvertFromBrowserHistoryDTO(dto *rest_model.BrowserHistory) *BrowserHistory {
 	uuid := uuid.NewV4()
 
-	record := Access{
-		BrowserName:    *swaggerModel.BrowserName,
-		BrowserVersion: *swaggerModel.BrowserVersion,
-		OsName:         *swaggerModel.OsName,
-		OsVersion:      *swaggerModel.OsVersion,
-		IsMobile:       *swaggerModel.IsMobile,
-		Timezone:       *swaggerModel.Timezone,
-		Timestamp:      *swaggerModel.Timestamp,
-		Language:       *swaggerModel.Language,
-		UserAgent:      *swaggerModel.UserAgent,
+	record := BrowserHistory{
+		BrowserName:    *dto.BrowserName,
+		BrowserVersion: *dto.BrowserVersion,
+		OsName:         *dto.OsName,
+		OsVersion:      *dto.OsVersion,
+		IsMobile:       *dto.IsMobile,
+		Timezone:       *dto.Timezone,
+		Timestamp:      *dto.Timestamp,
+		Language:       *dto.Language,
+		UserAgent:      *dto.UserAgent,
 		UUID:           uuid.String(),
 	}
 
 	return &record
 }
 
-func ConvertToAccessDTO(record *Access) *rest_model.Access {
-	swaggerModel := rest_model.Access{
+func ConvertToBrowserHistoryDTO(record *BrowserHistory) *rest_model.BrowserHistory {
+	dto := rest_model.BrowserHistory{
 		ID:             int64(record.Id),
 		BrowserName:    &record.BrowserName,
 		BrowserVersion: &record.BrowserVersion,
@@ -57,5 +57,5 @@ func ConvertToAccessDTO(record *Access) *rest_model.Access {
 		UUID:           record.UUID,
 	}
 
-	return &swaggerModel
+	return &dto
 }

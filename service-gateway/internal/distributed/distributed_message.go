@@ -1,7 +1,7 @@
 package distributed
 
 const SingleKeyWsConnectionCount = "gateway/single/count-websocket-connection"
-const SingleKeyTotalAccessCount = "gateway/single/count-total-access"
+const SingleKeyBrowserHistoryCount = "gateway/single/count-browser-history"
 const SingleKeyLeaderName = "gateway/single/leader-name"
 
 const RangeKeyPrefixWebSocket = "gateway/range/websocket/gateway-"
@@ -11,6 +11,6 @@ type DistributedMessage struct {
 	value string
 }
 
-func NewTotalAccessCountMessage(count string) *DistributedMessage {
-	return &DistributedMessage{key: SingleKeyTotalAccessCount, value: count}
+func NewBrowserHistoryCountMessage(count string) *DistributedMessage {
+	return &DistributedMessage{key: SingleKeyBrowserHistoryCount, value: count}
 }

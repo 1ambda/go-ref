@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 
 	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/go-openapi/runtime/middleware"
@@ -22,54 +22,55 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 	/**
 	 * Access API
 	 */
-	api.AccessAddOneHandler = access.AddOneHandlerFunc(
-		func(params access.AddOneParams) middleware.Responder {
-			restResp, restErr := addOneAccess(params, db, dClient)
+	api.BrowserHistoryAddOneHandler = browser_history.AddOneHandlerFunc(
+		func(params browser_history.AddOneParams) middleware.Responder {
+			restResp, restErr := addOneBrowserHistory(params, db, dClient)
 			if restErr != nil {
-				return access.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
+				return browser_history.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
 			}
 
-			return access.NewAddOneCreated().WithPayload(restResp)
+			return browser_history.NewAddOneCreated().WithPayload(restResp)
 		})
 
-	api.AccessFindAllHandler = access.FindAllHandlerFunc(
-		func(params access.FindAllParams) middleware.Responder {
-			pagination, rows, restErr := findAllAccess(params, db)
+	api.BrowserHistoryFindAllHandler = browser_history.FindAllHandlerFunc(
+		func(params browser_history.FindAllParams) middleware.Responder {
+			pagination, rows, restErr := findAllBrowserHistory(params, db)
 			if restErr != nil {
-				return access.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
+				return browser_history.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
 			}
 
-			return access.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
+			return browser_history.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
 				Pagination: pagination, Rows: rows,
 			})
 		})
 
-	api.AccessFindOneHandler = access.FindOneHandlerFunc(
-		func(params access.FindOneParams) middleware.Responder {
-			restResp, restErr := findOneAccess(params, db)
+	api.BrowserHistoryFindOneHandler = browser_history.FindOneHandlerFunc(
+		func(params browser_history.FindOneParams) middleware.Responder {
+			restResp, restErr := findOneBrowserHistory(params, db)
 			if restErr != nil {
-				return access.NewFindOneDefault(getCode(restErr)).WithPayload(restErr)
+				return browser_history.NewFindOneDefault(getCode(restErr)).WithPayload(restErr)
 			}
-			return access.NewFindOneOK().WithPayload(restResp)
+			return browser_history.NewFindOneOK().WithPayload(restResp)
 		})
 
-	api.AccessRemoveOneHandler = access.RemoveOneHandlerFunc(
-		func(params access.RemoveOneParams) middleware.Responder {
-			restErr := removeOneAccess(params, db)
+	api.BrowserHistoryRemoveOneHandler = browser_history.RemoveOneHandlerFunc(
+		func(params browser_history.RemoveOneParams) middleware.Responder {
+			restErr := removeOneBrowserHistory(params, db)
 			if restErr != nil {
-				return access.NewRemoveOneDefault(getCode(restErr))
+				return browser_history.NewRemoveOneDefault(getCode(restErr))
 			}
-			return access.NewRemoveOneNoContent()
+			return browser_history.NewRemoveOneNoContent()
 		})
 
-	api.AccessUpdateOneHandler = access.UpdateOneHandlerFunc(
-		func(params access.UpdateOneParams) middleware.Responder {
-			restResp, restErr := updateOneAccess(params, db)
-			if restErr != nil {
-				return access.NewAddOneDefault(getCode(restErr)).WithPayload(restErr)
-			}
-			return access.NewUpdateOneOK().WithPayload(restResp)
-		})
+	// TOOD(1ambda): PUT doens't work :(
+	//api.AccessUpdateOneHandler = browser_history.UpdateOneHandlerFunc(
+	//	func(params browser_history.UpdateOneParams) middleware.Responder {
+	//		restResp, restErr := updateOneAccess(params, db)
+	//		if restErr != nil {
+	//			return browser_history.NewAddOneDefault(getCode(restErr)).WithPayload(restErr)
+	//		}
+	//		return browser_history.NewUpdateOneOK().WithPayload(restResp)
+	//	})
 
 	/**
 	* Session API
@@ -92,5 +93,3 @@ func buildRestError(err error, code int64) *rest_model.Error {
 		Timestamp: time.Now().UTC().String(),
 	}
 }
-
-

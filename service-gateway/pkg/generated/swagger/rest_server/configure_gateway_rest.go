@@ -12,7 +12,7 @@ import (
 	graceful "github.com/tylerb/graceful"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
@@ -36,20 +36,17 @@ func configureAPI(api *rest_api.GatewayRestAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.AccessAddOneHandler = access.AddOneHandlerFunc(func(params access.AddOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation access.AddOne has not yet been implemented")
+	api.BrowserHistoryAddOneHandler = browser_history.AddOneHandlerFunc(func(params browser_history.AddOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation browser_history.AddOne has not yet been implemented")
 	})
-	api.AccessFindAllHandler = access.FindAllHandlerFunc(func(params access.FindAllParams) middleware.Responder {
-		return middleware.NotImplemented("operation access.FindAll has not yet been implemented")
+	api.BrowserHistoryFindAllHandler = browser_history.FindAllHandlerFunc(func(params browser_history.FindAllParams) middleware.Responder {
+		return middleware.NotImplemented("operation browser_history.FindAll has not yet been implemented")
 	})
-	api.AccessFindOneHandler = access.FindOneHandlerFunc(func(params access.FindOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation access.FindOne has not yet been implemented")
+	api.BrowserHistoryFindOneHandler = browser_history.FindOneHandlerFunc(func(params browser_history.FindOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation browser_history.FindOne has not yet been implemented")
 	})
-	api.AccessRemoveOneHandler = access.RemoveOneHandlerFunc(func(params access.RemoveOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation access.RemoveOne has not yet been implemented")
-	})
-	api.AccessUpdateOneHandler = access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation access.UpdateOne has not yet been implemented")
+	api.BrowserHistoryRemoveOneHandler = browser_history.RemoveOneHandlerFunc(func(params browser_history.RemoveOneParams) middleware.Responder {
+		return middleware.NotImplemented("operation browser_history.RemoveOne has not yet been implemented")
 	})
 	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(func(params session.ValidateOrGenerateParams) middleware.Responder {
 		return middleware.NotImplemented("operation session.ValidateOrGenerate has not yet been implemented")

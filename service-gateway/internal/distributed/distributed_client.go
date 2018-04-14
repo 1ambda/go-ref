@@ -118,7 +118,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 	// TODO: make variables for watched values
 
 	wchWsConnection := d.client.Watch(appCtx, RangeKeyPrefixWebSocket, clientv3.WithPrefix())
-	wchTotalAccess := d.client.Watch(appCtx, SingleKeyTotalAccessCount, clientv3.WithPrefix())
+	wchBrowserHistoryCount := d.client.Watch(appCtx, SingleKeyBrowserHistoryCount, clientv3.WithPrefix())
 	wchLeaderName := d.client.Watch(appCtx, SingleKeyLeaderName, clientv3.WithPrefix())
 
 	stop := false
@@ -142,9 +142,9 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 
 			d.subscribeWsConnectionCount(appCtx, &watchResponse)
 
-		case watchResponse := <-wchTotalAccess:
+		case watchResponse := <-wchBrowserHistoryCount:
 			if watchResponse.Canceled {
-				logger.Errorw("etcd watch channel is about to close", "key", SingleKeyTotalAccessCount)
+				logger.Errorw("etcd watch channel is about to close", "key", SingleKeyBrowserHistoryCount)
 				stop = true
 				break
 			}
@@ -154,7 +154,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 				continue
 			}
 
-			d.subscribeTotalAccessCount(&watchResponse)
+			d.subscribeBrowserHistoryCount(&watchResponse)
 
 		case watchResponse := <-wchLeaderName:
 			if watchResponse.Canceled {
@@ -215,27 +215,27 @@ func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Contex
 		serverCount += 1
 	}
 
-	message, err := websocket.NewConnectionCountMessage(fmt.Sprintf("%d", wsConnCount))
+	message, err := websocket.NewWebSocketConnectionCountMessage(fmt.Sprintf("%d", wsConnCount))
 	d.wsManager.Broadcast(message)
 	if err != nil {
-		logger.Errorw("Failed to build NewConnectionCountMessage", "error", err)
+		logger.Errorw("Failed to build NewWebSocketConnectionCountMessage", "error", err)
 	}
 
-	message, err = websocket.NewNodeCountMessage(fmt.Sprintf("%d", serverCount))
+	message, err = websocket.NewGatewayNodeCountMessage(fmt.Sprintf("%d", serverCount))
 	d.wsManager.Broadcast(message)
 	if err != nil {
-		logger.Errorw("Failed to build NewNodeCountMessage", "error", err)
+		logger.Errorw("Failed to build NewGatewayNodeCountMessage", "error", err)
 	}
 }
 
-func (d *etcdDistributedClient) subscribeTotalAccessCount(response *clientv3.WatchResponse) {
+func (d *etcdDistributedClient) subscribeBrowserHistoryCount(response *clientv3.WatchResponse) {
 	logger := config.GetLogger()
 
 	for _, ev := range response.Events {
 		value := fmt.Sprintf("%s", ev.Kv.Value)
-		message, err := websocket.NewTotalAccessCountMessage(value)
+		message, err := websocket.NewBrowserHistoryCountMessage(value)
 		if err != nil {
-			logger.Errorw("Failed to build NewTotalAccessCountMessage", "error", err)
+			logger.Errorw("Failed to build NewBrowserHistoryCountMessage", "error", err)
 			continue
 		}
 
@@ -248,9 +248,9 @@ func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResp
 
 	for _, ev := range response.Events {
 		value := fmt.Sprintf("%s", ev.Kv.Value)
-		message, err := websocket.NewLeaderNameMessage(value)
+		message, err := websocket.NewGatewayLeaderNodeNameMessage(value)
 		if err != nil {
-			logger.Errorw("Failed to build NewLeaderNameMessage", "error", err)
+			logger.Errorw("Failed to build NewGatewayLeaderNodeNameMessage", "error", err)
 			continue
 		}
 

@@ -11,7 +11,7 @@
  */
 
 
-export interface Access {
+export interface BrowserHistory {
     browserName: string;
     browserVersion: string;
     osName: string;

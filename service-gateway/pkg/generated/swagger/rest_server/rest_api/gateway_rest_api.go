@@ -19,7 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
@@ -40,20 +40,17 @@ func NewGatewayRestAPI(spec *loads.Document) *GatewayRestAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		AccessAddOneHandler: access.AddOneHandlerFunc(func(params access.AddOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessAddOne has not yet been implemented")
+		BrowserHistoryAddOneHandler: browser_history.AddOneHandlerFunc(func(params browser_history.AddOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation BrowserHistoryAddOne has not yet been implemented")
 		}),
-		AccessFindAllHandler: access.FindAllHandlerFunc(func(params access.FindAllParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessFindAll has not yet been implemented")
+		BrowserHistoryFindAllHandler: browser_history.FindAllHandlerFunc(func(params browser_history.FindAllParams) middleware.Responder {
+			return middleware.NotImplemented("operation BrowserHistoryFindAll has not yet been implemented")
 		}),
-		AccessFindOneHandler: access.FindOneHandlerFunc(func(params access.FindOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessFindOne has not yet been implemented")
+		BrowserHistoryFindOneHandler: browser_history.FindOneHandlerFunc(func(params browser_history.FindOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation BrowserHistoryFindOne has not yet been implemented")
 		}),
-		AccessRemoveOneHandler: access.RemoveOneHandlerFunc(func(params access.RemoveOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessRemoveOne has not yet been implemented")
-		}),
-		AccessUpdateOneHandler: access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessUpdateOne has not yet been implemented")
+		BrowserHistoryRemoveOneHandler: browser_history.RemoveOneHandlerFunc(func(params browser_history.RemoveOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation BrowserHistoryRemoveOne has not yet been implemented")
 		}),
 		SessionValidateOrGenerateHandler: session.ValidateOrGenerateHandlerFunc(func(params session.ValidateOrGenerateParams) middleware.Responder {
 			return middleware.NotImplemented("operation SessionValidateOrGenerate has not yet been implemented")
@@ -89,16 +86,14 @@ type GatewayRestAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// AccessAddOneHandler sets the operation handler for the add one operation
-	AccessAddOneHandler access.AddOneHandler
-	// AccessFindAllHandler sets the operation handler for the find all operation
-	AccessFindAllHandler access.FindAllHandler
-	// AccessFindOneHandler sets the operation handler for the find one operation
-	AccessFindOneHandler access.FindOneHandler
-	// AccessRemoveOneHandler sets the operation handler for the remove one operation
-	AccessRemoveOneHandler access.RemoveOneHandler
-	// AccessUpdateOneHandler sets the operation handler for the update one operation
-	AccessUpdateOneHandler access.UpdateOneHandler
+	// BrowserHistoryAddOneHandler sets the operation handler for the add one operation
+	BrowserHistoryAddOneHandler browser_history.AddOneHandler
+	// BrowserHistoryFindAllHandler sets the operation handler for the find all operation
+	BrowserHistoryFindAllHandler browser_history.FindAllHandler
+	// BrowserHistoryFindOneHandler sets the operation handler for the find one operation
+	BrowserHistoryFindOneHandler browser_history.FindOneHandler
+	// BrowserHistoryRemoveOneHandler sets the operation handler for the remove one operation
+	BrowserHistoryRemoveOneHandler browser_history.RemoveOneHandler
 	// SessionValidateOrGenerateHandler sets the operation handler for the validate or generate operation
 	SessionValidateOrGenerateHandler session.ValidateOrGenerateHandler
 
@@ -164,24 +159,20 @@ func (o *GatewayRestAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.AccessAddOneHandler == nil {
-		unregistered = append(unregistered, "access.AddOneHandler")
+	if o.BrowserHistoryAddOneHandler == nil {
+		unregistered = append(unregistered, "browser_history.AddOneHandler")
 	}
 
-	if o.AccessFindAllHandler == nil {
-		unregistered = append(unregistered, "access.FindAllHandler")
+	if o.BrowserHistoryFindAllHandler == nil {
+		unregistered = append(unregistered, "browser_history.FindAllHandler")
 	}
 
-	if o.AccessFindOneHandler == nil {
-		unregistered = append(unregistered, "access.FindOneHandler")
+	if o.BrowserHistoryFindOneHandler == nil {
+		unregistered = append(unregistered, "browser_history.FindOneHandler")
 	}
 
-	if o.AccessRemoveOneHandler == nil {
-		unregistered = append(unregistered, "access.RemoveOneHandler")
-	}
-
-	if o.AccessUpdateOneHandler == nil {
-		unregistered = append(unregistered, "access.UpdateOneHandler")
+	if o.BrowserHistoryRemoveOneHandler == nil {
+		unregistered = append(unregistered, "browser_history.RemoveOneHandler")
 	}
 
 	if o.SessionValidateOrGenerateHandler == nil {
@@ -289,27 +280,22 @@ func (o *GatewayRestAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/access"] = access.NewAddOne(o.context, o.AccessAddOneHandler)
+	o.handlers["POST"]["/browser_history"] = browser_history.NewAddOne(o.context, o.BrowserHistoryAddOneHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/access"] = access.NewFindAll(o.context, o.AccessFindAllHandler)
+	o.handlers["GET"]["/browser_history"] = browser_history.NewFindAll(o.context, o.BrowserHistoryFindAllHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/access/{id}"] = access.NewFindOne(o.context, o.AccessFindOneHandler)
+	o.handlers["GET"]["/browser_history/{id}"] = browser_history.NewFindOne(o.context, o.BrowserHistoryFindOneHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/access/{id}"] = access.NewRemoveOne(o.context, o.AccessRemoveOneHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/access/{id}"] = access.NewUpdateOne(o.context, o.AccessUpdateOneHandler)
+	o.handlers["DELETE"]["/browser_history/{id}"] = browser_history.NewRemoveOne(o.context, o.BrowserHistoryRemoveOneHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

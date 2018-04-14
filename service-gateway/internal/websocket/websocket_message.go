@@ -26,22 +26,22 @@ func NewStringWebSocketMessage(eventType string, count string) (*WebSocketMessag
 	return &WebSocketMessage{content: &serialized, event: eventType}, nil
 }
 
-func NewNodeCountMessage(count string) (*WebSocketMessage, error) {
-	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateNodeCount
+func NewGatewayNodeCountMessage(count string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateGatewayNodeCount
 	return NewStringWebSocketMessage(eventType, count)
 }
 
-func NewConnectionCountMessage(count string) (*WebSocketMessage, error) {
-	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateConnectionCount
+func NewWebSocketConnectionCountMessage(count string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateWebSocketConnectionCount
 	return NewStringWebSocketMessage(eventType, count)
 }
 
-func NewLeaderNameMessage(leaderName string) (*WebSocketMessage, error) {
-	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateMasterIdentifier
+func NewGatewayLeaderNodeNameMessage(leaderName string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateGatewayLeaderNodeName
 	return NewStringWebSocketMessage(eventType, leaderName)
 }
 
-func NewTotalAccessCountMessage(count string) (*WebSocketMessage, error) {
-	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateTotalAccessCount
+func NewBrowserHistoryCountMessage(count string) (*WebSocketMessage, error) {
+	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateBrowserHistoryCount
 	return NewStringWebSocketMessage(eventType, count)
 }

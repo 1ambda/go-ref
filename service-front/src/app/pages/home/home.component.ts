@@ -3,7 +3,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import 'clientjs'
 import * as moment from 'moment'
 
-import { Access, AccessService } from '../../generated/swagger/rest'
+import {
+  BrowserHistory as BrowserHistoryDTO,
+  BrowserHistoryService as BrowserHistoryApiService
+} from '../../generated/swagger/rest'
 import { WebsocketService } from "../../shared/websocket.service"
 import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
 import { Subscription } from 'rxjs/Subscription'
@@ -53,7 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private subscriptions: Array<Subscription> = []
 
   constructor(
-    private accessService: AccessService,
+    private browserHistoryApiService: BrowserHistoryApiService,
     private webSocketService: WebsocketService,
     private geoLocationService: GeoLocationService,
     private sessionService: SessionService) {
@@ -80,9 +83,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   initialize() {
     this.fetchAllAccessList()
-    this.subscriptions.push(this.subscribeCurrentConnectionCount())
-    this.subscriptions.push(this.subscribeTotalAccessCount())
-    this.subscriptions.push(this.subscribeLMasterIdentifier())
+    this.subscriptions.push(this.subscribeWebsocketConnectionCount())
+    this.subscriptions.push(this.subscribeBrowserHistoryCount())
+    this.subscriptions.push(this.subscribeGatewayLeaderName())
     this.subscriptions.push(this.subscribeGatewayNodeCount())
 
     initialized = true
@@ -91,7 +94,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   sendAccess() {
     const client = new ClientJS()
 
-    const access: Access = {
+    const browserHistoryDto: BrowserHistoryDTO = {
       browserName: client.getBrowser(),
       browserVersion: client.getBrowserVersion(),
       osVersion: client.getOS(),
@@ -104,7 +107,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
 
-    return this.accessService.addOne(access)
+    return this.browserHistoryApiService.addOne(browserHistoryDto)
   }
 
   fetchAllAccessList() {
@@ -112,7 +115,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.rows = [ {} ]
     this.isTableLoading = true
 
-    this.accessService.findAll(this.itemCountPerPage, this.currentPageOffset)
+    this.browserHistoryApiService.findAll(this.itemCountPerPage, this.currentPageOffset)
       .subscribe(response => {
         this.rows = response.rows
 
@@ -125,24 +128,24 @@ export class HomeComponent implements OnInit, OnDestroy {
       })
   }
 
-  subscribeCurrentConnectionCount(): Subscription {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateConnectionCount
+  subscribeWebsocketConnectionCount(): Subscription {
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateWebSocketConnectionCount
     return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentUserCount = response.body.value
       })
   }
 
-  subscribeTotalAccessCount(): Subscription {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateTotalAccessCount
+  subscribeBrowserHistoryCount(): Subscription {
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateBrowserHistoryCount
     return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentTotalAccessCount = response.body.value
       })
   }
 
-  subscribeLMasterIdentifier(): Subscription {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateMasterIdentifier
+  subscribeGatewayLeaderName(): Subscription {
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateGatewayLeaderNodeName
     return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentMasterIdentifier = "gateway-" + response.body.value
@@ -150,7 +153,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   subscribeGatewayNodeCount(): Subscription {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateNodeCount
+    const eventType = WebSocketResponseHeader.ResponseTypeEnum.UpdateGatewayNodeCount
     return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentNodeCount = response.body.value

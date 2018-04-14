@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Access access
-// swagger:model access
-type Access struct {
+// BrowserHistory browser history
+// swagger:model BrowserHistory
+type BrowserHistory struct {
 
 	// browser name
 	// Required: true
@@ -60,8 +60,8 @@ type Access struct {
 	UUID string `json:"uuid,omitempty"`
 }
 
-// Validate validates this access
-func (m *Access) Validate(formats strfmt.Registry) error {
+// Validate validates this browser history
+func (m *BrowserHistory) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBrowserName(formats); err != nil {
@@ -115,7 +115,7 @@ func (m *Access) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateBrowserName(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateBrowserName(formats strfmt.Registry) error {
 
 	if err := validate.Required("browserName", "body", m.BrowserName); err != nil {
 		return err
@@ -124,7 +124,7 @@ func (m *Access) validateBrowserName(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateBrowserVersion(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateBrowserVersion(formats strfmt.Registry) error {
 
 	if err := validate.Required("browserVersion", "body", m.BrowserVersion); err != nil {
 		return err
@@ -133,7 +133,7 @@ func (m *Access) validateBrowserVersion(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateIsMobile(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateIsMobile(formats strfmt.Registry) error {
 
 	if err := validate.Required("isMobile", "body", m.IsMobile); err != nil {
 		return err
@@ -142,7 +142,7 @@ func (m *Access) validateIsMobile(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateLanguage(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateLanguage(formats strfmt.Registry) error {
 
 	if err := validate.Required("language", "body", m.Language); err != nil {
 		return err
@@ -151,7 +151,7 @@ func (m *Access) validateLanguage(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateOsName(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateOsName(formats strfmt.Registry) error {
 
 	if err := validate.Required("osName", "body", m.OsName); err != nil {
 		return err
@@ -160,7 +160,7 @@ func (m *Access) validateOsName(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateOsVersion(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateOsVersion(formats strfmt.Registry) error {
 
 	if err := validate.Required("osVersion", "body", m.OsVersion); err != nil {
 		return err
@@ -169,7 +169,7 @@ func (m *Access) validateOsVersion(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateTimestamp(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateTimestamp(formats strfmt.Registry) error {
 
 	if err := validate.Required("timestamp", "body", m.Timestamp); err != nil {
 		return err
@@ -178,7 +178,7 @@ func (m *Access) validateTimestamp(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateTimezone(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateTimezone(formats strfmt.Registry) error {
 
 	if err := validate.Required("timezone", "body", m.Timezone); err != nil {
 		return err
@@ -187,7 +187,7 @@ func (m *Access) validateTimezone(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Access) validateUserAgent(formats strfmt.Registry) error {
+func (m *BrowserHistory) validateUserAgent(formats strfmt.Registry) error {
 
 	if err := validate.Required("userAgent", "body", m.UserAgent); err != nil {
 		return err
@@ -197,7 +197,7 @@ func (m *Access) validateUserAgent(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Access) MarshalBinary() ([]byte, error) {
+func (m *BrowserHistory) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -205,8 +205,8 @@ func (m *Access) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Access) UnmarshalBinary(b []byte) error {
-	var res Access
+func (m *BrowserHistory) UnmarshalBinary(b []byte) error {
+	var res BrowserHistory
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

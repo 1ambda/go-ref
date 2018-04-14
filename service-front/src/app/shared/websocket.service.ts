@@ -2,40 +2,44 @@ import { Injectable } from '@angular/core'
 import { Observable } from "rxjs/Observable"
 import { BehaviorSubject } from "rxjs/BehaviorSubject"
 import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { SessionService } from "./session.service"
+import { SessionResponse } from "../generated/swagger/rest"
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
 
 @Injectable()
 export class WebsocketService {
   private client
-  private receiveQueue: ReplaySubject<any>
-  private sendQueue: ReplaySubject<Object>
+  private receiveQueue: ReplaySubject<any> = new ReplaySubject()
+  private sendQueue: ReplaySubject<Object> = new ReplaySubject()
 
-  constructor() {
-    this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
-    this.sendQueue = new ReplaySubject()
-    this.receiveQueue = new ReplaySubject()
+  constructor(sessionService: SessionService) {
+    sessionService.subscribeSession().subscribe((session: SessionResponse) => {
+      console.info(`Initializing WebsocketService (session: ${session.sessionID})`)
 
-    this.client.onerror = (error) => {
-      console.error('websocket: `onerror`', error)
-    }
+      this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
 
-    this.client.onclose = () => {
-      console.warn('websocket: `onclose` (will reconnect)')
-    }
+      this.client.onerror = (error) => {
+        console.error('websocket: `onerror`', error)
+      }
 
-    this.client.onopen = () => {
-      console.debug("websocket: `onopen`")
+      this.client.onclose = () => {
+        console.warn('websocket: `onclose` (will reconnect)')
+      }
 
-      this.sendQueue.subscribe(data => {
-        this.client.send(JSON.stringify(data))
-      })
-    }
+      this.client.onopen = () => {
+        console.debug("websocket: `onopen`")
 
-    this.client.onmessage = (response) => {
-      const parsed = JSON.parse(response.data)
-      this.receiveQueue.next(parsed)
-    }
+        this.sendQueue.subscribe(data => {
+          this.client.send(JSON.stringify(data))
+        })
+      }
+
+      this.client.onmessage = (response) => {
+        const parsed = JSON.parse(response.data)
+        this.receiveQueue.next(parsed)
+      }
+    })
   }
 
   public send(data: Object) {

@@ -1,17 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 
-import 'clientjs'
-import * as moment from 'moment'
-
-import {
-  BrowserHistory as BrowserHistoryDTO,
-  BrowserHistoryService as BrowserHistoryApiService
-} from '../../generated/swagger/rest'
 import { WebsocketService } from "../../shared/websocket.service"
 import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
 import { Subscription } from 'rxjs/Subscription'
 import { GeoLocationService } from "../../shared/geo-location.service"
 import { SessionService } from "../../shared/session.service"
+import { BrowserHistoryService } from "../../shared/browser-history.service"
 
 let initialized = false
 
@@ -56,7 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private subscriptions: Array<Subscription> = []
 
   constructor(
-    private browserHistoryApiService: BrowserHistoryApiService,
+    private browserHistoryService: BrowserHistoryService,
     private webSocketService: WebsocketService,
     private geoLocationService: GeoLocationService,
     private sessionService: SessionService) {
@@ -68,10 +62,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (initialized) {
       this.initialize()
     } else {
-      this.sendAccess()
-        .subscribe(_ => {
-          this.initialize()
-        })
+      this.browserHistoryService.addOne().subscribe(_ => {
+        this.initialize()
+      })
     }
   }
 
@@ -82,7 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
-    this.fetchAllAccessList()
+    this.findAllBrowserHistory()
     this.subscriptions.push(this.subscribeWebsocketConnectionCount())
     this.subscriptions.push(this.subscribeBrowserHistoryCount())
     this.subscriptions.push(this.subscribeGatewayLeaderName())
@@ -91,31 +84,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     initialized = true
   }
 
-  sendAccess() {
-    const client = new ClientJS()
-
-    const browserHistoryDto: BrowserHistoryDTO = {
-      browserName: client.getBrowser(),
-      browserVersion: client.getBrowserVersion(),
-      osVersion: client.getOS(),
-      osName: client.getOSVersion(),
-      isMobile: client.isMobile() ? 'Y' : 'N',
-      timezone: client.getTimeZone(),
-      timestamp: moment.utc().unix().toString(),
-      language: client.getLanguage(),
-      userAgent: window.navigator.userAgent,
-    }
-
-
-    return this.browserHistoryApiService.addOne(browserHistoryDto)
-  }
-
-  fetchAllAccessList() {
+  findAllBrowserHistory() {
     /** ngx-datatable doesn't display loading-bar when it has no item */
     this.rows = [ {} ]
     this.isTableLoading = true
 
-    this.browserHistoryApiService.findAll(this.itemCountPerPage, this.currentPageOffset)
+    this.browserHistoryService.findAll(this.itemCountPerPage, this.currentPageOffset)
       .subscribe(response => {
         this.rows = response.rows
 
@@ -165,6 +139,6 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   onPageChange(event) {
     this.currentPageOffset = event.offset
-    this.fetchAllAccessList()
+    this.findAllBrowserHistory()
   }
 }

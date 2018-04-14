@@ -12,7 +12,7 @@ import (
 	"errors"
 )
 
-const sessionTimeout = 60 * time.Second
+const sessionTimeout = 60 * time.Minute
 
 func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm.DB) (*dto.SessionResponse, *dto.Error) {
 	sessionId := *params.Body.SessionID

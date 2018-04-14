@@ -14,7 +14,7 @@ import (
 )
 
 // Pagination pagination
-// swagger:model pagination
+// swagger:model Pagination
 type Pagination struct {
 
 	// current page offset

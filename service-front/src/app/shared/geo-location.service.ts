@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core'
+import { SessionService } from "./session.service"
+import { SessionResponse } from "../generated/swagger/rest"
 
 const geolocator = require('geolocator')
 
@@ -20,41 +22,46 @@ export class GeoLocationService {
   private formattedAddress: string
   private address: object
 
-  constructor() {
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumWait: 10000,     // max wait time for desired accuracy
-      maximumAge: 0,          // disable cache
-      desiredAccuracy: 30,    // meters
-      fallbackToIP: true,     // fallback to IP if Geolocation fails or rejected
-      addressLookup: true,    // requires Google API key if true
-      timezone: true,         // requires Google API key if true
-    }
+  constructor(sessionService: SessionService) {
+    sessionService.subscribeSession().subscribe((session: SessionResponse) => {
+      console.info(`Initializing GeoLocationService (session: ${session.sessionID})`)
 
-    console.log("Fetching geolocation information from google")
-    geolocator.locate(options, (err, response) => {
-      if (err) {
-        console.log(err)
-        return
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumWait: 10000,     // max wait time for desired accuracy
+        maximumAge: 0,          // disable cache
+        desiredAccuracy: 30,    // meters
+        fallbackToIP: true,     // fallback to IP if Geolocation fails or rejected
+        addressLookup: true,    // requires Google API key if true
+        timezone: true,         // requires Google API key if true
       }
 
-      console.log("Fetched geolocation information from google")
+      console.log("Fetching geolocation information from google")
+      geolocator.locate(options, (err, response) => {
+        if (err) {
+          console.log(err)
+          return
+        }
 
-      this.ip = response.ip
+        console.log("Fetched geolocation information from google")
 
-      if (response.coords) {
-        this.latitude = response.coords.latitude
-        this.longitude = response.coords.longitude
-      }
+        this.ip = response.ip
 
-      if (response.timezone) {
-        this.timezone = response.timezone.id
-      }
+        if (response.coords) {
+          this.latitude = response.coords.latitude
+          this.longitude = response.coords.longitude
+        }
 
-      this.formattedAddress = response.formattedAddress
-      this.address = response.address
-    })
+        if (response.timezone) {
+          this.timezone = response.timezone.id
+        }
+
+        this.formattedAddress = response.formattedAddress
+        this.address = response.address
+      })
+    });
+
   }
 }
 

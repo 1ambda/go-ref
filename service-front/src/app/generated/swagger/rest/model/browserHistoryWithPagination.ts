@@ -13,7 +13,7 @@ import { BrowserHistory } from './browserHistory';
 import { Pagination } from './pagination';
 
 
-export interface InlineResponse200 {
-    rows?: Array<BrowserHistory>;
-    pagination?: Pagination;
+export interface BrowserHistoryWithPagination {
+    rows: Array<BrowserHistory>;
+    pagination: Pagination;
 }

@@ -39,7 +39,7 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 				return browser_history.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
 			}
 
-			return browser_history.NewFindAllOK().WithPayload(&dto.FindAllOKBody{
+			return browser_history.NewFindAllOK().WithPayload(&dto.BrowserHistoryWithPagination{
 				Pagination: pagination, Rows: rows,
 			})
 		})

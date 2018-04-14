@@ -12,21 +12,24 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
-// FindAllOKBody find all o k body
-// swagger:model findAllOKBody
-type FindAllOKBody struct {
+// BrowserHistoryWithPagination browser history with pagination
+// swagger:model BrowserHistoryWithPagination
+type BrowserHistoryWithPagination struct {
 
 	// pagination
-	Pagination *Pagination `json:"pagination,omitempty"`
+	// Required: true
+	Pagination *Pagination `json:"pagination"`
 
 	// rows
+	// Required: true
 	Rows []*BrowserHistory `json:"rows"`
 }
 
-// Validate validates this find all o k body
-func (m *FindAllOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this browser history with pagination
+func (m *BrowserHistoryWithPagination) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validatePagination(formats); err != nil {
@@ -45,10 +48,10 @@ func (m *FindAllOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FindAllOKBody) validatePagination(formats strfmt.Registry) error {
+func (m *BrowserHistoryWithPagination) validatePagination(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Pagination) { // not required
-		return nil
+	if err := validate.Required("pagination", "body", m.Pagination); err != nil {
+		return err
 	}
 
 	if m.Pagination != nil {
@@ -65,10 +68,10 @@ func (m *FindAllOKBody) validatePagination(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FindAllOKBody) validateRows(formats strfmt.Registry) error {
+func (m *BrowserHistoryWithPagination) validateRows(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Rows) { // not required
-		return nil
+	if err := validate.Required("rows", "body", m.Rows); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(m.Rows); i++ {
@@ -94,7 +97,7 @@ func (m *FindAllOKBody) validateRows(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *FindAllOKBody) MarshalBinary() ([]byte, error) {
+func (m *BrowserHistoryWithPagination) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -102,8 +105,8 @@ func (m *FindAllOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *FindAllOKBody) UnmarshalBinary(b []byte) error {
-	var res FindAllOKBody
+func (m *BrowserHistoryWithPagination) UnmarshalBinary(b []byte) error {
+	var res BrowserHistoryWithPagination
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

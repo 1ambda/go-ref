@@ -25,7 +25,7 @@ type FindAllOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.FindAllOKBody `json:"body,omitempty"`
+	Payload *rest_model.BrowserHistoryWithPagination `json:"body,omitempty"`
 }
 
 // NewFindAllOK creates FindAllOK with default headers values
@@ -35,13 +35,13 @@ func NewFindAllOK() *FindAllOK {
 }
 
 // WithPayload adds the payload to the find all o k response
-func (o *FindAllOK) WithPayload(payload *rest_model.FindAllOKBody) *FindAllOK {
+func (o *FindAllOK) WithPayload(payload *rest_model.BrowserHistoryWithPagination) *FindAllOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the find all o k response
-func (o *FindAllOK) SetPayload(payload *rest_model.FindAllOKBody) {
+func (o *FindAllOK) SetPayload(payload *rest_model.BrowserHistoryWithPagination) {
 	o.Payload = payload
 }
 

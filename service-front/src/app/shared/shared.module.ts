@@ -10,6 +10,7 @@ import { GeoLocationService } from "./geo-location.service"
 import { SessionService } from "./session.service"
 
 import { CookieService } from 'ngx-cookie-service'
+import { BrowserHistoryService } from "./browser-history.service"
 
 
 @NgModule({
@@ -33,9 +34,10 @@ export class SharedModule {
       providers: [
         CookieService,
 
+        SessionService,
         WebsocketService,
         GeoLocationService,
-        SessionService,
+        BrowserHistoryService,
       ]
     }
   }

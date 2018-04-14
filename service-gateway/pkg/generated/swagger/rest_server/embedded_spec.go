@@ -61,18 +61,7 @@ func init() {
           "200": {
             "description": "BrowserHistory records with pagination info",
             "schema": {
-              "type": "object",
-              "properties": {
-                "pagination": {
-                  "$ref": "#/definitions/pagination"
-                },
-                "rows": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/BrowserHistory"
-                  }
-                }
-              }
+              "$ref": "#/definitions/BrowserHistoryWithPagination"
             }
           },
           "default": {
@@ -253,6 +242,46 @@ func init() {
         }
       }
     },
+    "BrowserHistoryWithPagination": {
+      "type": "object",
+      "required": [
+        "pagination",
+        "rows"
+      ],
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrowserHistory"
+          }
+        }
+      }
+    },
+    "Pagination": {
+      "type": "object",
+      "required": [
+        "itemCountPerPage",
+        "currentPageOffset",
+        "totalItemCount"
+      ],
+      "properties": {
+        "currentPageOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemCountPerPage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalItemCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "SessionRequest": {
       "type": "object",
       "required": [
@@ -314,28 +343,6 @@ func init() {
         },
         "timestamp": {
           "type": "string"
-        }
-      }
-    },
-    "pagination": {
-      "type": "object",
-      "required": [
-        "itemCountPerPage",
-        "currentPageOffset",
-        "totalItemCount"
-      ],
-      "properties": {
-        "currentPageOffset": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "itemCountPerPage": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "totalItemCount": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     }
@@ -385,7 +392,7 @@ func init() {
           "200": {
             "description": "BrowserHistory records with pagination info",
             "schema": {
-              "$ref": "#/definitions/findAllOKBody"
+              "$ref": "#/definitions/BrowserHistoryWithPagination"
             }
           },
           "default": {
@@ -566,6 +573,46 @@ func init() {
         }
       }
     },
+    "BrowserHistoryWithPagination": {
+      "type": "object",
+      "required": [
+        "pagination",
+        "rows"
+      ],
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrowserHistory"
+          }
+        }
+      }
+    },
+    "Pagination": {
+      "type": "object",
+      "required": [
+        "itemCountPerPage",
+        "currentPageOffset",
+        "totalItemCount"
+      ],
+      "properties": {
+        "currentPageOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "itemCountPerPage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalItemCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "SessionRequest": {
       "type": "object",
       "required": [
@@ -627,43 +674,6 @@ func init() {
         },
         "timestamp": {
           "type": "string"
-        }
-      }
-    },
-    "findAllOKBody": {
-      "type": "object",
-      "properties": {
-        "pagination": {
-          "$ref": "#/definitions/pagination"
-        },
-        "rows": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BrowserHistory"
-          }
-        }
-      },
-      "x-go-gen-location": "operations"
-    },
-    "pagination": {
-      "type": "object",
-      "required": [
-        "itemCountPerPage",
-        "currentPageOffset",
-        "totalItemCount"
-      ],
-      "properties": {
-        "currentPageOffset": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "itemCountPerPage": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "totalItemCount": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     }

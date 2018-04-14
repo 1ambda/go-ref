@@ -2,16 +2,22 @@ import { Injectable } from '@angular/core'
 
 import { SessionRequest, SessionResponse, SessionService as SessionApiService } from "../generated/swagger/rest"
 import { CookieService } from 'ngx-cookie-service'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { Observable } from 'rxjs/Observable'
 
 const SESSION_KEY = "sessionID"
 
 @Injectable()
 export class SessionService {
 
-  private session: SessionResponse
+  private session: SessionResponse = null
+
+  private sessionReplay: ReplaySubject<SessionResponse> = new ReplaySubject()
 
   constructor(private sessionApiService: SessionApiService,
               private cookieService: CookieService) {
+
+    console.log("Initializing SessionService")
 
     const sessionID = cookieService.get(SESSION_KEY)
     const emptySession = this.isEmptySession(sessionID)
@@ -19,8 +25,10 @@ export class SessionService {
     const request: SessionRequest = { sessionID: sessionID, }
     sessionApiService.validateOrGenerate(request)
       .subscribe(response => {
-        this.session = response
         const sessionID = response.sessionID
+
+        this.session = response
+        this.cookieService.set(SESSION_KEY, sessionID)
 
         if (emptySession) {
           console.log(`New session is issued: ${sessionID}`)
@@ -32,7 +40,7 @@ export class SessionService {
           console.warn("Unknown session handshake case", response)
         }
 
-        this.cookieService.set(SESSION_KEY, this.session.sessionID)
+        this.sessionReplay.next(this.session)
       })
   }
 
@@ -40,4 +48,7 @@ export class SessionService {
     return sessionId === undefined || sessionId === null || sessionId == ""
   }
 
+  subscribeSession(): Observable<SessionResponse> {
+    return this.sessionReplay
+  }
 }

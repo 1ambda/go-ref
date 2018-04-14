@@ -55,14 +55,7 @@ paths:
         200:
           description: BrowserHistory records with pagination info
           schema:
-            type: object
-            properties:
-              rows:
-                type: array
-                items:
-                  $ref: "#/definitions/BrowserHistory"
-              pagination:
-                $ref: "#/definitions/pagination"
+            $ref: "#/definitions/BrowserHistoryWithPagination"
 
         default:
           description: generic error response
@@ -161,7 +154,20 @@ definitions:
         type: integer
         format: int64
 
-  pagination:
+  BrowserHistoryWithPagination:
+    type: object
+    required:
+      - pagination
+      - rows
+    properties:
+      rows:
+        type: array
+        items:
+          $ref: "#/definitions/BrowserHistory"
+      pagination:
+        $ref: "#/definitions/Pagination"
+
+  Pagination:
     type: object
     required:
       - itemCountPerPage  # limit

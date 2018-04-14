@@ -19,7 +19,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs/Observable';
 
 import { BrowserHistory } from '../model/browserHistory';
-import { InlineResponse200 } from '../model/inlineResponse200';
+import { BrowserHistoryWithPagination } from '../model/browserHistoryWithPagination';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -108,9 +108,9 @@ export class BrowserHistoryService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse200>;
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse200>>;
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse200>>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'body', reportProgress?: boolean): Observable<BrowserHistoryWithPagination>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<BrowserHistoryWithPagination>>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<BrowserHistoryWithPagination>>;
     public findAll(itemCountPerPage?: number, currentPageOffset?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
@@ -137,7 +137,7 @@ export class BrowserHistoryService {
             'application/json'
         ];
 
-        return this.httpClient.get<InlineResponse200>(`${this.basePath}/browser_history`,
+        return this.httpClient.get<BrowserHistoryWithPagination>(`${this.basePath}/browser_history`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

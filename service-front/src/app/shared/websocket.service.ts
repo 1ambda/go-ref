@@ -52,7 +52,7 @@ export class WebsocketService {
       const isTargetResponseType = response.header.responseType === responseType
 
       if (isTargetResponseType) {
-        console.info(responseType, response)
+        console.debug(responseType, response)
       }
 
       return isTargetResponseType

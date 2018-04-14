@@ -6,7 +6,11 @@ import { FlexLayoutModule } from '@angular/flex-layout'
 import { MaterialModule } from './material.module'
 
 import { WebsocketService } from "./websocket.service"
-import { GeoLocationService} from "./geo-location.service"
+import { GeoLocationService } from "./geo-location.service"
+import { SessionService } from "./session.service"
+
+import { CookieService } from 'ngx-cookie-service'
+
 
 @NgModule({
   imports: [
@@ -27,8 +31,11 @@ export class SharedModule {
     return {
       ngModule: SharedModule,
       providers: [
+        CookieService,
+
         WebsocketService,
         GeoLocationService,
+        SessionService,
       ]
     }
   }

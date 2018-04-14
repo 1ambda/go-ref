@@ -8,6 +8,7 @@ import { WebsocketService } from "../../shared/websocket.service"
 import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
 import { Subscription } from 'rxjs/Subscription'
 import { GeoLocationService } from "../../shared/geo-location.service"
+import { SessionService } from "../../shared/session.service"
 
 let initialized = false
 
@@ -54,7 +55,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private accessService: AccessService,
     private webSocketService: WebsocketService,
-    private geoLocationService: GeoLocationService) {
+    private geoLocationService: GeoLocationService,
+    private sessionService: SessionService) {
 
   }
 

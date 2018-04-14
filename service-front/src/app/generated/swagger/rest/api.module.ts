@@ -4,13 +4,15 @@ import { HttpClientModule } from '@angular/common/http';
 import { Configuration } from './configuration';
 
 import { AccessService } from './api/access.service';
+import { SessionService } from './api/session.service';
 
 @NgModule({
   imports:      [ CommonModule, HttpClientModule ],
   declarations: [],
   exports:      [],
   providers: [
-    AccessService ]
+    AccessService,
+    SessionService ]
 })
 export class ApiModule {
     public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders {

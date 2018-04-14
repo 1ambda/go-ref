@@ -50,7 +50,8 @@ import { SharedModule } from "./shared/shared.module"
  */
 export function restApiConfigFactory(): Configuration {
   const params: ConfigurationParameters = {
-    basePath: ENDPOINT_SERVICE_GATEWAY_REST
+    basePath: ENDPOINT_SERVICE_GATEWAY_REST,
+    withCredentials: false,
   }
 
   return new Configuration(params)

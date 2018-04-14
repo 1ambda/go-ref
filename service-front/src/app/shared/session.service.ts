@@ -26,6 +26,8 @@ export class SessionService {
           console.log(`New session is issued: ${sessionID}`)
         } else if (!emptySession && response.refreshed) {
           console.log(`Existing session is used or refreshed: ${sessionID}`)
+        } else if (emptySession && !response.refreshed) {
+          console.log("Can't find session. Issued new session", response)
         } else {
           console.warn("Unknown session handshake case", response)
         }

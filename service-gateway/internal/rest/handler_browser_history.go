@@ -50,7 +50,7 @@ func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*
 	if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			logger.Infow("Failed to find BrowserHistory record", "id", params.ID)
-			return nil, buildRestError(err, 404)
+			return nil, buildRestError(err, 400)
 		}
 
 		logger.Errorw("Failed to find BrowserHistory record due to unknown error",
@@ -121,7 +121,7 @@ func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB
 	if result.RowsAffected < 1 {
 		logger.Infow("Failed to find BrowserHistory record before removing", "id", params.ID)
 		err := errors.New(gorm.ErrRecordNotFound.Error())
-		restError := buildRestError(err, 404)
+		restError := buildRestError(err, 400)
 		return restError
 	}
 
@@ -149,7 +149,7 @@ func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB
 //	if result.RowsAffected < 1 {
 //		logger.Infow("Failed to find BrowserHistory record before updating", "id", params.ID)
 //		err := errors.New(gorm.ErrRecordNotFound.Error())
-//		restError := buildRestError(err, 404)
+//		restError := buildRestError(err, 400)
 //		return nil, restError
 //	}
 //

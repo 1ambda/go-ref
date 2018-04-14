@@ -18,6 +18,9 @@ paths:
         - session
       operationId: validateOrGenerate
       parameters:
+        # swagger 2.0 doesn't support cookie param
+        # so use request body here for simplicity
+        # or it's possible to use `header` for production
         - name: body
           in: body
           schema:

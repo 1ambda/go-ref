@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 
@@ -13,7 +13,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
-func getCode(e *rest_model.Error) int {
+func getCode(e *dto.Error) int {
 	return int(e.Code)
 }
 
@@ -39,7 +39,7 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 				return browser_history.NewFindAllDefault(getCode(restErr)).WithPayload(restErr)
 			}
 
-			return browser_history.NewFindAllOK().WithPayload(&rest_model.FindAllOKBody{
+			return browser_history.NewFindAllOK().WithPayload(&dto.FindAllOKBody{
 				Pagination: pagination, Rows: rows,
 			})
 		})
@@ -77,7 +77,7 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 	*/
 	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(
 		func(params session.ValidateOrGenerateParams) middleware.Responder {
-			restResp, restErr := validateOrGenerateSession(params, db, dClient)
+			restResp, restErr := validateOrGenerateSession(params, db)
 			if restErr != nil {
 				return session.NewValidateOrGenerateDefault(getCode(restErr)).WithPayload(restErr)
 			}
@@ -86,8 +86,8 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 		})
 }
 
-func buildRestError(err error, code int64) *rest_model.Error {
-	return &rest_model.Error{
+func buildRestError(err error, code int64) *dto.Error {
+	return &dto.Error{
 		Code:      code,
 		Message:   swag.String(err.Error()),
 		Timestamp: time.Now().UTC().String(),

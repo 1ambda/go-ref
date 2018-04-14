@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
 // NewGatewayRestAPI creates a new GatewayRest instance
@@ -53,6 +54,9 @@ func NewGatewayRestAPI(spec *loads.Document) *GatewayRestAPI {
 		}),
 		AccessUpdateOneHandler: access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
 			return middleware.NotImplemented("operation AccessUpdateOne has not yet been implemented")
+		}),
+		SessionValidateOrGenerateHandler: session.ValidateOrGenerateHandlerFunc(func(params session.ValidateOrGenerateParams) middleware.Responder {
+			return middleware.NotImplemented("operation SessionValidateOrGenerate has not yet been implemented")
 		}),
 	}
 }
@@ -95,6 +99,8 @@ type GatewayRestAPI struct {
 	AccessRemoveOneHandler access.RemoveOneHandler
 	// AccessUpdateOneHandler sets the operation handler for the update one operation
 	AccessUpdateOneHandler access.UpdateOneHandler
+	// SessionValidateOrGenerateHandler sets the operation handler for the validate or generate operation
+	SessionValidateOrGenerateHandler session.ValidateOrGenerateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -176,6 +182,10 @@ func (o *GatewayRestAPI) Validate() error {
 
 	if o.AccessUpdateOneHandler == nil {
 		unregistered = append(unregistered, "access.UpdateOneHandler")
+	}
+
+	if o.SessionValidateOrGenerateHandler == nil {
+		unregistered = append(unregistered, "session.ValidateOrGenerateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -300,6 +310,11 @@ func (o *GatewayRestAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/access/{id}"] = access.NewUpdateOne(o.context, o.AccessUpdateOneHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/session"] = session.NewValidateOrGenerate(o.context, o.SessionValidateOrGenerateHandler)
 
 }
 

@@ -13,6 +13,7 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
 //go:generate swagger generate server --target ../pkg/generated/swagger --name  --spec ../../schema/swagger/gateway-rest.yml --api-package rest_api --model-package rest_model --server-package rest_server --exclude-main
@@ -49,6 +50,9 @@ func configureAPI(api *rest_api.GatewayRestAPI) http.Handler {
 	})
 	api.AccessUpdateOneHandler = access.UpdateOneHandlerFunc(func(params access.UpdateOneParams) middleware.Responder {
 		return middleware.NotImplemented("operation access.UpdateOne has not yet been implemented")
+	})
+	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(func(params session.ValidateOrGenerateParams) middleware.Responder {
+		return middleware.NotImplemented("operation session.ValidateOrGenerate has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

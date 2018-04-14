@@ -198,9 +198,86 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/session": {
+      "post": {
+        "tags": [
+          "session"
+        ],
+        "operationId": "validateOrGenerate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/SessionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/SessionResponse"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "SessionRequest": {
+      "type": "object",
+      "required": [
+        "sessionID"
+      ],
+      "properties": {
+        "sessionID": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionResponse": {
+      "type": "object",
+      "required": [
+        "sessionID",
+        "createdAt",
+        "updatedAt",
+        "expiredAt",
+        "refreshed",
+        "refreshCount"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expiredAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshed": {
+          "type": "boolean"
+        },
+        "sessionID": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "access": {
       "type": "object",
       "required": [
@@ -463,9 +540,86 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/session": {
+      "post": {
+        "tags": [
+          "session"
+        ],
+        "operationId": "validateOrGenerate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/SessionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/SessionResponse"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "SessionRequest": {
+      "type": "object",
+      "required": [
+        "sessionID"
+      ],
+      "properties": {
+        "sessionID": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionResponse": {
+      "type": "object",
+      "required": [
+        "sessionID",
+        "createdAt",
+        "updatedAt",
+        "expiredAt",
+        "refreshed",
+        "refreshCount"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expiredAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "refreshed": {
+          "type": "boolean"
+        },
+        "sessionID": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "access": {
       "type": "object",
       "required": [

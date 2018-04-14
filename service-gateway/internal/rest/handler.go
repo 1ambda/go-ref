@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
 	"time"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
 func getCode(e *rest_model.Error) int {
@@ -22,6 +23,10 @@ func getCode(e *rest_model.Error) int {
 }
 
 func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.DistributedClient) {
+
+	/**
+	 * Access API
+	 */
 	api.AccessAddOneHandler = access.AddOneHandlerFunc(
 		func(params access.AddOneParams) middleware.Responder {
 			restResp, restErr := addOneAccess(params, db, dClient)
@@ -71,43 +76,70 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 			return access.NewUpdateOneOK().WithPayload(restResp)
 		})
 
+	/**
+	* Session API
+	*/
+	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(
+		func(params session.ValidateOrGenerateParams) middleware.Responder {
+			restResp, restErr := validateOrGenerateSession(params, db, dClient)
+			if restErr != nil {
+				return session.NewValidateOrGenerateDefault(getCode(restErr)).WithPayload(restErr)
+			}
+
+			return session.NewValidateOrGenerateOK().WithPayload(restResp)
+		})
 }
 
-func convertAccessToDbModel(swaggerModel *rest_model.Access) *model.Access {
-	uuid := uuid.NewV4()
+func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm.DB, client distributed.DistributedClient) (*rest_model.SessionResponse, *rest_model.Error) {
+	sessionId := *params.Body.SessionID
 
-	record := model.Access{
-		BrowserName:    *swaggerModel.BrowserName,
-		BrowserVersion: *swaggerModel.BrowserVersion,
-		OsName:         *swaggerModel.OsName,
-		OsVersion:      *swaggerModel.OsVersion,
-		IsMobile:       *swaggerModel.IsMobile,
-		Timezone:       *swaggerModel.Timezone,
-		Timestamp:      *swaggerModel.Timestamp,
-		Language:       *swaggerModel.Language,
-		UserAgent:      *swaggerModel.UserAgent,
-		UUID:           uuid.String(),
+	logger := config.GetLogger()
+	logger.Infow("validateOrGenerateSession record", "session", sessionId)
+
+	sessionTimeout := 60 * time.Second
+
+	var session *model.Session = nil
+	if sessionId == "" {
+		// create new session
+		session = &model.Session{
+			SessionID:    uuid.NewV4().String(),
+			ExpiredAt:    time.Now().UTC().Add(sessionTimeout),
+			RefreshCount: 0,
+			Refreshed:    false,
+		}
+
+		if err := db.Create(session).Error; err != nil {
+			logger.Errorw("Failed to create Session record: %v", "error", err)
+			restError := buildRestError(err, 500)
+			return nil, restError
+		}
+
+	} else {
+		if err := db.Where("id = ?", sessionId).First(session).Error; err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				logger.Infow("Failed to find Session record", "session", sessionId)
+				return nil, buildRestError(err, 404)
+			}
+
+			logger.Errorw("Failed to find Session record due to unknown error",
+				"session", sessionId, "error", err)
+			return nil, buildRestError(err, 500)
+		}
+
+		// refresh session if it's expired
+		if time.Now().After(session.ExpiredAt) {
+			db.Model(&session).Updates(map[string]interface{}{
+				"RefreshCount": gorm.Expr("RefreshCount + ?", 1),
+				"Refreshed":    true,
+				"ExpiredAt":    time.Now().UTC().Add(sessionTimeout),
+			})
+		}
 	}
 
-	return &record
-}
+	logger.Infow("Session", "refreshed", session.Refreshed,
+		"refreshed_count", session.RefreshCount)
 
-func convertAccessToRestModel(record *model.Access) *rest_model.Access {
-	swaggerModel := rest_model.Access{
-		ID:             int64(record.Id),
-		BrowserName:    &record.BrowserName,
-		BrowserVersion: &record.BrowserVersion,
-		OsName:         &record.OsName,
-		OsVersion:      &record.OsVersion,
-		IsMobile:       &record.IsMobile,
-		Timezone:       &record.Timezone,
-		Timestamp:      &record.Timestamp,
-		Language:       &record.Language,
-		UserAgent:      &record.UserAgent,
-		UUID:           record.UUID,
-	}
-
-	return &swaggerModel
+	return model.ConvertToSessionDTO(session), nil
 }
 
 func buildRestError(err error, code int64) *rest_model.Error {
@@ -122,7 +154,7 @@ func addOneAccess(params access.AddOneParams, db *gorm.DB, dClient distributed.D
 	logger := config.GetLogger()
 	logger.Infow("Creating Access record", "request", params.Body)
 
-	record := convertAccessToDbModel(params.Body)
+	record := model.ConvertFromAccessDTO(params.Body)
 
 	if err := db.Create(record).Error; err != nil {
 		logger.Errorw("Failed to create new Access record: %v", "error", err)
@@ -141,7 +173,7 @@ func addOneAccess(params access.AddOneParams, db *gorm.DB, dClient distributed.D
 	stringified := fmt.Sprintf("%d", count)
 	dClient.Publish(distributed.NewTotalAccessCountMessage(stringified))
 
-	restResp := convertAccessToRestModel(record)
+	restResp := model.ConvertToAccessDTO(record)
 
 	return restResp, nil
 }
@@ -163,7 +195,7 @@ func findOneAccess(params access.FindOneParams, db *gorm.DB) (*rest_model.Access
 		return nil, buildRestError(err, 500)
 	}
 
-	response := convertAccessToRestModel(&record)
+	response := model.ConvertToAccessDTO(&record)
 	return response, nil
 }
 
@@ -195,7 +227,7 @@ func findAllAccess(params access.FindAllParams, db *gorm.DB) (*rest_model.Pagina
 	rows := make([]*rest_model.Access, 0)
 	for i := range records {
 		record := records[i]
-		restmodel := convertAccessToRestModel(&record)
+		restmodel := model.ConvertToAccessDTO(&record)
 		rows = append(rows, restmodel)
 	}
 
@@ -237,7 +269,7 @@ func updateOneAccess(params access.UpdateOneParams, db *gorm.DB) (*rest_model.Ac
 	logger := config.GetLogger()
 	logger.Infow("Updating Access record", "id", params.ID)
 
-	record := convertAccessToDbModel(params.Body)
+	record := model.ConvertFromAccessDTO(params.Body)
 	var updated model.Access
 
 	// https://github.com/jinzhu/gorm/issues/891
@@ -256,6 +288,6 @@ func updateOneAccess(params access.UpdateOneParams, db *gorm.DB) (*rest_model.Ac
 		return nil, restError
 	}
 
-	response := convertAccessToRestModel(&updated)
+	response := model.ConvertToAccessDTO(&updated)
 	return response, nil
 }

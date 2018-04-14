@@ -10,10 +10,10 @@ const SessionTable = "session"
 type Session struct {
 	BaseModel
 
-	SessionID    string
-	Refreshed    bool
+	SessionID    string    `gorm:"not null;unique"`
 	ExpiredAt    time.Time
-	RefreshCount int
+	Refreshed    bool      `gorm:"not null"`
+	RefreshCount int       `gorm:"not null"`
 }
 
 func ConvertToSessionDTO(record *Session) *rest_model.SessionResponse {

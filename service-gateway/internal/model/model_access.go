@@ -11,16 +11,16 @@ const AccessTable = "access"
 type Access struct {
 	BaseModel
 
-	BrowserName    string
-	BrowserVersion string
-	OsName         string
-	OsVersion      string
-	IsMobile       string
-	Timezone       string
-	Timestamp      string
-	Language       string
-	UserAgent      string
-	UUID           string // uuid v4
+	BrowserName    string `gorm:"not null"`
+	BrowserVersion string `gorm:"not null"`
+	OsName         string `gorm:"not null"`
+	OsVersion      string `gorm:"not null"`
+	IsMobile       string `gorm:"not null"`
+	Timezone       string `gorm:"not null"`
+	Timestamp      string `gorm:"not null"`
+	Language       string `gorm:"not null"`
+	UserAgent      string `gorm:"not null"`
+	UUID           string `gorm:"not null"`
 }
 
 func ConvertFromAccessDTO(swaggerModel *rest_model.Access) *Access {

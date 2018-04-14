@@ -26,6 +26,7 @@ type Specification struct {
 	Debug         bool     `default:"true"`
 	WebSocketPort int      `default:"50001"`
 	HttpPort      int      `default:"50002"`
+	CorsAllowUrl  string   `default:"localhost:3000"`
 	Host          string   `default:"localhost"`
 	MysqlHost     string   `default:"localhost"`
 	MysqlPort     string   `default:"3306"`

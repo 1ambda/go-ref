@@ -35,6 +35,7 @@ func main() {
 		"env", spec.Env,
 		"websocket_port", spec.WebSocketPort,
 		"http_port", spec.HttpPort,
+		"cors_allow_Url", spec.CorsAllowUrl,
 		"debug", spec.Debug,
 		"etcd_endpoints", spec.EtcdEndpoints,
 		"server_name", spec.ServerName,
@@ -107,7 +108,7 @@ func main() {
 	handler := api.Serve(nil)
 
 	logger.Info("Configure REST middleware")
-	handler = cors.Default().Handler(handler)
+	handler = cors.AllowAll().Handler(handler)
 	server.SetHandler(handler)
 
 	api.ServerShutdown = func() {

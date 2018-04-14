@@ -201,8 +201,8 @@ func init() {
         "osVersion",
         "isMobile",
         "language",
-        "timezone",
-        "timestamp",
+        "clientTimezone",
+        "clientTimestamp",
         "userAgent"
       ],
       "properties": {
@@ -212,12 +212,18 @@ func init() {
         "browserVersion": {
           "type": "string"
         },
+        "clientTimestamp": {
+          "type": "string"
+        },
+        "clientTimezone": {
+          "type": "string"
+        },
         "id": {
           "type": "integer",
           "format": "int64"
         },
         "isMobile": {
-          "type": "string"
+          "type": "boolean"
         },
         "language": {
           "type": "string"
@@ -226,12 +232,6 @@ func init() {
           "type": "string"
         },
         "osVersion": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
-        },
-        "timezone": {
           "type": "string"
         },
         "userAgent": {
@@ -532,8 +532,8 @@ func init() {
         "osVersion",
         "isMobile",
         "language",
-        "timezone",
-        "timestamp",
+        "clientTimezone",
+        "clientTimestamp",
         "userAgent"
       ],
       "properties": {
@@ -543,12 +543,18 @@ func init() {
         "browserVersion": {
           "type": "string"
         },
+        "clientTimestamp": {
+          "type": "string"
+        },
+        "clientTimezone": {
+          "type": "string"
+        },
         "id": {
           "type": "integer",
           "format": "int64"
         },
         "isMobile": {
-          "type": "string"
+          "type": "boolean"
         },
         "language": {
           "type": "string"
@@ -557,12 +563,6 @@ func init() {
           "type": "string"
         },
         "osVersion": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
-        },
-        "timezone": {
           "type": "string"
         },
         "userAgent": {

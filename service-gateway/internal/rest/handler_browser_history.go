@@ -15,9 +15,17 @@ import (
 
 func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*dto.BrowserHistory, *dto.Error) {
 	logger := config.GetLogger()
-	logger.Infow("Creating BrowserHistory record", "request", params.Body)
+
+	sessionId, restErr := getSessionCookie(params.HTTPRequest)
+	if restErr != nil {
+		return nil, restErr
+	}
+
+	logger.Infow("Creating BrowserHistory record",
+		"request", params.Body, "session", sessionId)
 
 	record := model.ConvertFromBrowserHistoryDTO(params.Body)
+	record.SessionID = sessionId
 
 	if err := db.Create(record).Error; err != nil {
 		logger.Errorw("Failed to create new BrowserHistory record: %v", "error", err)

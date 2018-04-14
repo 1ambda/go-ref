@@ -28,6 +28,7 @@ export class SessionService {
         const sessionID = response.sessionID
 
         this.session = response
+        // this.cookieService.delete(SESSION_KEY)
         this.cookieService.set(SESSION_KEY, sessionID)
 
         if (emptySession) {
@@ -39,6 +40,8 @@ export class SessionService {
         } else {
           console.warn("Unknown session handshake case", response)
         }
+
+
 
         this.sessionReplay.next(this.session)
       })

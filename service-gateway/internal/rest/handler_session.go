@@ -10,9 +10,11 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"errors"
+	"net/http"
 )
 
 const sessionTimeout = 60 * time.Minute
+const sessionKey = "sessionID"
 
 func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm.DB) (*dto.SessionResponse, *dto.Error) {
 	sessionId := *params.Body.SessionID
@@ -20,60 +22,20 @@ func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm
 	logger := config.GetLogger()
 	logger.Infow("validateOrGenerateSession record", "session", sessionId)
 
-
-	var session *model.Session = nil
+	var sessionRecord *model.Session
+	var restErr *dto.Error
 	if sessionId == "" {
 		// create new session
-		restResp, restErr := createNewSession(db)
-		return restResp, restErr
-
+		sessionRecord, restErr = createNewSession(db)
 	} else {
-		// find existing session
-		session = &model.Session{}
-		if err := db.Where("session_id = ?", sessionId).First(session).Error; err != nil {
-			if gorm.IsRecordNotFoundError(err) {
-				// create new session
-				restResp, restErr := createNewSession(db)
-				return restResp, restErr
-			}
-
-			logger.Errorw("Failed to find Session record due to unknown error",
-				"session", sessionId, "error", err)
-			return nil, buildRestError(err, 500)
-		}
-
-		// refresh session if it's expired
-		if time.Now().UTC().After(session.ExpiredAt) {
-			result := db.Model(&session).Where("session_id = ?", sessionId).Updates(map[string]interface{}{
-				"refresh_count": gorm.Expr("refresh_count + ?", 1),
-				"refreshed":    true,
-				"expired_at":    time.Now().UTC().Add(sessionTimeout),
-			})
-
-			if result.Error != nil {
-				logger.Errorw("Failed to update Session record due to unknown error",
-					"session", sessionId, "error", result.Error)
-				restError := buildRestError(result.Error, 500)
-				return nil, restError
-			}
-
-			if result.RowsAffected < 1 {
-				logger.Infow("Failed to find Session record before updating",
-					"session", sessionId)
-				err := errors.New(gorm.ErrRecordNotFound.Error())
-				restError := buildRestError(err, 400)
-				return nil, restError
-			}
-		}
+		// find existing session and refresh it if it's expired
+		sessionRecord, restErr = refreshSession(db, sessionId)
 	}
 
-	logger.Infow("Session", "refreshed", session.Refreshed,
-		"refreshed_count", session.RefreshCount)
-
-	return model.ConvertToSessionDTO(session), nil
+	return model.ConvertToSessionDTO(sessionRecord), restErr
 }
 
-func createNewSession(db *gorm.DB) (*dto.SessionResponse, *dto.Error) {
+func createNewSession(db *gorm.DB) (*model.Session, *dto.Error) {
 	logger := config.GetLogger()
 
 	session := &model.Session{
@@ -89,5 +51,66 @@ func createNewSession(db *gorm.DB) (*dto.SessionResponse, *dto.Error) {
 		return nil, restError
 	}
 
-	return model.ConvertToSessionDTO(session), nil
+	return session, nil
+}
+
+func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) {
+	logger := config.GetLogger()
+
+	// find existing session
+	sessionRecord := &model.Session{}
+	if err := db.Where("session_id = ?", sessionId).First(sessionRecord).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			// create new session
+			restResp, restErr := createNewSession(db)
+			return restResp, restErr
+		}
+
+		logger.Errorw("Failed to find Session record due to unknown error",
+			"session", sessionId, "error", err)
+		return nil, buildRestError(err, 500)
+	}
+
+	// refresh session if it's expired
+	if time.Now().UTC().After(sessionRecord.ExpiredAt) {
+		result := db.Model(&sessionRecord).Where("session_id = ?", sessionId).Updates(map[string]interface{}{
+			"refresh_count": gorm.Expr("refresh_count + ?", 1),
+			"refreshed":     true,
+			"expired_at":    time.Now().UTC().Add(sessionTimeout),
+		})
+
+		if result.Error != nil {
+			logger.Errorw("Failed to update Session record due to unknown error",
+				"session", sessionId, "error", result.Error)
+			restError := buildRestError(result.Error, 500)
+			return nil, restError
+		}
+
+		if result.RowsAffected < 1 {
+			logger.Infow("Failed to find Session record before updating",
+				"session", sessionId)
+			err := errors.New(gorm.ErrRecordNotFound.Error())
+			restError := buildRestError(err, 400)
+			return nil, restError
+		}
+	}
+
+	return sessionRecord, nil
+}
+
+func getSessionCookie(req *http.Request) (string, *dto.Error){
+	cookie, err := req.Cookie(sessionKey)
+
+	if err != nil {
+		restError := buildRestError(err, 500)
+		return "", restError
+	}
+
+	if cookie == nil || cookie.Value == "" {
+		err := errors.New("empty session cookie")
+		restError := buildRestError(err, 400)
+		return "", restError
+	}
+
+	return cookie.Value, nil
 }

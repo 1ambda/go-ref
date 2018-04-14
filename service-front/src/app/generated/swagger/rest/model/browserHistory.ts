@@ -16,10 +16,10 @@ export interface BrowserHistory {
     browserVersion: string;
     osName: string;
     osVersion: string;
-    isMobile: string;
+    isMobile: boolean;
+    clientTimestamp: string;
+    clientTimezone: string;
     language: string;
-    timestamp: string;
-    timezone: string;
     userAgent: string;
     id?: number;
     uuid?: string;

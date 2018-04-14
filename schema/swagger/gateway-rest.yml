@@ -193,8 +193,8 @@ definitions:
       - osVersion
       - isMobile
       - language
-      - timezone
-      - timestamp
+      - clientTimezone
+      - clientTimestamp
       - userAgent
     properties:
       browserName:
@@ -206,12 +206,12 @@ definitions:
       osVersion:
         type: string
       isMobile:
+        type: boolean
+      clientTimestamp:
+        type: string
+      clientTimezone:
         type: string
       language:
-        type: string
-      timestamp:
-        type: string
-      timezone:
         type: string
       userAgent:
         type: string

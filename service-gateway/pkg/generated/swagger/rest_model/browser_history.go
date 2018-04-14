@@ -25,12 +25,20 @@ type BrowserHistory struct {
 	// Required: true
 	BrowserVersion *string `json:"browserVersion"`
 
+	// client timestamp
+	// Required: true
+	ClientTimestamp *string `json:"clientTimestamp"`
+
+	// client timezone
+	// Required: true
+	ClientTimezone *string `json:"clientTimezone"`
+
 	// id
 	ID int64 `json:"id,omitempty"`
 
 	// is mobile
 	// Required: true
-	IsMobile *string `json:"isMobile"`
+	IsMobile *bool `json:"isMobile"`
 
 	// language
 	// Required: true
@@ -43,14 +51,6 @@ type BrowserHistory struct {
 	// os version
 	// Required: true
 	OsVersion *string `json:"osVersion"`
-
-	// timestamp
-	// Required: true
-	Timestamp *string `json:"timestamp"`
-
-	// timezone
-	// Required: true
-	Timezone *string `json:"timezone"`
 
 	// user agent
 	// Required: true
@@ -74,6 +74,16 @@ func (m *BrowserHistory) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateClientTimestamp(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateClientTimezone(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
 	if err := m.validateIsMobile(formats); err != nil {
 		// prop
 		res = append(res, err)
@@ -90,16 +100,6 @@ func (m *BrowserHistory) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOsVersion(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
-	if err := m.validateTimestamp(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
-	if err := m.validateTimezone(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -127,6 +127,24 @@ func (m *BrowserHistory) validateBrowserName(formats strfmt.Registry) error {
 func (m *BrowserHistory) validateBrowserVersion(formats strfmt.Registry) error {
 
 	if err := validate.Required("browserVersion", "body", m.BrowserVersion); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BrowserHistory) validateClientTimestamp(formats strfmt.Registry) error {
+
+	if err := validate.Required("clientTimestamp", "body", m.ClientTimestamp); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BrowserHistory) validateClientTimezone(formats strfmt.Registry) error {
+
+	if err := validate.Required("clientTimezone", "body", m.ClientTimezone); err != nil {
 		return err
 	}
 
@@ -163,24 +181,6 @@ func (m *BrowserHistory) validateOsName(formats strfmt.Registry) error {
 func (m *BrowserHistory) validateOsVersion(formats strfmt.Registry) error {
 
 	if err := validate.Required("osVersion", "body", m.OsVersion); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *BrowserHistory) validateTimestamp(formats strfmt.Registry) error {
-
-	if err := validate.Required("timestamp", "body", m.Timestamp); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *BrowserHistory) validateTimezone(formats strfmt.Registry) error {
-
-	if err := validate.Required("timezone", "body", m.Timezone); err != nil {
 		return err
 	}
 

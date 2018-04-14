@@ -7,8 +7,6 @@ import { GeoLocationService } from "../../shared/geo-location.service"
 import { SessionService } from "../../shared/session.service"
 import { BrowserHistoryService } from "../../shared/browser-history.service"
 
-let initialized = false
-
 @Component({
   selector: 'home',
   providers: [],
@@ -34,9 +32,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'os_version', prop: 'osVersion' },
     { name: 'is_mobile', prop: 'isMobile' },
     { name: 'language', prop: 'language' },
-    { name: 'timestamp', prop: 'timestamp' },
-    { name: 'timezone', prop: 'timezone' },
-    { name: 'uuid', prop: 'uuid' },
+    { name: 'local_timestamp', prop: 'clientTimestamp' },
+    { name: 'local_timezone', prop: 'clientTimezone' },
     { name: 'user_agent', prop: 'userAgent' },
   ]
 
@@ -67,15 +64,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit() {
-    // send access record after then get all access records
-    if (initialized) {
-      this.initialize()
-    } else {
-      initialized = true
-      this.browserHistoryService.addOne().subscribe(_ => {
-        this.initialize()
-      })
-    }
+    // start initialization process after browser history is sent
+    this.subscriptions.push(this.subscribeBrowserHistorySendEvent())
   }
 
   ngOnDestroy(): void {
@@ -156,5 +146,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   onPageChange(event) {
     this.currentPageOffset = event.offset
     this.findAllBrowserHistory()
+  }
+
+  private subscribeBrowserHistorySendEvent(): Subscription {
+    return this.browserHistoryService.watchBrowserHistorySendEvent()
+      .subscribe(_ => {
+        this.initialize()
+      })
   }
 }

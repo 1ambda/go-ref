@@ -3,17 +3,18 @@ package model
 import (
 	"time"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	"github.com/jinzhu/gorm"
 )
 
 const SessionTable = "session"
 
 type Session struct {
-	BaseModel
+	gorm.Model
 
-	SessionID    string    `gorm:"not null;unique"`
-	ExpiredAt    time.Time
-	Refreshed    bool      `gorm:"not null"`
-	RefreshCount int       `gorm:"not null"`
+	SessionID    string    `gorm:"column:session_id; not null; unique_index"`
+	ExpiredAt    time.Time `gorm:"column:expired_at"`
+	Refreshed    bool      `gorm:"column:refreshed; not null"`
+	RefreshCount int       `gorm:"column:refresh_count; not null"`
 }
 
 func ConvertToSessionDTO(record *Session) *rest_model.SessionResponse {

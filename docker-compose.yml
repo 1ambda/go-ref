@@ -10,6 +10,8 @@ services:
       - MYSQL_DATABASE=goref
       - MYSQL_ROOT_PASSWORD=root
       - LANG=C.UTF-8
+    volumes:
+       - ./scripts/docker-mysql/:/etc/mysql/conf.d
 
   etcd:
     image: quay.io/coreos/etcd:latest

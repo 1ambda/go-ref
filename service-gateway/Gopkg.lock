@@ -106,7 +106,7 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "180bba53b98899f743a112e568bed9e2ef31aa20"
+  revision = "a6c59cf99c081a216ca6988799f3203df06458d2"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -282,8 +282,8 @@
     "internal/exit",
     "zapcore"
   ]
-  revision = "35aad584952c3e7020db7b839f6b102de6271f89"
-  version = "v1.7.1"
+  revision = "eeedf312bc6c57391d84767a4cd413f02a917974"
+  version = "v1.8.0"
 
 [[projects]]
   branch = "master"
@@ -306,7 +306,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3b87a42e500a6dc65dae1a55d0b641295971163e"
+  revision = "f6f352972f061230a99fbf49d1eb8073ebdb36cb"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -346,7 +346,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "51d0944304c3cbce4afe9e5247e21100037bff78"
+  revision = "7fd901a49ba6a7f87732eb344f6e3c5b19d1b200"
 
 [[projects]]
   name = "google.golang.org/grpc"

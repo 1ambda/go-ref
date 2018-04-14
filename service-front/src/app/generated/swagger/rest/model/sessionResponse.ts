@@ -12,22 +12,10 @@
 
 
 export interface SessionResponse {
-    /**
-     * non-null
-     */
-    sessionId?: string;
-    /**
-     * non-null
-     */
-    createdAt?: number;
-    updatedAt?: number;
-    expiredAt?: number;
-    /**
-     * non-null
-     */
-    refreshed?: boolean;
-    /**
-     * non-null
-     */
-    refreshCount?: number;
+    sessionID: string;
+    createdAt: number;
+    updatedAt: number;
+    expiredAt: number;
+    refreshed: boolean;
+    refreshCount: number;
 }

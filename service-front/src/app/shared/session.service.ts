@@ -13,19 +13,24 @@ export class SessionService {
   constructor(private sessionApiService: SessionApiService,
               private cookieService: CookieService) {
 
-    const sessionID = cookieService.get("SESSION_KEY")
-
-    if (this.isEmptySession(sessionID)) {
-      console.log("Session is empty")
-    }
+    const sessionID = cookieService.get(SESSION_KEY)
+    const emptySession = this.isEmptySession(sessionID)
 
     const request: SessionRequest = { sessionID: sessionID, }
     sessionApiService.validateOrGenerate(request)
       .subscribe(response => {
         this.session = response
+        const sessionID = response.sessionID
 
-        console.log(response.refreshed)
-        console.log(response.refreshCount)
+        if (emptySession) {
+          console.log(`New session is issued: ${sessionID}`)
+        } else if (!emptySession && response.refreshed) {
+          console.log(`Existing session is used or refreshed: ${sessionID}`)
+        } else {
+          console.warn("Unknown session handshake case", response)
+        }
+
+        this.cookieService.set(SESSION_KEY, this.session.sessionID)
       })
   }
 

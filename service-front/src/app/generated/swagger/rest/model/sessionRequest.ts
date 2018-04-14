@@ -12,5 +12,5 @@
 
 
 export interface SessionRequest {
-    sessionID?: string;
+    sessionID: string;
 }

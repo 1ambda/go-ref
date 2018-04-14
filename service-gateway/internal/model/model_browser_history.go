@@ -2,7 +2,7 @@ package model
 
 import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -25,7 +25,7 @@ type BrowserHistory struct {
 	SessionID string  `gorm:"column:session_id; type:VARCHAR(255) REFERENCES session(session_id)"`
 }
 
-func ConvertFromBrowserHistoryDTO(dto *rest_model.BrowserHistory) *BrowserHistory {
+func ConvertFromBrowserHistoryDTO(dto *dto.BrowserHistory) *BrowserHistory {
 	record := BrowserHistory{
 		BrowserName:     *dto.BrowserName,
 		BrowserVersion:  *dto.BrowserVersion,
@@ -41,8 +41,8 @@ func ConvertFromBrowserHistoryDTO(dto *rest_model.BrowserHistory) *BrowserHistor
 	return &record
 }
 
-func ConvertToBrowserHistoryDTO(record *BrowserHistory) *rest_model.BrowserHistory {
-	dto := rest_model.BrowserHistory{
+func ConvertToBrowserHistoryDTO(record *BrowserHistory) *dto.BrowserHistory {
+	dto := dto.BrowserHistory{
 		ID:              int64(record.ID),
 		BrowserName:     &record.BrowserName,
 		BrowserVersion:  &record.BrowserVersion,

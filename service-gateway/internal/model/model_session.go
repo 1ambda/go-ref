@@ -2,7 +2,7 @@ package model
 
 import (
 	"time"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,14 +17,14 @@ type Session struct {
 	RefreshCount int       `gorm:"column:refresh_count; not null"`
 }
 
-func ConvertToSessionDTO(record *Session) *rest_model.SessionResponse {
+func ConvertToSessionDTO(record *Session) *dto.SessionResponse {
 	// return millis
 	updatedAt := record.UpdatedAt.UnixNano() / 1000000
 	createdAt := record.CreatedAt.UnixNano() / 1000000
 	expiredAt := record.ExpiredAt.UnixNano() / 1000000
 	refreshCount := int64(record.RefreshCount)
 
-	return &rest_model.SessionResponse{
+	return &dto.SessionResponse{
 		SessionID:    &record.SessionID,
 		UpdatedAt:    &updatedAt,
 		CreatedAt:    &createdAt,

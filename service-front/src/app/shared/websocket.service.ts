@@ -12,6 +12,7 @@ export class WebsocketService {
   private client
   private receiveQueue: ReplaySubject<any> = new ReplaySubject()
   private sendQueue: ReplaySubject<Object> = new ReplaySubject()
+  private websocketConnectedEvent: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
   constructor(sessionService: SessionService) {
     sessionService.subscribeSession().subscribe((session: SessionResponse) => {
@@ -20,15 +21,23 @@ export class WebsocketService {
       this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
 
       this.client.onerror = (error) => {
-        console.error('websocket: `onerror`', error)
+        let message = error.message
+        if (error.message == "" || error.message == undefined || error.message == null) {
+          message = "UNKNOWN"
+        }
+
+        console.error('websocket: `onerror`', error.message)
       }
 
       this.client.onclose = () => {
         console.warn('websocket: `onclose` (will reconnect)')
+        this.websocketConnectedEvent.next(false)
       }
 
       this.client.onopen = () => {
         console.debug("websocket: `onopen`")
+
+        this.websocketConnectedEvent.next(true)
 
         this.sendQueue.subscribe(data => {
           this.client.send(JSON.stringify(data))
@@ -61,5 +70,9 @@ export class WebsocketService {
 
       return isTargetResponseType
     })
+  }
+
+  public watchWebsocketConnected(): Observable<boolean> {
+    return this.websocketConnectedEvent;
   }
 }

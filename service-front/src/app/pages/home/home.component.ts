@@ -16,6 +16,15 @@ let initialized = false
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
+
+  /**
+   * indicates websocket is connected or not
+   */
+  websocketConnected = false
+
+  /**
+   * table related variables
+   */
   rows = []
   columns = [
     { name: 'id', prop: 'id' },
@@ -62,6 +71,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (initialized) {
       this.initialize()
     } else {
+      initialized = true
       this.browserHistoryService.addOne().subscribe(_ => {
         this.initialize()
       })
@@ -80,8 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.subscribeBrowserHistoryCount())
     this.subscriptions.push(this.subscribeGatewayLeaderName())
     this.subscriptions.push(this.subscribeGatewayNodeCount())
-
-    initialized = true
+    this.subscriptions.push(this.subscribeWebsocketConnected())
   }
 
   findAllBrowserHistory() {
@@ -131,6 +140,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.webSocketService.watch(eventType)
       .subscribe((response: WebSocketRealtimeResponse) => {
         this.currentNodeCount = response.body.value
+      })
+  }
+
+  subscribeWebsocketConnected(): Subscription {
+    return this.webSocketService.watchWebsocketConnected()
+      .subscribe(connected => {
+        this.websocketConnected = connected
       })
   }
 

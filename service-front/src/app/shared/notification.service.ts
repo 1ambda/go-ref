@@ -22,4 +22,14 @@ export class NotificationService {
   displayWarn(title: string, message: string) {
     this.notificationLibrary.warn(title, message, NOTIFICATION_OPTION)
   }
+
+  displayInfo(title: string, message: string) {
+    const option = {...NOTIFICATION_OPTION, timeOut: 2000}
+    this.notificationLibrary.info(title, message, option)
+  }
+
+  displaySuccess(title: string, message: string) {
+    const option = {...NOTIFICATION_OPTION, timeOut: 2000}
+    this.notificationLibrary.success(title, message, option)
+  }
 }

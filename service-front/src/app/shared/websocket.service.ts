@@ -30,13 +30,13 @@ export class WebsocketService {
         }
 
         console.error('websocket: `onerror`', message)
-        this.notificationService.displayError("Error (WS)", message)
+        // this.notificationService.displayError("Error (WS)", message)
       }
 
       this.client.onclose = () => {
         console.warn('websocket: `onclose` (will reconnect)')
-        this.websocketConnectedEvent.next(false)
 
+        this.websocketConnectedEvent.next(false)
         this.notificationService.displayWarn("Disconnected (WS)", "will reconnect")
       }
 
@@ -44,6 +44,7 @@ export class WebsocketService {
         console.debug("websocket: `onopen`")
 
         this.websocketConnectedEvent.next(true)
+        this.notificationService.displaySuccess("Connected (WS)", "")
 
         this.sendQueue.subscribe(data => {
           this.client.send(JSON.stringify(data))
@@ -58,7 +59,7 @@ export class WebsocketService {
         if (parsed.header.responseType === WebSocketResponseHeader.ResponseTypeEnum.Error) {
           const errorResponse: WebSocketError = parsed.header.error
           const message = `${errorResponse.message} (${errorResponse.code})`
-          this.notificationService.displayError("Error (WS)", message)
+          this.notificationService.displayError("Error (WS Server)", message)
         }
       }
     })

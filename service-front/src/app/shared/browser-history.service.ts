@@ -12,6 +12,7 @@ import 'moment-timezone'
 import 'clientjs'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { NotificationService } from "./notification.service"
 
 @Injectable()
 export class BrowserHistoryService {
@@ -19,7 +20,8 @@ export class BrowserHistoryService {
   private browserHistorySendEvent: ReplaySubject<boolean> = new ReplaySubject()
 
   constructor(private sessionService: SessionService,
-              private browserHistoryApiService: BrowserHistoryApiService) {
+              private browserHistoryApiService: BrowserHistoryApiService,
+              private notificationService: NotificationService) {
     sessionService.subscribeSession().subscribe((session: SessionResponse) => {
       console.info(`Initializing BrowserHistoryService (session: ${session.sessionID})`)
 
@@ -27,6 +29,8 @@ export class BrowserHistoryService {
       // after session service is properly setup
       this.addOne().subscribe(_ => {
         this.browserHistorySendEvent.next(true)
+
+        this.notificationService.displayInfo("Browser History", "Persisted")
       })
     })
   }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { SessionService } from "./session.service"
 import { SessionResponse } from "../generated/swagger/rest"
+import { NotificationService } from "./notification.service"
 
 const geolocator = require('geolocator')
 
@@ -22,8 +23,10 @@ export class GeoLocationService {
   private formattedAddress: string
   private address: object
 
-  constructor(sessionService: SessionService) {
-    sessionService.subscribeSession().subscribe((session: SessionResponse) => {
+  constructor(private sessionService: SessionService,
+              private notificationService: NotificationService) {
+
+    this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
       console.info(`Initializing GeoLocationService (session: ${session.sessionID})`)
 
       const options = {
@@ -37,14 +40,15 @@ export class GeoLocationService {
         timezone: true,         // requires Google API key if true
       }
 
-      console.log("Fetching geolocation information from google")
+      console.debug("Fetching geolocation information from google")
       geolocator.locate(options, (err, response) => {
         if (err) {
           console.log(err)
+          this.notificationService.displayError("Geolocation", "Failed to fetch geolocation")
           return
         }
 
-        console.log("Fetched geolocation information from google")
+        console.debug("Fetched geolocation information from google")
 
         this.ip = response.ip
 
@@ -59,8 +63,10 @@ export class GeoLocationService {
 
         this.formattedAddress = response.formattedAddress
         this.address = response.address
+
+        this.notificationService.displayInfo("Geolocation", "analyzed")
       })
-    });
+    })
 
   }
 }

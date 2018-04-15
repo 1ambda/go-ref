@@ -47,7 +47,7 @@ type RemoveOneDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.Error `json:"body,omitempty"`
+	Payload *rest_model.RestError `json:"body,omitempty"`
 }
 
 // NewRemoveOneDefault creates RemoveOneDefault with default headers values
@@ -73,13 +73,13 @@ func (o *RemoveOneDefault) SetStatusCode(code int) {
 }
 
 // WithPayload adds the payload to the remove one default response
-func (o *RemoveOneDefault) WithPayload(payload *rest_model.Error) *RemoveOneDefault {
+func (o *RemoveOneDefault) WithPayload(payload *rest_model.RestError) *RemoveOneDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the remove one default response
-func (o *RemoveOneDefault) SetPayload(payload *rest_model.Error) {
+func (o *RemoveOneDefault) SetPayload(payload *rest_model.RestError) {
 	o.Payload = payload
 }
 

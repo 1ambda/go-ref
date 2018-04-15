@@ -41,8 +41,6 @@ export class SessionService {
           console.warn("Unknown session handshake case", response)
         }
 
-
-
         this.sessionReplay.next(this.session)
       })
   }
@@ -53,5 +51,9 @@ export class SessionService {
 
   subscribeSession(): Observable<SessionResponse> {
     return this.sessionReplay
+  }
+
+  clear() {
+    this.cookieService.delete(SESSION_KEY)
   }
 }

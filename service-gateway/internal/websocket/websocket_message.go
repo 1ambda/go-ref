@@ -5,7 +5,6 @@ import (
 	"time"
 
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/ws_model"
-	"github.com/go-openapi/swag"
 )
 
 type Message struct {
@@ -49,11 +48,12 @@ func NewBrowserHistoryCountMessage(count string) (*Message, error) {
 	return NewStringValueMessage(eventType, count)
 }
 
-func NewErrorMessage(err error, code int64) (*Message, error) {
+func NewErrorMessage(err error, errorType string, code int64) (*Message, error) {
 	eventType := dto.WebSocketResponseHeaderResponseTypeError
 	wsErr := dto.WebSocketError{
 		Code:      code,
-		Message:   swag.String(err.Error()),
+		Message:   err.Error(),
+		Type: errorType,
 		Timestamp: time.Now().UTC().String(),
 	}
 

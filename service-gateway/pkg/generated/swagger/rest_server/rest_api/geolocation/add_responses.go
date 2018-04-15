@@ -67,7 +67,7 @@ type AddDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.Error `json:"body,omitempty"`
+	Payload *rest_model.RestError `json:"body,omitempty"`
 }
 
 // NewAddDefault creates AddDefault with default headers values
@@ -93,13 +93,13 @@ func (o *AddDefault) SetStatusCode(code int) {
 }
 
 // WithPayload adds the payload to the add default response
-func (o *AddDefault) WithPayload(payload *rest_model.Error) *AddDefault {
+func (o *AddDefault) WithPayload(payload *rest_model.RestError) *AddDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the add default response
-func (o *AddDefault) SetPayload(payload *rest_model.Error) {
+func (o *AddDefault) SetPayload(payload *rest_model.RestError) {
 	o.Payload = payload
 }
 

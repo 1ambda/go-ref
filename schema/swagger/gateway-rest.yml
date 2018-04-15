@@ -31,7 +31,7 @@ paths:
         default:
           description: error
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
 
   /session:
     post:
@@ -54,7 +54,7 @@ paths:
         default:
           description: error
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
 
   /browser_history:
     get:
@@ -81,7 +81,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
     post:
       tags:
         - BrowserHistory
@@ -99,7 +99,7 @@ paths:
         default:
           description: error
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
   /browser_history/{id}:
     parameters:
       - type: integer
@@ -124,7 +124,7 @@ paths:
         default:
           description: error
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
 
     delete:
       tags:
@@ -136,7 +136,7 @@ paths:
         default:
           description: error
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/RestError"
 
 definitions:
 
@@ -289,10 +289,8 @@ definitions:
       uuid:
         type: string
 
-  error:
+  RestError:
     type: object
-    required:
-      - message
     properties:
       timestamp:
         type: string
@@ -301,3 +299,9 @@ definitions:
         format: int64
       message:
         type: string
+      type:
+        type: string
+        enum:
+          - InvalidSession
+          - InternalServer
+          - RecordDoesNotxist

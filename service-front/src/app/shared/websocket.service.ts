@@ -21,6 +21,10 @@ export class WebsocketService {
     this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
       console.info(`Initializing WebsocketService (session: ${session.sessionID})`)
 
+      if (this.client) {
+        return
+      }
+
       this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
 
       this.client.onerror = (error) => {
@@ -58,8 +62,14 @@ export class WebsocketService {
 
         if (parsed.header.responseType === WebSocketResponseHeader.ResponseTypeEnum.Error) {
           const errorResponse: WebSocketError = parsed.header.error
-          const message = `${errorResponse.message} (${errorResponse.code})`
+          console.log(errorResponse)
+
+          const message = `${errorResponse.type} (${errorResponse.code})`
           this.notificationService.displayError("Error (WS Server)", message)
+
+          if (errorResponse.type === WebSocketError.TypeEnum.InvalidSession) {
+            this.sessionService.clear()
+          }
         }
       }
     })

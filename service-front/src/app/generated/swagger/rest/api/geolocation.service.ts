@@ -18,16 +18,15 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs/Observable';
 
+import { Geolocation } from '../model/geolocation';
 import { RestError } from '../model/restError';
-import { SessionRequest } from '../model/sessionRequest';
-import { SessionResponse } from '../model/sessionResponse';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
 
 @Injectable()
-export class SessionService {
+export class GeolocationService {
 
     protected basePath = 'http://localhost/api';
     public defaultHeaders = new HttpHeaders();
@@ -65,10 +64,10 @@ export class SessionService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public validateOrGenerate(body?: SessionRequest, observe?: 'body', reportProgress?: boolean): Observable<SessionResponse>;
-    public validateOrGenerate(body?: SessionRequest, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SessionResponse>>;
-    public validateOrGenerate(body?: SessionRequest, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SessionResponse>>;
-    public validateOrGenerate(body?: SessionRequest, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public add(body?: Geolocation, observe?: 'body', reportProgress?: boolean): Observable<Geolocation>;
+    public add(body?: Geolocation, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Geolocation>>;
+    public add(body?: Geolocation, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Geolocation>>;
+    public add(body?: Geolocation, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -90,7 +89,7 @@ export class SessionService {
             headers = headers.set("Content-Type", httpContentTypeSelected);
         }
 
-        return this.httpClient.post<SessionResponse>(`${this.basePath}/session`,
+        return this.httpClient.post<Geolocation>(`${this.basePath}/geolocation`,
             body,
             {
                 withCredentials: this.configuration.withCredentials,

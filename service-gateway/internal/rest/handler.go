@@ -10,11 +10,10 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/jinzhu/gorm"
 )
 
-func getCode(e *dto.Error) int {
+func getCode(e *dto.RestError) int {
 	return int(e.Code)
 }
 
@@ -87,10 +86,11 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 		})
 }
 
-func buildRestError(err error, code int64) *dto.Error {
-	return &dto.Error{
+func buildRestError(err error, errorType string, code int64) *dto.RestError {
+	return &dto.RestError{
 		Code:      code,
-		Message:   swag.String(err.Error()),
+		Message:   err.Error(),
+		Type: errorType,
 		Timestamp: time.Now().UTC().String(),
 	}
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/ws_model"
 	ws "github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
@@ -49,20 +50,32 @@ func Configure(appCtx context.Context, mux *http.ServeMux, db *gorm.DB) *manager
 		}
 
 		websocketID := uuid.NewV4().String()
-
 		client := NewClient(manager, conn, sessionID, websocketID)
+
+		// find existing session
+		session := &model.Session{}
+		if err := db.Where("session_id = ?", sessionID).First(session).Error; err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				logger.Errorw("Failed to find Session record due to unknown error",
+					"session_id", sessionID, "error", err)
+				client.SendErrorMessage(err, dto.WebSocketErrorTypeInvalidSession, 400)
+				return
+			}
+
+			logger.Errorw("Failed to find Session record due to unknown error",
+				"session_id", sessionID, "error", err)
+			client.SendErrorMessage(err, dto.WebSocketErrorTypeInternalServer, 500)
+			client.close()
+			return
+		}
 
 		// create websocket history record
 		record := model.WebsocketHistory{}
 		record.NewWebSocketHistory(sessionID, websocketID)
 		if err := db.Create(&record).Error; err != nil {
-			message, err1 := NewErrorMessage(err, 500)
-			if err1 != nil {
-				logger.Errorw("Failed to create websocket error message", "error", err1)
-				return
-			}
-
-			client.send(message)
+			logger.Errorw("Failed to create WebsocketHistory record due to unknown error",
+				"session_id", sessionID, "error", err)
+			client.SendErrorMessage(err, dto.WebSocketErrorTypeInvalidSession, 500)
 			client.close()
 			return
 		}

@@ -67,7 +67,7 @@ type FindAllDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.Error `json:"body,omitempty"`
+	Payload *rest_model.RestError `json:"body,omitempty"`
 }
 
 // NewFindAllDefault creates FindAllDefault with default headers values
@@ -93,13 +93,13 @@ func (o *FindAllDefault) SetStatusCode(code int) {
 }
 
 // WithPayload adds the payload to the find all default response
-func (o *FindAllDefault) WithPayload(payload *rest_model.Error) *FindAllDefault {
+func (o *FindAllDefault) WithPayload(payload *rest_model.RestError) *FindAllDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the find all default response
-func (o *FindAllDefault) SetPayload(payload *rest_model.Error) {
+func (o *FindAllDefault) SetPayload(payload *rest_model.RestError) {
 	o.Payload = payload
 }
 

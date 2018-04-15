@@ -1,6 +1,6 @@
 /**
- * GatewayWebsocketApi
- * Websocket API Spec for Gateway
+ * GatewayRestApi
+ * REST API Spec for Gateway
  *
  * OpenAPI spec version: 0.0.1
  * 
@@ -11,16 +11,17 @@
  */
 
 
-export interface WebSocketError {
+export interface RestError {
     timestamp?: string;
     code?: number;
     message?: string;
-    type?: WebSocketError.TypeEnum;
+    type?: RestError.TypeEnum;
 }
-export namespace WebSocketError {
-    export type TypeEnum = 'InvalidSession' | 'InternalServer';
+export namespace RestError {
+    export type TypeEnum = 'InvalidSession' | 'InternalServer' | 'RecordDoesNotxist';
     export const TypeEnum = {
         InvalidSession: 'InvalidSession' as TypeEnum,
-        InternalServer: 'InternalServer' as TypeEnum
+        InternalServer: 'InternalServer' as TypeEnum,
+        RecordDoesNotxist: 'RecordDoesNotxist' as TypeEnum
     }
 }

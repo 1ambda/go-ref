@@ -48,12 +48,14 @@ func GetDatabase(spec config.Specification) *gorm.DB {
 	db.Set("gorm:table_options", option).AutoMigrate(&Session{})
 	db.Set("gorm:table_options", option).AutoMigrate(&BrowserHistory{})
 	db.Set("gorm:table_options", option).AutoMigrate(&WebsocketHistory{})
+	db.Set("gorm:table_options", option).AutoMigrate(&GeolocationHistory{})
 
 	if !config.IsTestEnv(spec) {
 		// https://github.com/jinzhu/gorm/issues/1824#issuecomment-378123682
 		// gorm doesn't generate FK w/ `AutoMigrate`
 		db.Model(&BrowserHistory{}).AddForeignKey("session_id", "session(session_id)", "RESTRICT", "CASCADE")
 		db.Model(&WebsocketHistory{}).AddForeignKey("session_id", "session(session_id)", "RESTRICT", "CASCADE")
+		db.Model(&GeolocationHistory{}).AddForeignKey("session_id", "session(session_id)", "RESTRICT", "CASCADE")
 	}
 
 	return db

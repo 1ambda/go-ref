@@ -22,7 +22,6 @@ paths:
             type: string
 
 definitions:
-  # WebSocketResponseHeader
   WebSocketResponseHeader:
     type: object
     required:
@@ -39,11 +38,8 @@ definitions:
       error:
         $ref: "#/definitions/WebSocketError"
 
-  # WebSocketResponseHeader.Error
   WebSocketError:
     type: object
-    required:
-      - message
     properties:
       timestamp:
         type: string
@@ -52,6 +48,11 @@ definitions:
         format: int64
       message:
         type: string
+      type:
+        type: string
+        enum:
+          - InvalidSession
+          - InternalServer
 
   WebSocketRealtimeResponse:
     type: object

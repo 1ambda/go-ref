@@ -67,7 +67,7 @@ type ValidateOrGenerateDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.Error `json:"body,omitempty"`
+	Payload *rest_model.RestError `json:"body,omitempty"`
 }
 
 // NewValidateOrGenerateDefault creates ValidateOrGenerateDefault with default headers values
@@ -93,13 +93,13 @@ func (o *ValidateOrGenerateDefault) SetStatusCode(code int) {
 }
 
 // WithPayload adds the payload to the validate or generate default response
-func (o *ValidateOrGenerateDefault) WithPayload(payload *rest_model.Error) *ValidateOrGenerateDefault {
+func (o *ValidateOrGenerateDefault) WithPayload(payload *rest_model.RestError) *ValidateOrGenerateDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the validate or generate default response
-func (o *ValidateOrGenerateDefault) SetPayload(payload *rest_model.Error) {
+func (o *ValidateOrGenerateDefault) SetPayload(payload *rest_model.RestError) {
 	o.Payload = payload
 }
 

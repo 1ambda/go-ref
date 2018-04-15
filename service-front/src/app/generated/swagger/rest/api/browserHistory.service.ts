@@ -20,6 +20,7 @@ import { Observable }                                        from 'rxjs/Observab
 
 import { BrowserHistory } from '../model/browserHistory';
 import { BrowserHistoryWithPagination } from '../model/browserHistoryWithPagination';
+import { RestError } from '../model/restError';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';

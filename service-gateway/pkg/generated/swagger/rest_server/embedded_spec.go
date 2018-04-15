@@ -67,7 +67,7 @@ func init() {
           "default": {
             "description": "generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -96,7 +96,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -127,7 +127,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -144,7 +144,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -184,7 +184,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -215,7 +215,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -380,6 +380,29 @@ func init() {
         }
       }
     },
+    "RestError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidSession",
+            "InternalServer",
+            "RecordDoesNotxist"
+          ]
+        }
+      }
+    },
     "SessionRequest": {
       "type": "object",
       "required": [
@@ -423,24 +446,6 @@ func init() {
         "updatedAt": {
           "type": "integer",
           "format": "int64"
-        }
-      }
-    },
-    "error": {
-      "type": "object",
-      "required": [
-        "message"
-      ],
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
         }
       }
     }
@@ -496,7 +501,7 @@ func init() {
           "default": {
             "description": "generic error response",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -525,7 +530,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -556,7 +561,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -573,7 +578,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -613,7 +618,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -644,7 +649,7 @@ func init() {
           "default": {
             "description": "error",
             "schema": {
-              "$ref": "#/definitions/error"
+              "$ref": "#/definitions/RestError"
             }
           }
         }
@@ -809,6 +814,29 @@ func init() {
         }
       }
     },
+    "RestError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidSession",
+            "InternalServer",
+            "RecordDoesNotxist"
+          ]
+        }
+      }
+    },
     "SessionRequest": {
       "type": "object",
       "required": [
@@ -852,24 +880,6 @@ func init() {
         "updatedAt": {
           "type": "integer",
           "format": "int64"
-        }
-      }
-    },
-    "error": {
-      "type": "object",
-      "required": [
-        "message"
-      ],
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
         }
       }
     }

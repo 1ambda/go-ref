@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Configuration } from './configuration';
 
 import { BrowserHistoryService } from './api/browserHistory.service';
+import { GeolocationService } from './api/geolocation.service';
 import { SessionService } from './api/session.service';
 
 @NgModule({
@@ -12,6 +13,7 @@ import { SessionService } from './api/session.service';
   exports:      [],
   providers: [
     BrowserHistoryService,
+    GeolocationService,
     SessionService ]
 })
 export class ApiModule {

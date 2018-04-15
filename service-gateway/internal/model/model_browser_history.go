@@ -21,6 +21,7 @@ type BrowserHistory struct {
 	Language        string `gorm:"column:language; not null"`
 	UserAgent       string `gorm:"column:user_agent; not null"`
 
+	// foreign keys
 	Session   Session `gorm:"foreignkey:SessionID"`
 	SessionID string  `gorm:"column:session_id; type:VARCHAR(255) REFERENCES session(session_id)"`
 }

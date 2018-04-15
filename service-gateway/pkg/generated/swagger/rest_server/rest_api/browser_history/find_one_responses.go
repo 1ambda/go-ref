@@ -67,7 +67,7 @@ type FindOneDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *rest_model.Error `json:"body,omitempty"`
+	Payload *rest_model.RestError `json:"body,omitempty"`
 }
 
 // NewFindOneDefault creates FindOneDefault with default headers values
@@ -93,13 +93,13 @@ func (o *FindOneDefault) SetStatusCode(code int) {
 }
 
 // WithPayload adds the payload to the find one default response
-func (o *FindOneDefault) WithPayload(payload *rest_model.Error) *FindOneDefault {
+func (o *FindOneDefault) WithPayload(payload *rest_model.RestError) *FindOneDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the find one default response
-func (o *FindOneDefault) SetPayload(payload *rest_model.Error) {
+func (o *FindOneDefault) SetPayload(payload *rest_model.RestError) {
 	o.Payload = payload
 }
 

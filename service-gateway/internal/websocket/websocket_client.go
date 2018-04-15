@@ -75,16 +75,17 @@ func NewClient(m *managerImpl, conn *ws.Conn, sessionID string, websocketID stri
 
 func (c *Client) send(message *Message) error {
 	logger := config.GetLogger()
+	websocketID := c.getWebsocketID()
 
 	w, err := c.connection.NextWriter(ws.TextMessage)
 	if err != nil {
-		logger.Errorw("Failed to get next writer", "websocketID", c.websocketID, "error", err)
+		logger.Errorw("Failed to get next writer", "websocket_id", websocketID, "error", err)
 		return err
 	}
 	defer w.Close()
 
 	logger.Debugw("Sending websocket message to client",
-		"websocketID", c.websocketID, "event", message.event)
+		"websocket_id", websocketID, "event", message.event)
 
 	c.connection.SetWriteDeadline(time.Now().Add(MessageWriteTimeout))
 	if _, err := w.Write(*message.content); err != nil {
@@ -96,15 +97,16 @@ func (c *Client) send(message *Message) error {
 
 func (c *Client) close() error {
 	logger := config.GetLogger()
+	websocketID := c.getWebsocketID()
 
-	logger.Infow("Closing client", "websocketID", c.websocketID)
+	logger.Infow("Closing client", "websocket_id", websocketID)
 
 	if err := c.connection.WriteMessage(ws.CloseMessage, []byte{}); err != nil {
-		logger.Warnw("Failed to send `CloseMessage`", "websocketID", c.websocketID)
+		logger.Warnw("Failed to send `CloseMessage`", "websocket_id", websocketID)
 	}
 
 	if err := c.connection.Close(); err != nil {
-		logger.Warnw("Failed to close client", "websocketID", c.websocketID)
+		logger.Warnw("Failed to close client", "websocketID", websocketID)
 		return err
 	}
 
@@ -114,6 +116,20 @@ func (c *Client) close() error {
 func (c *Client) sendPingMessage() error {
 	c.connection.SetWriteDeadline(time.Now().Add(MessageWriteTimeout))
 	return c.connection.WriteMessage(ws.PingMessage, []byte{})
+}
+
+func (c *Client) SendErrorMessage(err error, errorType string, code int64) {
+	logger := config.GetLogger()
+	message, serializeErr := NewErrorMessage(err, errorType, code)
+	if serializeErr != nil {
+		logger.Errorw("Failed to create websocket error message", "error", serializeErr)
+		return
+	}
+
+	sendErr := c.send(message)
+	if sendErr != nil {
+		logger.Errorw("Failed to send websocket error message", "error", sendErr)
+	}
 }
 
 func (c *Client) run(ctx context.Context) {
@@ -134,7 +150,9 @@ func (c *Client) run(ctx context.Context) {
 
 		case <-pingTicker.C:
 			if err := c.sendPingMessage(); err != nil {
-				logger.Warnw("Failed to ping message to client", "websocketID", c.websocketID)
+				websocketID := c.getWebsocketID()
+				logger.Warnw("Failed to ping message to client",
+					"websocket_id", websocketID)
 				c.closeReason = config.WsCloseFailureClientDisconnected
 				c.manager.unregisterChan <- c
 			}
@@ -147,8 +165,9 @@ func (c *Client) run(ctx context.Context) {
 			for _, message := range c.buffer {
 				if err := c.send(message); err != nil {
 					// don't write log, client is disconnected
+					websocketID := c.getWebsocketID()
 					logger.Warnw("Failed to send message to client. Closing this client",
-						"websocketID", c.websocketID)
+						"websocket_id", websocketID)
 					c.setCloseReason(config.WsCloseReasonMessageSendFailure)
 					c.manager.unregisterChan <- c
 					break

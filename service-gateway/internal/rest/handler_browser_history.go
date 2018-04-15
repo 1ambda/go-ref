@@ -13,7 +13,7 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 )
 
-func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*dto.BrowserHistory, *dto.Error) {
+func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*dto.BrowserHistory, *dto.RestError) {
 	logger := config.GetLogger()
 
 	sessionId, restErr := getSessionCookieForRest(params.HTTPRequest)
@@ -30,7 +30,7 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 
 	if err := db.Create(&record).Error; err != nil {
 		logger.Errorw("Failed to create new BrowserHistory record: %v", "error", err)
-		restError := buildRestError(err, 500)
+		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 		return nil, restError
 	}
 
@@ -38,7 +38,7 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 	err := db.Table(model.BrowserHistoryTable).Count(&count).Error
 	if err != nil {
 		logger.Errorw("Failed to create new BrowserHistory record: %v", "error", err)
-		restError := buildRestError(err, 500)
+		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 		return nil, restError
 	}
 
@@ -50,7 +50,7 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 	return restResp, nil
 }
 
-func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*dto.BrowserHistory, *dto.Error) {
+func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*dto.BrowserHistory, *dto.RestError) {
 	logger := config.GetLogger()
 	logger.Infow("Finding BrowserHistory record", "id", params.ID)
 
@@ -59,19 +59,19 @@ func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*
 	if err := db.Where("id = ?", params.ID).First(&record).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			logger.Infow("Failed to find BrowserHistory record", "id", params.ID)
-			return nil, buildRestError(err, 400)
+			return nil, buildRestError(err, dto.RestErrorTypeRecordDoesNotxist, 400)
 		}
 
 		logger.Errorw("Failed to find BrowserHistory record due to unknown error",
 			"id", params.ID, "error", err)
-		return nil, buildRestError(err, 500)
+		return nil, buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 	}
 
 	response := record.ConvertToBrowserHistoryDTO()
 	return response, nil
 }
 
-func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*dto.Pagination, []*dto.BrowserHistory, *dto.Error) {
+func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*dto.Pagination, []*dto.BrowserHistory, *dto.RestError) {
 	logger := config.GetLogger()
 	logger.Info("Finding All BrowserHistory records")
 
@@ -92,7 +92,7 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 
 	if err != nil {
 		logger.Errorw("Failed to find all BrowserHistory records", "error", err)
-		restError := buildRestError(err, 500)
+		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 		return nil, nil, restError
 	}
 
@@ -112,7 +112,7 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	return &pagination, rows, nil
 }
 
-func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB) *dto.Error {
+func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB) *dto.RestError {
 	logger := config.GetLogger()
 	logger.Infow("Deleting BrowserHistory record", "id", params.ID)
 
@@ -123,14 +123,14 @@ func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB
 	if result.Error != nil {
 		logger.Errorw("Failed to delete BrowserHistory record due to unknown error",
 			"id", params.ID, "error", result.Error)
-		restError := buildRestError(result.Error, 500)
+		restError := buildRestError(result.Error, dto.RestErrorTypeInternalServer, 500)
 		return restError
 	}
 
 	if result.RowsAffected < 1 {
-		logger.Infow("Failed to find BrowserHistory record before removing", "id", params.ID)
+		logger.Errorw("Failed to find BrowserHistory record before removing", "id", params.ID)
 		err := errors.New(gorm.ErrRecordNotFound.Error())
-		restError := buildRestError(err, 400)
+		restError := buildRestError(err, dto.RestErrorTypeRecordDoesNotxist, 400)
 		return restError
 	}
 

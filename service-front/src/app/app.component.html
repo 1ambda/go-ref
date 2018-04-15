@@ -1,0 +1,17 @@
+<app-navbar [class.mat-elevation-z6]="true"></app-navbar>
+
+<div *ngIf="websocketConnected">
+  <router-outlet></router-outlet>
+</div>
+
+<div *ngIf="!websocketConnected">
+  <div class="connecting-container">
+    <div class="connecting-message-box">
+      <div class="connecting-message-text">
+        <p> Connecting to WebSocket </p>
+        <mat-spinner class="connecting-message-spinner"></mat-spinner>
+      </div>
+    </div>
+  </div>
+</div>
+<simple-notifications></simple-notifications>

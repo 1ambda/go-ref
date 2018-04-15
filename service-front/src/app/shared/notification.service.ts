@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { NotificationsService as NotificationLibrary } from 'angular2-notifications'
 
+// https://github.com/flauc/angular2-notifications
 const NOTIFICATION_OPTION = {
   timeOut: 5000,
   showProgressBar: true,

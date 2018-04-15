@@ -6,29 +6,3 @@
   font-weight: 300;
   font-size: 45px;
 }
-
-.home .connecting-container {
-  display: flex;           /* establish flex container */
-  flex-direction: column;  /* make main axis vertical */
-  justify-content: center; /* center items vertically, in this case */
-  align-items: center;     /* center items horizontally, in this case */
-  height: 650px;
-}
-
-.home .connecting-message-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;        /* for single line flex container */
-  align-content: center;      /* for multi-line flex container */
-}
-
-.home .connecting-message-text {
-  margin: auto;
-  font-size: 40px;
-  font-weight: 300;
-  font-family: "Roboto","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
-}
-
-.home .connecting-message-spinner {
-  margin:0 auto;
-}

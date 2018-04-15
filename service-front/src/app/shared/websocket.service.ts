@@ -4,6 +4,8 @@ import { BehaviorSubject } from "rxjs/BehaviorSubject"
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { SessionService } from "./session.service"
 import { SessionResponse } from "../generated/swagger/rest"
+import { NotificationService } from "./notification.service"
+import { WebSocketError, WebSocketResponseHeader } from 'app/generated/swagger/websocket'
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
 
@@ -14,24 +16,28 @@ export class WebsocketService {
   private sendQueue: ReplaySubject<Object> = new ReplaySubject()
   private websocketConnectedEvent: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
-  constructor(sessionService: SessionService) {
-    sessionService.subscribeSession().subscribe((session: SessionResponse) => {
+  constructor(private sessionService: SessionService,
+              private notificationService: NotificationService) {
+    this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
       console.info(`Initializing WebsocketService (session: ${session.sessionID})`)
 
       this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
 
       this.client.onerror = (error) => {
         let message = error.message
-        if (error.message == "" || error.message == undefined || error.message == null) {
-          message = "UNKNOWN"
+        if (error.message === "" || error.message === undefined || error.message === null) {
+          message = "Connection refused"
         }
 
-        console.error('websocket: `onerror`', error.message)
+        console.error('websocket: `onerror`', message)
+        this.notificationService.displayError("Error (WS)", message)
       }
 
       this.client.onclose = () => {
         console.warn('websocket: `onclose` (will reconnect)')
         this.websocketConnectedEvent.next(false)
+
+        this.notificationService.displayWarn("Disconnected (WS)", "will reconnect")
       }
 
       this.client.onopen = () => {
@@ -47,6 +53,13 @@ export class WebsocketService {
       this.client.onmessage = (response) => {
         const parsed = JSON.parse(response.data)
         this.receiveQueue.next(parsed)
+
+
+        if (parsed.header.responseType === WebSocketResponseHeader.ResponseTypeEnum.Error) {
+          const errorResponse: WebSocketError = parsed.header.error
+          const message = `${errorResponse.message} (${errorResponse.code})`
+          this.notificationService.displayError("Error (WS)", message)
+        }
       }
     })
   }
@@ -60,19 +73,19 @@ export class WebsocketService {
   }
 
 
-  public watch(responseType: any): Observable<any> {
+  public watch(targetResponseType: any): Observable<any> {
     return this.receiveQueue.filter((response: any) => {
-      const isTargetResponseType = response.header.responseType === responseType
+      const eventType = response.header.responseType
 
-      if (isTargetResponseType) {
-        console.debug(responseType, response)
+      if (eventType === targetResponseType) {
+        console.debug(targetResponseType, response)
       }
 
-      return isTargetResponseType
+      return (eventType === targetResponseType)
     })
   }
 
   public watchWebsocketConnected(): Observable<boolean> {
-    return this.websocketConnectedEvent;
+    return this.websocketConnectedEvent
   }
 }

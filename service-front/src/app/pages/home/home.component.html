@@ -1,5 +1,5 @@
-<div class="container home">
-  <div *ngIf="websocketConnected" class="container" fxLayout fxLayout.xs="column">
+<div *ngIf="websocketConnected" class="container home">
+  <div class="container" fxLayout fxLayout.xs="column">
     <div fxFlex="25" fxFlex.xs="100%">
       <mat-card class="example-card">
         <mat-card-header>
@@ -45,7 +45,7 @@
       </mat-card>
     </div>
   </div>
-  <div *ngIf="websocketConnected" class="container">
+  <div class="container">
     <ngx-datatable
       class="material"
       [rows]="rows"
@@ -63,15 +63,4 @@
       >
     </ngx-datatable>
   </div>
-  <div *ngIf="!websocketConnected">
-    <div class="connecting-container">
-      <div class="connecting-message-box">
-        <div class="connecting-message-text">
-          <p> Connecting to WebSocket </p>
-          <mat-spinner class="connecting-message-spinner"></mat-spinner>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-<simple-notifications></simple-notifications>

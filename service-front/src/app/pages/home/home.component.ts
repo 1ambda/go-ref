@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 
 import { WebsocketService } from "../../shared/websocket.service"
-import { WebSocketError, WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
+import { WebSocketRealtimeResponse, WebSocketResponseHeader } from "../../generated/swagger/websocket"
 import { Subscription } from 'rxjs/Subscription'
 import { GeoLocationService } from "../../shared/geo-location.service"
 import { SessionService } from "../../shared/session.service"
@@ -68,7 +68,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     // start initialization process after browser history is sent
     this.subscriptions.push(this.subscribeBrowserHistorySendEvent())
-    this.subscriptions.push(this.subscribeWebsocketErrorResponse())
   }
 
   ngOnDestroy(): void {
@@ -140,20 +139,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.webSocketService.watchWebsocketConnected()
       .subscribe(connected => {
         this.websocketConnected = connected
-
-        if (!connected) {
-          this.notificationService.displayWarn("Websocket Disconnected", "will reconnect")
-        }
-      })
-  }
-
-  subscribeWebsocketErrorResponse(): Subscription {
-    const eventType = WebSocketResponseHeader.ResponseTypeEnum.Error
-    return this.webSocketService.watch(eventType)
-      .subscribe((response: WebSocketRealtimeResponse) => {
-        const errorResponse: WebSocketError = response.header.error
-        const message = `${errorResponse.message} (${errorResponse.code})`
-        this.notificationService.displayError("Websocket Error", message)
       })
   }
 

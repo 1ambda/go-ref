@@ -109,6 +109,7 @@ func main() {
 	handler := api.Serve(nil)
 
 	logger.Info("Configure REST middleware")
+	// TODO(1ambda): Setup CORS domain using Env
 	handler = cors.AllowAll().Handler(handler)
 	server.SetHandler(handler)
 

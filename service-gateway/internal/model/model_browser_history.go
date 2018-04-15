@@ -25,23 +25,21 @@ type BrowserHistory struct {
 	SessionID string  `gorm:"column:session_id; type:VARCHAR(255) REFERENCES session(session_id)"`
 }
 
-func ConvertFromBrowserHistoryDTO(dto *dto.BrowserHistory) *BrowserHistory {
-	record := BrowserHistory{
-		BrowserName:     *dto.BrowserName,
-		BrowserVersion:  *dto.BrowserVersion,
-		OsName:          *dto.OsName,
-		OsVersion:       *dto.OsVersion,
-		IsMobile:        *dto.IsMobile,
-		ClientTimezone:  *dto.ClientTimezone,
-		ClientTimestamp: *dto.ClientTimestamp,
-		Language:        *dto.Language,
-		UserAgent:       *dto.UserAgent,
-	}
+func (record *BrowserHistory) ConvertFromBrowserHistoryDTO(dto *dto.BrowserHistory) *BrowserHistory {
+	record.BrowserName = *dto.BrowserName
+	record.BrowserVersion = *dto.BrowserVersion
+	record.OsName = *dto.OsName
+	record.OsVersion = *dto.OsVersion
+	record.IsMobile = *dto.IsMobile
+	record.ClientTimezone = *dto.ClientTimezone
+	record.ClientTimestamp = *dto.ClientTimestamp
+	record.Language = *dto.Language
+	record.UserAgent = *dto.UserAgent
 
-	return &record
+	return record
 }
 
-func ConvertToBrowserHistoryDTO(record *BrowserHistory) *dto.BrowserHistory {
+func (record *BrowserHistory) ConvertToBrowserHistoryDTO() *dto.BrowserHistory {
 	dto := dto.BrowserHistory{
 		ID:              int64(record.ID),
 		BrowserName:     &record.BrowserName,

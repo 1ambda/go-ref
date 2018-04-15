@@ -24,10 +24,11 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 	logger.Infow("Creating BrowserHistory record",
 		"request", params.Body, "session", sessionId)
 
-	record := model.ConvertFromBrowserHistoryDTO(params.Body)
+	var record model.BrowserHistory
+	record.ConvertFromBrowserHistoryDTO(params.Body)
 	record.SessionID = sessionId
 
-	if err := db.Create(record).Error; err != nil {
+	if err := db.Create(&record).Error; err != nil {
 		logger.Errorw("Failed to create new BrowserHistory record: %v", "error", err)
 		restError := buildRestError(err, 500)
 		return nil, restError
@@ -44,7 +45,7 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 	stringified := fmt.Sprintf("%d", count)
 	dClient.Publish(distributed.NewBrowserHistoryCountMessage(stringified))
 
-	restResp := model.ConvertToBrowserHistoryDTO(record)
+	restResp := record.ConvertToBrowserHistoryDTO()
 
 	return restResp, nil
 }
@@ -66,7 +67,7 @@ func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*
 		return nil, buildRestError(err, 500)
 	}
 
-	response := model.ConvertToBrowserHistoryDTO(&record)
+	response := record.ConvertToBrowserHistoryDTO()
 	return response, nil
 }
 
@@ -98,7 +99,7 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	rows := make([]*dto.BrowserHistory, 0)
 	for i := range records {
 		record := records[i]
-		restmodel := model.ConvertToBrowserHistoryDTO(&record)
+		restmodel := record.ConvertToBrowserHistoryDTO()
 		rows = append(rows, restmodel)
 	}
 

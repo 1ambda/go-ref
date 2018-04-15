@@ -23,44 +23,44 @@ func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm
 	logger := config.GetLogger()
 	logger.Infow("validateOrGenerateSession record", "session", sessionId)
 
-	var sessionRecord *model.Session
+	var record *model.Session
 	var restErr *dto.Error
 	if sessionId == "" {
 		// create new session
-		sessionRecord, restErr = createNewSession(db)
+		record, restErr = createNewSession(db)
 	} else {
 		// find existing session and refresh it if it's expired
-		sessionRecord, restErr = refreshSession(db, sessionId)
+		record, restErr = refreshSession(db, sessionId)
 	}
 
-	return model.ConvertToSessionDTO(sessionRecord), restErr
+	return record.ConvertToSessionDTO(), restErr
 }
 
 func createNewSession(db *gorm.DB) (*model.Session, *dto.Error) {
 	logger := config.GetLogger()
 
-	session := &model.Session{
+	record := &model.Session{
 		SessionID:    uuid.NewV4().String(),
 		ExpiredAt:    time.Now().UTC().Add(sessionTimeout),
 		RefreshCount: 0,
 		Refreshed:    false,
 	}
 
-	if err := db.Create(session).Error; err != nil {
+	if err := db.Create(record).Error; err != nil {
 		logger.Errorw("Failed to create Session record: %v", "error", err)
 		restError := buildRestError(err, 500)
 		return nil, restError
 	}
 
-	return session, nil
+	return record, nil
 }
 
 func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) {
 	logger := config.GetLogger()
 
 	// find existing session
-	sessionRecord := &model.Session{}
-	if err := db.Where("session_id = ?", sessionId).First(sessionRecord).Error; err != nil {
+	record := &model.Session{}
+	if err := db.Where("session_id = ?", sessionId).First(record).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			// create new session
 			restResp, restErr := createNewSession(db)
@@ -73,8 +73,8 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 	}
 
 	// refresh session if it's expired
-	if time.Now().UTC().After(sessionRecord.ExpiredAt) {
-		result := db.Model(&sessionRecord).Where("session_id = ?", sessionId).Updates(map[string]interface{}{
+	if time.Now().UTC().After(record.ExpiredAt) {
+		result := db.Model(&record).Where("session_id = ?", sessionId).Updates(map[string]interface{}{
 			"refresh_count": gorm.Expr("refresh_count + ?", 1),
 			"refreshed":     true,
 			"expired_at":    time.Now().UTC().Add(sessionTimeout),
@@ -96,7 +96,7 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 		}
 	}
 
-	return sessionRecord, nil
+	return record, nil
 }
 
 func getSessionCookie(req *http.Request) (string, *dto.Error) {

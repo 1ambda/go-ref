@@ -17,4 +17,8 @@ export class NotificationService {
   displayError(title: string, message: string) {
     this.notificationLibrary.error(title, message, NOTIFICATION_OPTION)
   }
+
+  displayWarn(title: string, message: string) {
+    this.notificationLibrary.warn(title, message, NOTIFICATION_OPTION)
+  }
 }

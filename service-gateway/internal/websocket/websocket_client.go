@@ -6,7 +6,6 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	ws "github.com/gorilla/websocket"
-	"github.com/satori/go.uuid"
 )
 
 const (
@@ -17,43 +16,43 @@ const (
 	MessagePopInterval  = 1 * time.Second // delay until pop the next message from buffer
 )
 
-type WebSocketClient struct {
-	manager    *managerImpl
-	connection *ws.Conn
-	sendChan   chan *Message
-	buffer     []*Message
-	uuid       string
-	isSending  bool
-	cancelFunc context.CancelFunc
+type Client struct {
+	manager     *managerImpl
+	connection  *ws.Conn
+	sendChan    chan *Message
+	buffer      []*Message
+	websocketID string
+	sessionID   string
+	cancelFunc  context.CancelFunc
 }
 
-func NewWebSocketClient(m *managerImpl, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
+func NewClient(m *managerImpl, conn *ws.Conn, sessionID string, websocketID string) *Client {
 
-	c := &WebSocketClient{
-		manager:    m,
-		connection: conn,
-		sendChan:   make(chan *Message),
-		buffer:     make([]*Message, 0),
-		uuid:       uuid.NewV4().String(),
-		isSending:  false,
-		cancelFunc: cancel,
+	c := &Client{
+		manager:     m,
+		connection:  conn,
+		sendChan:    make(chan *Message),
+		buffer:      make([]*Message, 0),
+		sessionID:   sessionID,
+		websocketID: websocketID,
+		// cancelFunc is configured in the websocket manager
 	}
 
 	return c
 }
 
-func (c *WebSocketClient) send(message *Message) error {
+func (c *Client) send(message *Message) error {
 	logger := config.GetLogger()
 
 	w, err := c.connection.NextWriter(ws.TextMessage)
 	if err != nil {
-		logger.Errorw("Failed to get next writer", "uuid", c.uuid, "error", err)
+		logger.Errorw("Failed to get next writer", "websocketID", c.websocketID, "error", err)
 		return err
 	}
 	defer w.Close()
 
 	logger.Debugw("Sending websocket message to client",
-		"uuid", c.uuid, "event", message.event)
+		"websocketID", c.websocketID, "event", message.event)
 
 	c.connection.SetWriteDeadline(time.Now().Add(MessageWriteTimeout))
 	if _, err := w.Write(*message.content); err != nil {
@@ -63,29 +62,29 @@ func (c *WebSocketClient) send(message *Message) error {
 	return nil
 }
 
-func (c *WebSocketClient) close() error {
+func (c *Client) close() error {
 	logger := config.GetLogger()
 
-	logger.Infow("Closing client", "uuid", c.uuid)
+	logger.Infow("Closing client", "websocketID", c.websocketID)
 
 	if err := c.connection.WriteMessage(ws.CloseMessage, []byte{}); err != nil {
-		logger.Warnw("Failed to send `CloseMessage`", "uuid", c.uuid)
+		logger.Warnw("Failed to send `CloseMessage`", "websocketID", c.websocketID)
 	}
 
 	if err := c.connection.Close(); err != nil {
-		logger.Warnw("Failed to close client", "uuid", c.uuid)
+		logger.Warnw("Failed to close client", "websocketID", c.websocketID)
 		return err
 	}
 
 	return nil
 }
 
-func (c *WebSocketClient) sendPingMessage() error {
+func (c *Client) sendPingMessage() error {
 	c.connection.SetWriteDeadline(time.Now().Add(MessageWriteTimeout))
 	return c.connection.WriteMessage(ws.PingMessage, []byte{})
 }
 
-func (c *WebSocketClient) run(ctx context.Context) {
+func (c *Client) run(ctx context.Context) {
 	logger := config.GetLogger()
 
 	pingTicker := time.NewTicker(PingInterval)
@@ -103,7 +102,7 @@ func (c *WebSocketClient) run(ctx context.Context) {
 
 		case <-pingTicker.C:
 			if err := c.sendPingMessage(); err != nil {
-				logger.Warnw("Failed to ping message to client", "uuid", c.uuid)
+				logger.Warnw("Failed to ping message to client", "websocketID", c.websocketID)
 				c.manager.unregisterChan <- c
 			}
 
@@ -116,7 +115,7 @@ func (c *WebSocketClient) run(ctx context.Context) {
 				if err := c.send(message); err != nil {
 					// don't write log, client is disconnected
 					logger.Warnw("Failed to send message to client. Closing this client",
-						"uuid", c.uuid)
+						"websocketID", c.websocketID)
 					c.manager.unregisterChan <- c
 					break
 				}

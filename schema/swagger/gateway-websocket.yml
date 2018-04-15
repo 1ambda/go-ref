@@ -37,10 +37,10 @@ definitions:
           - UpdateGatewayLeaderNodeName
           - UpdateGatewayNodeCount
       error:
-        $ref: "#/definitions/error"
+        $ref: "#/definitions/WebSocketError"
 
   # WebSocketResponseHeader.Error
-  error:
+  WebSocketError:
     type: object
     required:
       - message

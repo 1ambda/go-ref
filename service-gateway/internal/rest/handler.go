@@ -3,11 +3,11 @@ package rest
 import (
 	"time"
 
+	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 
-	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"

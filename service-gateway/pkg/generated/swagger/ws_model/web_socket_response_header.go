@@ -20,7 +20,7 @@ import (
 type WebSocketResponseHeader struct {
 
 	// error
-	Error *Error `json:"error,omitempty"`
+	Error *WebSocketError `json:"error,omitempty"`
 
 	// response type
 	// Required: true

@@ -16,7 +16,7 @@ import (
 func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*dto.BrowserHistory, *dto.Error) {
 	logger := config.GetLogger()
 
-	sessionId, restErr := getSessionCookie(params.HTTPRequest)
+	sessionId, restErr := getSessionCookieForRest(params.HTTPRequest)
 	if restErr != nil {
 		return nil, restErr
 	}

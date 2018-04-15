@@ -53,7 +53,7 @@ func main() {
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
-	wsManager := websocket.Configure(appCtx, mux)
+	wsManager := websocket.Configure(appCtx, mux, db)
 
 	// setup etcd client
 	logger.Info("Configure distributed client (etcd)")

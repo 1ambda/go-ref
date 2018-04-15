@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Error error
-// swagger:model error
-type Error struct {
+// WebSocketError web socket error
+// swagger:model WebSocketError
+type WebSocketError struct {
 
 	// code
 	Code int64 `json:"code,omitempty"`
@@ -28,8 +28,8 @@ type Error struct {
 	Timestamp string `json:"timestamp,omitempty"`
 }
 
-// Validate validates this error
-func (m *Error) Validate(formats strfmt.Registry) error {
+// Validate validates this web socket error
+func (m *WebSocketError) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMessage(formats); err != nil {
@@ -43,7 +43,7 @@ func (m *Error) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Error) validateMessage(formats strfmt.Registry) error {
+func (m *WebSocketError) validateMessage(formats strfmt.Registry) error {
 
 	if err := validate.Required("message", "body", m.Message); err != nil {
 		return err
@@ -53,7 +53,7 @@ func (m *Error) validateMessage(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Error) MarshalBinary() ([]byte, error) {
+func (m *WebSocketError) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -61,8 +61,8 @@ func (m *Error) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Error) UnmarshalBinary(b []byte) error {
-	var res Error
+func (m *WebSocketError) UnmarshalBinary(b []byte) error {
+	var res WebSocketError
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

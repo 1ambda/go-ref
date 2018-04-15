@@ -14,8 +14,6 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
-const sessionTimeout = 60 * time.Minute
-const sessionKey = "sessionID"
 
 func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm.DB) (*dto.SessionResponse, *dto.Error) {
 	sessionId := *params.Body.SessionID
@@ -41,7 +39,7 @@ func createNewSession(db *gorm.DB) (*model.Session, *dto.Error) {
 
 	record := &model.Session{
 		SessionID:    uuid.NewV4().String(),
-		ExpiredAt:    time.Now().UTC().Add(sessionTimeout),
+		ExpiredAt:    time.Now().UTC().Add(config.SessionTimeout),
 		RefreshCount: 0,
 		Refreshed:    false,
 	}
@@ -77,7 +75,7 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 		result := db.Model(&record).Where("session_id = ?", sessionId).Updates(map[string]interface{}{
 			"refresh_count": gorm.Expr("refresh_count + ?", 1),
 			"refreshed":     true,
-			"expired_at":    time.Now().UTC().Add(sessionTimeout),
+			"expired_at":    time.Now().UTC().Add(config.SessionTimeout),
 		})
 
 		if result.Error != nil {
@@ -99,8 +97,8 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 	return record, nil
 }
 
-func getSessionCookie(req *http.Request) (string, *dto.Error) {
-	cookie, err := req.Cookie(sessionKey)
+func getSessionCookieForRest(req *http.Request) (string, *dto.Error) {
+	cookie, err := req.Cookie(config.SessionKey)
 
 	if err != nil {
 		restError := buildRestError(err, 500)

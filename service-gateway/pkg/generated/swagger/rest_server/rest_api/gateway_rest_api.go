@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/geolocation"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
@@ -40,6 +41,9 @@ func NewGatewayRestAPI(spec *loads.Document) *GatewayRestAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		GeolocationAddHandler: geolocation.AddHandlerFunc(func(params geolocation.AddParams) middleware.Responder {
+			return middleware.NotImplemented("operation GeolocationAdd has not yet been implemented")
+		}),
 		BrowserHistoryAddOneHandler: browser_history.AddOneHandlerFunc(func(params browser_history.AddOneParams) middleware.Responder {
 			return middleware.NotImplemented("operation BrowserHistoryAddOne has not yet been implemented")
 		}),
@@ -86,6 +90,8 @@ type GatewayRestAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// GeolocationAddHandler sets the operation handler for the add operation
+	GeolocationAddHandler geolocation.AddHandler
 	// BrowserHistoryAddOneHandler sets the operation handler for the add one operation
 	BrowserHistoryAddOneHandler browser_history.AddOneHandler
 	// BrowserHistoryFindAllHandler sets the operation handler for the find all operation
@@ -157,6 +163,10 @@ func (o *GatewayRestAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.GeolocationAddHandler == nil {
+		unregistered = append(unregistered, "geolocation.AddHandler")
 	}
 
 	if o.BrowserHistoryAddOneHandler == nil {
@@ -276,6 +286,11 @@ func (o *GatewayRestAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/geolocation"] = geolocation.NewAdd(o.context, o.GeolocationAddHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

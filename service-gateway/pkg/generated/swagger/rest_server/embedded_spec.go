@@ -159,6 +159,37 @@ func init() {
         }
       ]
     },
+    "/geolocation": {
+      "post": {
+        "tags": [
+          "geolocation"
+        ],
+        "operationId": "add",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Geolocation"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Geolocation"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/session": {
       "post": {
         "tags": [
@@ -257,6 +288,73 @@ func init() {
           "items": {
             "$ref": "#/definitions/BrowserHistory"
           }
+        }
+      }
+    },
+    "Geolocation": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "common_name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "formatted_address": {
+          "type": "string"
+        },
+        "googlePlaceID": {
+          "type": "string"
+        },
+        "ip": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "neighborhood": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "state_code": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "street_number": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "town": {
+          "type": "string"
         }
       }
     },
@@ -490,6 +588,37 @@ func init() {
         }
       ]
     },
+    "/geolocation": {
+      "post": {
+        "tags": [
+          "geolocation"
+        ],
+        "operationId": "add",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Geolocation"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Geolocation"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/session": {
       "post": {
         "tags": [
@@ -588,6 +717,73 @@ func init() {
           "items": {
             "$ref": "#/definitions/BrowserHistory"
           }
+        }
+      }
+    },
+    "Geolocation": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "common_name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "formatted_address": {
+          "type": "string"
+        },
+        "googlePlaceID": {
+          "type": "string"
+        },
+        "ip": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "neighborhood": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "state_code": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "street_number": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "town": {
+          "type": "string"
         }
       }
     },

@@ -13,6 +13,7 @@ import (
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/geolocation"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
@@ -36,6 +37,9 @@ func configureAPI(api *rest_api.GatewayRestAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	api.GeolocationAddHandler = geolocation.AddHandlerFunc(func(params geolocation.AddParams) middleware.Responder {
+		return middleware.NotImplemented("operation geolocation.Add has not yet been implemented")
+	})
 	api.BrowserHistoryAddOneHandler = browser_history.AddOneHandlerFunc(func(params browser_history.AddOneParams) middleware.Responder {
 		return middleware.NotImplemented("operation browser_history.AddOne has not yet been implemented")
 	})

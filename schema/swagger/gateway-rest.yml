@@ -12,6 +12,27 @@ produces:
 basePath: /api
 
 paths:
+
+  /geolocation:
+    post:
+      tags:
+        - geolocation
+      operationId: add
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/Geolocation"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/Geolocation"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+
   /session:
     post:
       tags:
@@ -119,6 +140,52 @@ paths:
 
 definitions:
 
+  Geolocation:
+    type: object
+    properties:
+      provider:
+        type: string
+      timezone:
+        type: string
+      ip:
+        type: string
+      googlePlaceID:
+        type: string
+      latitude:
+        type: number
+        format: float
+      longitude:
+        type: number
+        format: float
+      formatted_address:
+        type: string
+      common_name:
+        type: string
+      street_number:
+        type: string
+      street:
+        type: string
+      route:
+        type: string
+      neighborhood:
+        type: string
+      town:
+        type: string
+      city:
+        type: string
+      region:
+        type: string
+      postal_code:
+        type: string
+      state:
+        type: string
+      state_code:
+        type: string
+      country:
+        type: string
+      country_code:
+        type: string
+
   SessionRequest:
     type: object
     required:
@@ -221,6 +288,7 @@ definitions:
         format: int64
       uuid:
         type: string
+
   error:
     type: object
     required:

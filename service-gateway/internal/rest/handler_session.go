@@ -1,16 +1,17 @@
 package rest
 
 import (
-	"time"
-	"github.com/satori/go.uuid"
-	"github.com/jinzhu/gorm"
-
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
-	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
-	"github.com/1ambda/go-ref/service-gateway/internal/config"
-	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	"errors"
 	"net/http"
+	"time"
+
+	"github.com/jinzhu/gorm"
+	"github.com/satori/go.uuid"
+
+	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	"github.com/1ambda/go-ref/service-gateway/internal/model"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
 const sessionTimeout = 60 * time.Minute
@@ -98,7 +99,7 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 	return sessionRecord, nil
 }
 
-func getSessionCookie(req *http.Request) (string, *dto.Error){
+func getSessionCookie(req *http.Request) (string, *dto.Error) {
 	cookie, err := req.Cookie(sessionKey)
 
 	if err != nil {

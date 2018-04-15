@@ -1,16 +1,17 @@
 package rest
 
 import (
+	"time"
+
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 
 	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/jinzhu/gorm"
-	"time"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
 func getCode(e *dto.Error) int {
@@ -74,7 +75,7 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 
 	/**
 	* Session API
-	*/
+	 */
 	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(
 		func(params session.ValidateOrGenerateParams) middleware.Responder {
 			restResp, restErr := validateOrGenerateSession(params, db)

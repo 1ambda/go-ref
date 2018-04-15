@@ -9,59 +9,59 @@ import (
 	reflect "reflect"
 )
 
-// MockWebSocketManager is a mock of WebSocketManager interface
-type MockWebSocketManager struct {
+// MockManager is a mock of Manager interface
+type MockManager struct {
 	ctrl     *gomock.Controller
-	recorder *MockWebSocketManagerMockRecorder
+	recorder *MockManagerMockRecorder
 }
 
-// MockWebSocketManagerMockRecorder is the mock recorder for MockWebSocketManager
-type MockWebSocketManagerMockRecorder struct {
-	mock *MockWebSocketManager
+// MockManagerMockRecorder is the mock recorder for MockManager
+type MockManagerMockRecorder struct {
+	mock *MockManager
 }
 
-// NewMockWebSocketManager creates a new mock instance
-func NewMockWebSocketManager(ctrl *gomock.Controller) *MockWebSocketManager {
-	mock := &MockWebSocketManager{ctrl: ctrl}
-	mock.recorder = &MockWebSocketManagerMockRecorder{mock}
+// NewMockManager creates a new mock instance
+func NewMockManager(ctrl *gomock.Controller) *MockManager {
+	mock := &MockManager{ctrl: ctrl}
+	mock.recorder = &MockManagerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockWebSocketManager) EXPECT() *MockWebSocketManagerMockRecorder {
+func (m *MockManager) EXPECT() *MockManagerMockRecorder {
 	return m.recorder
 }
 
 // Broadcast mocks base method
-func (m *MockWebSocketManager) Broadcast(message *WebSocketMessage) {
+func (m *MockManager) Broadcast(message *Message) {
 	m.ctrl.Call(m, "Broadcast", message)
 }
 
 // Broadcast indicates an expected call of Broadcast
-func (mr *MockWebSocketManagerMockRecorder) Broadcast(message interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Broadcast", reflect.TypeOf((*MockWebSocketManager)(nil).Broadcast), message)
+func (mr *MockManagerMockRecorder) Broadcast(message interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Broadcast", reflect.TypeOf((*MockManager)(nil).Broadcast), message)
 }
 
 // SubscribeConnectionCount mocks base method
-func (m *MockWebSocketManager) SubscribeConnectionCount() <-chan string {
+func (m *MockManager) SubscribeConnectionCount() <-chan string {
 	ret := m.ctrl.Call(m, "SubscribeConnectionCount")
 	ret0, _ := ret[0].(<-chan string)
 	return ret0
 }
 
 // SubscribeConnectionCount indicates an expected call of SubscribeConnectionCount
-func (mr *MockWebSocketManagerMockRecorder) SubscribeConnectionCount() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeConnectionCount", reflect.TypeOf((*MockWebSocketManager)(nil).SubscribeConnectionCount))
+func (mr *MockManagerMockRecorder) SubscribeConnectionCount() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeConnectionCount", reflect.TypeOf((*MockManager)(nil).SubscribeConnectionCount))
 }
 
 // Stop mocks base method
-func (m *MockWebSocketManager) Stop() <-chan bool {
+func (m *MockManager) Stop() <-chan bool {
 	ret := m.ctrl.Call(m, "Stop")
 	ret0, _ := ret[0].(<-chan bool)
 	return ret0
 }
 
 // Stop indicates an expected call of Stop
-func (mr *MockWebSocketManagerMockRecorder) Stop() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockWebSocketManager)(nil).Stop))
+func (mr *MockManagerMockRecorder) Stop() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockManager)(nil).Stop))
 }

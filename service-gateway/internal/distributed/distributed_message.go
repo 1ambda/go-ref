@@ -6,11 +6,11 @@ const SingleKeyLeaderName = "gateway/single/leader-name"
 
 const RangeKeyPrefixWebSocket = "gateway/range/websocket/gateway-"
 
-type DistributedMessage struct {
+type Message struct {
 	key   string
 	value string
 }
 
-func NewBrowserHistoryCountMessage(count string) *DistributedMessage {
-	return &DistributedMessage{key: SingleKeyBrowserHistoryCount, value: count}
+func NewBrowserHistoryCountMessage(count string) *Message {
+	return &Message{key: SingleKeyBrowserHistoryCount, value: count}
 }

@@ -2,9 +2,10 @@ package websocket
 
 import (
 	"context"
-	ws "github.com/gorilla/websocket"
 	"net/http"
+
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
+	ws "github.com/gorilla/websocket"
 )
 
 var upgrader = ws.Upgrader{
@@ -15,9 +16,9 @@ var upgrader = ws.Upgrader{
 	},
 }
 
-func Configure(appCtx context.Context, mux *http.ServeMux) *webSocketManagerImpl {
+func Configure(appCtx context.Context, mux *http.ServeMux) *managerImpl {
 	// start websocket manager
-	webSocketManager := NewWebSocketManager()
+	webSocketManager := NewManager()
 	go webSocketManager.run(appCtx)
 
 	// setup endpoint

@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/jessevdk/go-flags"
-	"net/http"
-	"os"
 
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/distributed"

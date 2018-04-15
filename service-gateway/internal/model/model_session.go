@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/jinzhu/gorm"
 )

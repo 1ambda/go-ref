@@ -4,8 +4,8 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
-	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/access"
+	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"
@@ -14,23 +14,23 @@ import (
 
 func createAccessRecord() *model.BrowserHistory {
 	record := model.BrowserHistory{
-		BrowserName:    "Chrome",
-		BrowserVersion: "67",
-		OsName:         "OSX",
-		OsVersion:      "11",
-		IsMobile:       "N",
-		Timezone:       "KST",
-		Timestamp:      "1521919066",
-		Language:       "KR",
-		UserAgent:      "agent",
+		BrowserName:     "Chrome",
+		BrowserVersion:  "67",
+		OsName:          "OSX",
+		OsVersion:       "11",
+		IsMobile:        false,
+		ClientTimezone:  "KST",
+		ClientTimestamp: "1521919066",
+		Language:        "KR",
+		UserAgent:       "agent",
 	}
 
 	return &record
 }
 
-func createAccessRequest() *rest_model.Access {
+func createAccessRequest() *dto.BrowserHistory {
 	record := createAccessRecord()
-	return convertAccessToRestModel(record)
+	return convertToAccessRequest(record)
 }
 
 func insertAccessRecord(db *gorm.DB) *model.BrowserHistory {
@@ -42,18 +42,17 @@ func insertAccessRecord(db *gorm.DB) *model.BrowserHistory {
 	return record
 }
 
-func convertToAccessRequest(record *model.BrowserHistory) *rest_model.Access {
-	return &rest_model.Access{
-		UUID:           record.UUID,
-		BrowserName:    &record.BrowserName,
-		BrowserVersion: &record.BrowserVersion,
-		OsName:         &record.OsName,
-		OsVersion:      &record.OsVersion,
-		IsMobile:       &record.IsMobile,
-		Timezone:       &record.Timezone,
-		Timestamp:      &record.Timestamp,
-		Language:       &record.Language,
-		UserAgent:      &record.UserAgent,
+func convertToAccessRequest(record *model.BrowserHistory) *dto.BrowserHistory {
+	return &dto.BrowserHistory{
+		BrowserName:     &record.BrowserName,
+		BrowserVersion:  &record.BrowserVersion,
+		OsName:          &record.OsName,
+		OsVersion:       &record.OsVersion,
+		IsMobile:        &record.IsMobile,
+		ClientTimezone:  &record.ClientTimezone,
+		ClientTimestamp: &record.ClientTimestamp,
+		Language:        &record.Language,
+		UserAgent:       &record.UserAgent,
 	}
 }
 
@@ -77,10 +76,10 @@ var _ = Describe("Rest: BrowserHistory", func() {
 		db.Close()
 	})
 
-	Describe("addOneAccess", func() {
+	Describe("addOne", func() {
 		Context("When got valid params", func() {
 			It("should create record", func() {
-				params := access.AddOneParams{
+				params := browser_history.AddOneParams{
 					Body: createAccessRequest(),
 				}
 
@@ -88,7 +87,7 @@ var _ = Describe("Rest: BrowserHistory", func() {
 				expectedDMessage := distributed.NewBrowserHistoryCountMessage("1")
 				mockDistributedClient.EXPECT().Publish(expectedDMessage).Times(1)
 
-				restResp, restErr := addOneAccess(params, db, mockDistributedClient)
+				restResp, restErr := addOneBrowserHistory(params, db, mockDistributedClient)
 
 				Expect(restErr).To(BeNil())
 				Expect(restResp).NotTo(BeNil())
@@ -97,7 +96,7 @@ var _ = Describe("Rest: BrowserHistory", func() {
 		})
 	})
 
-	Describe("findAllAccess", func() {
+	Describe("findAll", func() {
 		Context("When got valid params", func() {
 			It("should return rows", func() {
 				insertAccessRecord(db)
@@ -106,12 +105,12 @@ var _ = Describe("Rest: BrowserHistory", func() {
 
 				var currentPageOffset int32 = 0
 				var itemCountPerPage int64 = 2
-				params := access.FindAllParams{
+				params := browser_history.FindAllParams{
 					CurrentPageOffset: &currentPageOffset,
 					ItemCountPerPage:  &itemCountPerPage,
 				}
 
-				pagination, rows, restErr := findAllAccess(params, db)
+				pagination, rows, restErr := findAllBrowserHistory(params, db)
 
 				Expect(pagination).NotTo(BeNil())
 				Expect(len(rows)).To(Equal(2))
@@ -120,12 +119,12 @@ var _ = Describe("Rest: BrowserHistory", func() {
 		})
 	})
 
-	Describe("findOneAccess", func() {
+	Describe("findOne", func() {
 		Context("When got invalid ID", func() {
 			It("should return rest error", func() {
-				params := access.FindOneParams{ID: 0}
+				params := browser_history.FindOneParams{ID: 0}
 
-				restResp, restErr := findOneAccess(params, db)
+				restResp, restErr := findOneBrowserHistory(params, db)
 
 				Expect(restResp).To(BeNil())
 				Expect(restErr.Code).To(Equal(int64(404)))
@@ -133,24 +132,24 @@ var _ = Describe("Rest: BrowserHistory", func() {
 		})
 
 		Context("When got valid ID", func() {
-			It("should find BrowserHistory record", func() {
+			It("should find record", func() {
 				record := insertAccessRecord(db)
 
-				params := access.FindOneParams{ID: int64(record.Id)}
-				restResp, restErr := findOneAccess(params, db)
+				params := browser_history.FindOneParams{ID: int64(record.ID)}
+				restResp, restErr := findOneBrowserHistory(params, db)
 
 				Expect(restErr).To(BeNil())
-				Expect(restResp.ID).To(Equal(int64(record.Id)))
+				Expect(restResp.ID).To(Equal(int64(record.ID)))
 			})
 		})
 	})
 
-	Describe("removeOneAccess", func() {
+	Describe("removeOne", func() {
 		Context("When got invalid ID", func() {
 			It("should return rest error", func() {
-				params := access.RemoveOneParams{ID: -1}
+				params := browser_history.RemoveOneParams{ID: -1}
 
-				restErr := removeOneAccess(params, db)
+				restErr := removeOneBrowserHistory(params, db)
 
 				Expect(restErr).NotTo(BeNil())
 				Expect(restErr.Code).To(Equal(int64(404)))
@@ -158,48 +157,48 @@ var _ = Describe("Rest: BrowserHistory", func() {
 		})
 
 		Context("When got valid ID", func() {
-			It("should delete BrowserHistory record", func() {
+			It("should delete record", func() {
 				record := insertAccessRecord(db)
 
-				params := access.RemoveOneParams{ID: int64(record.Id)}
-				restErr := removeOneAccess(params, db)
+				params := browser_history.RemoveOneParams{ID: int64(record.ID)}
+				restErr := removeOneBrowserHistory(params, db)
 
 				Expect(restErr).To(BeNil())
 			})
 		})
 	})
 
-	Describe("updateOneHandler", func() {
-		Context("When got invalid ID", func() {
-			It("should return rest error", func() {
-				request := convertToAccessRequest(createAccessRecord())
-				params := access.UpdateOneParams{ID: -1, Body: request}
-
-				restResp, restErr := updateOneAccess(params, db)
-
-				Expect(restResp).To(BeNil())
-				Expect(restErr).NotTo(BeNil())
-				Expect(restErr.Code).To(Equal(int64(404)))
-			})
-		})
-
-		Context("When got valid ID", func() {
-			It("should update BrowserHistory record", func() {
-				record := insertAccessRecord(db)
-				request := convertToAccessRequest(record)
-
-				// update agent value
-				newAgent := "agent2"
-				request.UserAgent = &newAgent
-
-				params := access.UpdateOneParams{ID: int64(record.Id), Body: request}
-				restResp, restErr := updateOneAccess(params, db)
-
-				Expect(restErr).To(BeNil())
-				Expect(restResp).NotTo(BeNil())
-				Expect(*restResp.UserAgent).To(Equal(newAgent))
-			})
-		})
-	})
+	//Describe("updateOneHandler", func() {
+	//	Context("When got invalid ID", func() {
+	//		It("should return rest error", func() {
+	//			request := convertToAccessRequest(createAccessRecord())
+	//			params := browser_history.UpdateOneParams{ID: -1, Body: request}
+	//
+	//			restResp, restErr := updateOneBrowserHistory(params, db)
+	//
+	//			Expect(restResp).To(BeNil())
+	//			Expect(restErr).NotTo(BeNil())
+	//			Expect(restErr.Code).To(Equal(int64(404)))
+	//		})
+	//	})
+	//
+	//	Context("When got valid ID", func() {
+	//		It("should update BrowserHistory record", func() {
+	//			record := insertAccessRecord(db)
+	//			request := convertToAccessRequest(record)
+	//
+	//			// update agent value
+	//			newAgent := "agent2"
+	//			request.UserAgent = &newAgent
+	//
+	//			params := browser_history.UpdateOneParams{ID: int64(record.ID), Body: request}
+	//			restResp, restErr := updateOneBrowserHistory(params, db)
+	//
+	//			Expect(restErr).To(BeNil())
+	//			Expect(restResp).NotTo(BeNil())
+	//			Expect(*restResp.UserAgent).To(Equal(newAgent))
+	//		})
+	//	})
+	//})
 
 })

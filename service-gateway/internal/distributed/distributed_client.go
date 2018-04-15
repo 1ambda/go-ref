@@ -15,7 +15,7 @@ import (
 )
 
 type DistributedClient interface {
-	Publish(message *DistributedMessage)
+	Publish(message *Message)
 	Stop()
 }
 
@@ -31,13 +31,13 @@ type etcdDistributedClient struct {
 	leader     string
 	serverName string
 
-	publishChan chan *DistributedMessage
+	publishChan chan *Message
 
-	wsManager websocket.WebSocketManager
+	wsManager websocket.Manager
 }
 
 func NewDistributedClient(appCtx context.Context, endpoints []string,
-	serverName string, wsManager websocket.WebSocketManager) DistributedClient {
+	serverName string, wsManager websocket.Manager) DistributedClient {
 	logger := config.GetLogger()
 
 	etcdClient, err := clientv3.New(clientv3.Config{
@@ -56,7 +56,7 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 
 	dClient := &etcdDistributedClient{
 		client: etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
-		publishChan: make(chan *DistributedMessage),
+		publishChan: make(chan *Message),
 	}
 
 	session, err := concurrency.NewSession(etcdClient, concurrency.WithTTL(EtcdSessionTTL))
@@ -76,7 +76,7 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 	return dClient
 }
 
-func (d *etcdDistributedClient) Publish(message *DistributedMessage) {
+func (d *etcdDistributedClient) Publish(message *Message) {
 	d.publishChan <- message
 }
 

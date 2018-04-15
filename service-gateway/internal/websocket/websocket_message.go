@@ -2,15 +2,16 @@ package websocket
 
 import (
 	"encoding/json"
+
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/ws_model"
 )
 
-type WebSocketMessage struct {
+type Message struct {
 	content *[]byte // message text
 	event   string  // message type
 }
 
-func NewStringWebSocketMessage(eventType string, count string) (*WebSocketMessage, error) {
+func NewStringValueMessage(eventType string, count string) (*Message, error) {
 	message := ws_model.WebSocketRealtimeResponse{
 		Header: &ws_model.WebSocketResponseHeader{ResponseType: &eventType},
 		Body: &ws_model.WebSocketRealtimeResponseBody{
@@ -23,25 +24,25 @@ func NewStringWebSocketMessage(eventType string, count string) (*WebSocketMessag
 		return nil, err
 	}
 
-	return &WebSocketMessage{content: &serialized, event: eventType}, nil
+	return &Message{content: &serialized, event: eventType}, nil
 }
 
-func NewGatewayNodeCountMessage(count string) (*WebSocketMessage, error) {
+func NewGatewayNodeCountMessage(count string) (*Message, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateGatewayNodeCount
-	return NewStringWebSocketMessage(eventType, count)
+	return NewStringValueMessage(eventType, count)
 }
 
-func NewWebSocketConnectionCountMessage(count string) (*WebSocketMessage, error) {
+func NewWebSocketConnectionCountMessage(count string) (*Message, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateWebSocketConnectionCount
-	return NewStringWebSocketMessage(eventType, count)
+	return NewStringValueMessage(eventType, count)
 }
 
-func NewGatewayLeaderNodeNameMessage(leaderName string) (*WebSocketMessage, error) {
+func NewGatewayLeaderNodeNameMessage(leaderName string) (*Message, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateGatewayLeaderNodeName
-	return NewStringWebSocketMessage(eventType, leaderName)
+	return NewStringValueMessage(eventType, leaderName)
 }
 
-func NewBrowserHistoryCountMessage(count string) (*WebSocketMessage, error) {
+func NewBrowserHistoryCountMessage(count string) (*Message, error) {
 	eventType := ws_model.WebSocketResponseHeaderResponseTypeUpdateBrowserHistoryCount
-	return NewStringWebSocketMessage(eventType, count)
+	return NewStringValueMessage(eventType, count)
 }

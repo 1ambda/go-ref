@@ -2,40 +2,40 @@ package websocket
 
 import (
 	"context"
-
 	"fmt"
+
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	ws "github.com/gorilla/websocket"
 )
 
-type WebSocketManager interface {
-	Broadcast(message *WebSocketMessage)
+type Manager interface {
+	Broadcast(message *Message)
 	SubscribeConnectionCount() <-chan string // subscribed by DistributedClient
 	Stop() <-chan bool
 }
 
-type webSocketManagerImpl struct {
+type managerImpl struct {
 	clients               map[*WebSocketClient]bool
-	broadcastMessageCache map[string]*WebSocketMessage // used to cache recent values
+	broadcastMessageCache map[string]*Message // used to cache recent values
 
 	registerChan     chan *ws.Conn
 	unregisterChan   chan *WebSocketClient
 	disconnectedChan chan *WebSocketClient
-	broadcastChan    chan *WebSocketMessage
+	broadcastChan    chan *Message
 	finishedChan     chan bool
 
 	wsConnCountChan chan string
 }
 
-func NewWebSocketManager() *webSocketManagerImpl {
-	m := &webSocketManagerImpl{
+func NewManager() *managerImpl {
+	m := &managerImpl{
 		clients:               make(map[*WebSocketClient]bool),
-		broadcastMessageCache: make(map[string]*WebSocketMessage),
+		broadcastMessageCache: make(map[string]*Message),
 
 		registerChan:     make(chan *ws.Conn),
 		unregisterChan:   make(chan *WebSocketClient),
 		disconnectedChan: make(chan *WebSocketClient),
-		broadcastChan:    make(chan *WebSocketMessage),
+		broadcastChan:    make(chan *Message),
 		finishedChan:     make(chan bool),
 
 		wsConnCountChan: make(chan string),
@@ -44,7 +44,7 @@ func NewWebSocketManager() *webSocketManagerImpl {
 	return m
 }
 
-func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
+func (m *managerImpl) register(conn *ws.Conn) error {
 	logger := config.GetLogger()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -65,7 +65,7 @@ func (m *webSocketManagerImpl) register(conn *ws.Conn) error {
 	return nil
 }
 
-func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
+func (m *managerImpl) unregister(c *WebSocketClient) error {
 	logger := config.GetLogger()
 	logger.Infow("Unregister client", "uuid", c.uuid)
 
@@ -84,9 +84,9 @@ func (m *webSocketManagerImpl) unregister(c *WebSocketClient) error {
 	return nil
 }
 
-func (m *webSocketManagerImpl) run(appCtx context.Context) {
+func (m *managerImpl) run(appCtx context.Context) {
 	logger := config.GetLogger()
-	logger.Info("Starting WebSocketManager")
+	logger.Info("Starting Manager")
 
 	for {
 		select {
@@ -109,7 +109,7 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 			close(m.unregisterChan)
 			close(m.broadcastChan)
 
-			logger.Info("Stopped WebSocketManager")
+			logger.Info("Stopped Manager")
 			m.finishedChan <- true
 			close(m.finishedChan)
 			return
@@ -117,14 +117,14 @@ func (m *webSocketManagerImpl) run(appCtx context.Context) {
 	}
 }
 
-func (m *webSocketManagerImpl) SubscribeConnectionCount() <-chan string {
+func (m *managerImpl) SubscribeConnectionCount() <-chan string {
 	return m.wsConnCountChan
 }
 
-func (m *webSocketManagerImpl) Broadcast(message *WebSocketMessage) {
+func (m *managerImpl) Broadcast(message *Message) {
 	m.broadcastChan <- message
 }
 
-func (m *webSocketManagerImpl) Stop() <-chan bool {
+func (m *managerImpl) Stop() <-chan bool {
 	return m.finishedChan
 }

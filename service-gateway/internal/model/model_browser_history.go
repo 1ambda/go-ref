@@ -1,9 +1,9 @@
 package model
 
 import (
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 const BrowserHistoryTable = "browser_history"

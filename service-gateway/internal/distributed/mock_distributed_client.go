@@ -33,7 +33,7 @@ func (m *MockDistributedClient) EXPECT() *MockDistributedClientMockRecorder {
 }
 
 // Publish mocks base method
-func (m *MockDistributedClient) Publish(message *DistributedMessage) {
+func (m *MockDistributedClient) Publish(message *Message) {
 	m.ctrl.Call(m, "Publish", message)
 }
 

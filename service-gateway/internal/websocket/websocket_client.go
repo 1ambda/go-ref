@@ -18,22 +18,22 @@ const (
 )
 
 type WebSocketClient struct {
-	manager    *webSocketManagerImpl
+	manager    *managerImpl
 	connection *ws.Conn
-	sendChan   chan *WebSocketMessage
-	buffer     []*WebSocketMessage
+	sendChan   chan *Message
+	buffer     []*Message
 	uuid       string
 	isSending  bool
 	cancelFunc context.CancelFunc
 }
 
-func NewWebSocketClient(m *webSocketManagerImpl, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
+func NewWebSocketClient(m *managerImpl, conn *ws.Conn, cancel context.CancelFunc) *WebSocketClient {
 
 	c := &WebSocketClient{
 		manager:    m,
 		connection: conn,
-		sendChan:   make(chan *WebSocketMessage),
-		buffer:     make([]*WebSocketMessage, 0),
+		sendChan:   make(chan *Message),
+		buffer:     make([]*Message, 0),
 		uuid:       uuid.NewV4().String(),
 		isSending:  false,
 		cancelFunc: cancel,
@@ -42,7 +42,7 @@ func NewWebSocketClient(m *webSocketManagerImpl, conn *ws.Conn, cancel context.C
 	return c
 }
 
-func (c *WebSocketClient) send(message *WebSocketMessage) error {
+func (c *WebSocketClient) send(message *Message) error {
 	logger := config.GetLogger()
 
 	w, err := c.connection.NextWriter(ws.TextMessage)

@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms'
 
 import { FlexLayoutModule } from '@angular/flex-layout'
 import { MaterialModule } from './material.module'
+import { CookieService } from 'ngx-cookie-service'
+import { SimpleNotificationsModule } from 'angular2-notifications'
 
+import { BrowserHistoryService } from "./browser-history.service"
+import { NotificationService } from "./notification.service"
 import { WebsocketService } from "./websocket.service"
 import { GeoLocationService } from "./geo-location.service"
 import { SessionService } from "./session.service"
-
-import { CookieService } from 'ngx-cookie-service'
-import { BrowserHistoryService } from "./browser-history.service"
 
 
 @NgModule({
@@ -38,6 +39,7 @@ export class SharedModule {
         WebsocketService,
         GeoLocationService,
         BrowserHistoryService,
+        NotificationService,
       ]
     }
   }

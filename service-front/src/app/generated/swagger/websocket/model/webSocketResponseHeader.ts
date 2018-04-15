@@ -9,11 +9,12 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { WebSocketError } from './webSocketError';
 
 
 export interface WebSocketResponseHeader {
     responseType: WebSocketResponseHeader.ResponseTypeEnum;
-    error?: Error;
+    error?: WebSocketError;
 }
 export namespace WebSocketResponseHeader {
     export type ResponseTypeEnum = 'Error' | 'UpdateBrowserHistoryCount' | 'UpdateWebSocketConnectionCount' | 'UpdateGatewayLeaderNodeName' | 'UpdateGatewayNodeCount';

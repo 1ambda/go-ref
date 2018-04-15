@@ -11,7 +11,7 @@
  */
 
 
-export interface Error {
+export interface WebSocketError {
     timestamp?: string;
     code?: number;
     message: string;

@@ -39,6 +39,10 @@ import 'hammerjs'
 import { NgxDatatableModule } from '@swimlane/ngx-datatable'
 import '../styles/styles.scss'
 /**
+ * notification
+ */
+import { SimpleNotificationsModule } from 'angular2-notifications'
+/**
  * App Moduless
  */
 import { NavbarModule } from './pages/common/navbar'
@@ -93,7 +97,10 @@ const APP_PROVIDERS = [
       apiKey: KEY_GOOGLE_MAP_API,
     }),
 
+    SimpleNotificationsModule.forRoot(),
+
     SharedModule.forRoot(),
+
     NavbarModule,
 
     /**

@@ -93,6 +93,7 @@
     "@swimlane/ngx-datatable": "^11.2.0",
     "@types/moment-timezone": "^0.5.4",
     "ajv": "^6.4.0",
+    "angular2-notifications": "^1.0.0",
     "clientjs": "^0.1.11",
     "core-js": "^2.5.1",
     "geolocator": "^2.1.3",

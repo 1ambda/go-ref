@@ -122,6 +122,7 @@ func main() {
 		if err := wsServer.Shutdown(nil); err != nil {
 			logger.Errorw("Failed to shutdown wsServer gracefully", "error", err)
 		}
+		db.Close()
 	}
 
 	if err := server.Serve(); err != nil {

@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/1ambda/go-ref/service-gateway/internal/config"
@@ -24,6 +25,37 @@ type Client struct {
 	websocketID string
 	sessionID   string
 	cancelFunc  context.CancelFunc
+	closeReason string
+
+	lock sync.RWMutex
+}
+
+func (c *Client) getWebsocketID() string {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
+	return c.websocketID
+}
+
+func (c *Client) getSessionID() string {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
+	return c.sessionID
+}
+
+func (c *Client) getCloseReason() string {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
+	return c.closeReason
+}
+
+func (c *Client) setCloseReason(reason string) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	c.closeReason = reason
 }
 
 func NewClient(m *managerImpl, conn *ws.Conn, sessionID string, websocketID string) *Client {
@@ -103,6 +135,7 @@ func (c *Client) run(ctx context.Context) {
 		case <-pingTicker.C:
 			if err := c.sendPingMessage(); err != nil {
 				logger.Warnw("Failed to ping message to client", "websocketID", c.websocketID)
+				c.closeReason = config.WsCloseFailureClientDisconnected
 				c.manager.unregisterChan <- c
 			}
 
@@ -116,6 +149,7 @@ func (c *Client) run(ctx context.Context) {
 					// don't write log, client is disconnected
 					logger.Warnw("Failed to send message to client. Closing this client",
 						"websocketID", c.websocketID)
+					c.setCloseReason(config.WsCloseReasonMessageSendFailure)
 					c.manager.unregisterChan <- c
 					break
 				}

@@ -86,7 +86,7 @@ func refreshSession(db *gorm.DB, sessionId string) (*model.Session, *dto.Error) 
 		}
 
 		if result.RowsAffected < 1 {
-			logger.Infow("Failed to find Session record before updating",
+			logger.Errorw("Failed to find Session record before updating",
 				"session", sessionId)
 			err := errors.New(gorm.ErrRecordNotFound.Error())
 			restError := buildRestError(err, 400)

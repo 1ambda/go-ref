@@ -55,8 +55,7 @@ func Configure(appCtx context.Context, mux *http.ServeMux, db *gorm.DB) *manager
 		// create websocket history record
 		record := model.WebsocketHistory{}
 		record.NewWebSocketHistory(sessionID, websocketID)
-		if err := db.Create(&record).Error; err == nil {
-			err = errors.New("asdasd")
+		if err := db.Create(&record).Error; err != nil {
 			message, err1 := NewErrorMessage(err, 500)
 			if err1 != nil {
 				logger.Errorw("Failed to create websocket error message", "error", err1)
@@ -65,6 +64,7 @@ func Configure(appCtx context.Context, mux *http.ServeMux, db *gorm.DB) *manager
 
 			client.send(message)
 			client.close()
+			return
 		}
 
 		// register a client

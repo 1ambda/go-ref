@@ -33,9 +33,6 @@ type BrowserHistory struct {
 	// Required: true
 	ClientTimezone *string `json:"clientTimezone"`
 
-	// id
-	ID int64 `json:"id,omitempty"`
-
 	// is mobile
 	// Required: true
 	IsMobile *bool `json:"isMobile"`
@@ -52,12 +49,15 @@ type BrowserHistory struct {
 	// Required: true
 	OsVersion *string `json:"osVersion"`
 
+	// record Id
+	RecordID int64 `json:"recordId,omitempty"`
+
+	// session Id
+	SessionID string `json:"sessionId,omitempty"`
+
 	// user agent
 	// Required: true
 	UserAgent *string `json:"userAgent"`
-
-	// uuid
-	UUID string `json:"uuid,omitempty"`
 }
 
 // Validate validates this browser history

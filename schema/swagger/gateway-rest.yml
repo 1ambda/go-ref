@@ -283,10 +283,10 @@ definitions:
       userAgent:
         type: string
       # non-required fields
-      id:
+      recordId:
         type: integer
         format: int64
-      uuid:
+      sessionId:
         type: string
 
   RestError:

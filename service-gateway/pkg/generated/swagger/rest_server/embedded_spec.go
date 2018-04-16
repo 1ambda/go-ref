@@ -249,10 +249,6 @@ func init() {
         "clientTimezone": {
           "type": "string"
         },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
         "isMobile": {
           "type": "boolean"
         },
@@ -265,10 +261,14 @@ func init() {
         "osVersion": {
           "type": "string"
         },
-        "userAgent": {
+        "recordId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sessionId": {
           "type": "string"
         },
-        "uuid": {
+        "userAgent": {
           "type": "string"
         }
       }
@@ -683,10 +683,6 @@ func init() {
         "clientTimezone": {
           "type": "string"
         },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
         "isMobile": {
           "type": "boolean"
         },
@@ -699,10 +695,14 @@ func init() {
         "osVersion": {
           "type": "string"
         },
-        "userAgent": {
+        "recordId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sessionId": {
           "type": "string"
         },
-        "uuid": {
+        "userAgent": {
           "type": "string"
         }
       }

@@ -26,7 +26,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   rows = []
   columns = [
-    { name: 'id', prop: 'id' },
+    { name: 'id', prop: 'recordId' },
+    { name: 'session', prop: 'sessionId' },
     { name: 'browser_name', prop: 'browserName' },
     { name: 'browser_version', prop: 'browserVersion' },
     { name: 'os_name', prop: 'osName' },

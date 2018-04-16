@@ -21,6 +21,6 @@ export interface BrowserHistory {
     clientTimezone: string;
     language: string;
     userAgent: string;
-    id?: number;
-    uuid?: string;
+    recordId?: number;
+    sessionId?: string;
 }

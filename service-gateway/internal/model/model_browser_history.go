@@ -42,7 +42,8 @@ func (record *BrowserHistory) ConvertFromBrowserHistoryDTO(dto *dto.BrowserHisto
 
 func (record *BrowserHistory) ConvertToBrowserHistoryDTO() *dto.BrowserHistory {
 	dto := dto.BrowserHistory{
-		ID:              int64(record.ID),
+		RecordID:        int64(record.ID),
+		SessionID:       record.SessionID,
 		BrowserName:     &record.BrowserName,
 		BrowserVersion:  &record.BrowserVersion,
 		OsName:          &record.OsName,

@@ -7,6 +7,7 @@ import (
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
+	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/geolocation"
 
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 	"github.com/go-openapi/runtime/middleware"
@@ -73,7 +74,7 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 	//	})
 
 	/**
-	* Session API
+	 * Session API
 	 */
 	api.SessionValidateOrGenerateHandler = session.ValidateOrGenerateHandlerFunc(
 		func(params session.ValidateOrGenerateParams) middleware.Responder {
@@ -83,6 +84,20 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 			}
 
 			return session.NewValidateOrGenerateOK().WithPayload(restResp)
+		})
+
+	/**
+	 * Geolocation API
+	 */
+	 api.GeolocationAddHandler = geolocation.AddHandlerFunc(
+	 	func(params geolocation.AddParams) middleware.Responder {
+	 		restResp, restErr := addOneGeolocationHistory(params, db)
+
+			if restErr != nil {
+				return geolocation.NewAddDefault(getCode(restErr)).WithPayload(restErr)
+			}
+
+			return geolocation.NewAddCreated().WithPayload(restResp)
 		})
 }
 

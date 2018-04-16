@@ -18,7 +18,7 @@ type Session struct {
 	RefreshCount int       `gorm:"column:refresh_count; not null"`
 }
 
-func (record *Session) ConvertToSessionDTO() *dto.SessionResponse {
+func (record *Session) ConvertToDTO() *dto.SessionResponse {
 	// return millis
 	updatedAt := record.UpdatedAt.UnixNano() / 1000000
 	createdAt := record.CreatedAt.UnixNano() / 1000000

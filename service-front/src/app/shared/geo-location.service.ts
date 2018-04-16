@@ -1,70 +1,88 @@
 import { Injectable } from '@angular/core'
 import { SessionService } from "./session.service"
-import { SessionResponse } from "../generated/swagger/rest"
+import { Geolocation, GeolocationService as GeolocationApiService, SessionResponse } from "../generated/swagger/rest"
 import { NotificationService } from "./notification.service"
 
 const geolocator = require('geolocator')
 
-geolocator.config({
+const GEOLOCATOR_CONFIG = {
   language: "en",
   google: {
     version: "3",
     key: KEY_GOOGLE_MAP_API,
   }
-})
+}
+
+geolocator.config(GEOLOCATOR_CONFIG)
+
+const GEOLOCATOR_OPTIONS = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumWait: 10000,     // max wait time for desired accuracy
+  maximumAge: 0,          // disable cache
+  desiredAccuracy: 30,    // meters
+  fallbackToIP: true,     // fallback to IP if Geolocation fails or rejected
+  addressLookup: true,    // requires Google API key if true
+  timezone: true,         // requires Google API key if true
+}
 
 @Injectable()
 export class GeoLocationService {
 
-  private ip: string
-  private latitude: number
-  private longitude: number
-  private timezone: string
-  private formattedAddress: string
-  private address: object
+  private geolocation: Geolocation
 
   constructor(private sessionService: SessionService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private geolocationApiService: GeolocationApiService) {
 
     this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
       console.info(`Initializing GeoLocationService (session: ${session.sessionID})`)
 
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumWait: 10000,     // max wait time for desired accuracy
-        maximumAge: 0,          // disable cache
-        desiredAccuracy: 30,    // meters
-        fallbackToIP: true,     // fallback to IP if Geolocation fails or rejected
-        addressLookup: true,    // requires Google API key if true
-        timezone: true,         // requires Google API key if true
-      }
-
-      console.debug("Fetching geolocation information from google")
-      geolocator.locate(options, (err, response) => {
+      geolocator.locate(GEOLOCATOR_OPTIONS, (err, response) => {
         if (err) {
           console.log(err)
           this.notificationService.displayError("Geolocation", "Failed to fetch geolocation")
           return
         }
 
-        console.debug("Fetched geolocation information from google")
+        this.notificationService.displayInfo("Geolocation", "Analyzed")
 
-        this.ip = response.ip
+        const request: Geolocation = {
+          apiProvider: "Google",
+          apiLanguage: GEOLOCATOR_CONFIG.language,
+          apiVersion: GEOLOCATOR_CONFIG.google.version,
+          apiDesiredAccuracy: GEOLOCATOR_OPTIONS.desiredAccuracy,
 
-        if (response.coords) {
-          this.latitude = response.coords.latitude
-          this.longitude = response.coords.longitude
+          provider: response.provider,
+          timezone: response.timezone ? response.timezone.id : null,
+          ip: response.ip,
+          googlePlaceID: response.placeId,
+
+          latitude: response.coords ? response.coords.latitude : null,
+          longitude: response.coords ? response.coords.longitude : null,
+
+          formattedAddress: response.address ? response.address.formattedAddress : null,
+          commonName: response.address ? response.address.commonName : null,
+          streetNumber: response.address ? response.address.streetNumber : null,
+          street: response.address ? response.address.street : null,
+
+          route: response.address ? response.address.route : null,
+          neighborhood: response.address ? response.address.neighborhood : null,
+          town: response.address ? response.address.town : null,
+          city: response.address ? response.address.city : null,
+          region: response.address ? response.address.region : null,
+          postalCode: response.address ? response.address.postalCode : null,
+
+          state: response.address ? response.address.state : null,
+          stateCode: response.address ? response.address.stateCode : null,
+          country: response.address ? response.address.country : null,
+          countryCode: response.address ? response.address.countryCode : null,
         }
 
-        if (response.timezone) {
-          this.timezone = response.timezone.id
-        }
-
-        this.formattedAddress = response.formattedAddress
-        this.address = response.address
-
-        this.notificationService.displayInfo("Geolocation", "analyzed")
+        this.geolocationApiService.add(request).subscribe(response => {
+          this.geolocation = response
+          this.notificationService.displayInfo("Geolocation", "Persisted")
+        })
       })
     })
 

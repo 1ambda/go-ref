@@ -16,20 +16,32 @@ import (
 // swagger:model Geolocation
 type Geolocation struct {
 
+	// api desired accuracy
+	APIDesiredAccuracy int32 `json:"apiDesiredAccuracy,omitempty"`
+
+	// api language
+	APILanguage string `json:"apiLanguage,omitempty"`
+
+	// api provider
+	APIProvider string `json:"apiProvider,omitempty"`
+
+	// api version
+	APIVersion string `json:"apiVersion,omitempty"`
+
 	// city
 	City string `json:"city,omitempty"`
 
 	// common name
-	CommonName string `json:"common_name,omitempty"`
+	CommonName string `json:"commonName,omitempty"`
 
 	// country
 	Country string `json:"country,omitempty"`
 
 	// country code
-	CountryCode string `json:"country_code,omitempty"`
+	CountryCode string `json:"countryCode,omitempty"`
 
 	// formatted address
-	FormattedAddress string `json:"formatted_address,omitempty"`
+	FormattedAddress string `json:"formattedAddress,omitempty"`
 
 	// google place ID
 	GooglePlaceID string `json:"googlePlaceID,omitempty"`
@@ -47,7 +59,7 @@ type Geolocation struct {
 	Neighborhood string `json:"neighborhood,omitempty"`
 
 	// postal code
-	PostalCode string `json:"postal_code,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
 
 	// provider
 	Provider string `json:"provider,omitempty"`
@@ -58,17 +70,20 @@ type Geolocation struct {
 	// route
 	Route string `json:"route,omitempty"`
 
+	// session ID
+	SessionID string `json:"sessionID,omitempty"`
+
 	// state
 	State string `json:"state,omitempty"`
 
 	// state code
-	StateCode string `json:"state_code,omitempty"`
+	StateCode string `json:"stateCode,omitempty"`
 
 	// street
 	Street string `json:"street,omitempty"`
 
 	// street number
-	StreetNumber string `json:"street_number,omitempty"`
+	StreetNumber string `json:"streetNumber,omitempty"`
 
 	// timezone
 	Timezone string `json:"timezone,omitempty"`

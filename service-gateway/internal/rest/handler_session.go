@@ -30,7 +30,7 @@ func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm
 		record, restErr = refreshSession(db, sessionId)
 	}
 
-	return record.ConvertToSessionDTO(), restErr
+	return record.ConvertToDTO(), restErr
 }
 
 func createNewSession(db *gorm.DB) (*model.Session, *dto.RestError) {
@@ -44,7 +44,7 @@ func createNewSession(db *gorm.DB) (*model.Session, *dto.RestError) {
 	}
 
 	if err := db.Create(record).Error; err != nil {
-		logger.Errorw("Failed to create Session record: %v", "error", err)
+		logger.Errorw("Failed to create Session record", "error", err)
 		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 		return nil, restError
 	}
@@ -96,18 +96,37 @@ func refreshSession(db *gorm.DB, sessionID string) (*model.Session, *dto.RestErr
 	return record, nil
 }
 
-func getSessionCookieForRest(req *http.Request) (string, *dto.RestError) {
+func getSessionCookieForRest(req *http.Request, db *gorm.DB) (string, *dto.RestError) {
+	logger := config.GetLogger()
 	cookie, err := req.Cookie(config.SessionKey)
 
 	if err != nil {
-		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
-		return "", restError
+		if err == http.ErrNoCookie {
+			restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
+			return "", restErr
+		}
+
+		restErr := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
+		return "", restErr
 	}
 
 	if cookie == nil || cookie.Value == "" {
 		err := errors.New("empty session cookie")
-		restError := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
-		return "", restError
+		restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
+		return "", restErr
+	}
+
+	record := &model.Session{}
+	sessionID := cookie.Value
+	if err := db.Where("session_id = ?", sessionID).First(record).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
+			return "", restErr
+		}
+
+		logger.Errorw("Failed to find Session record due to unknown error",
+			"session", sessionID, "error", err)
+		return "", buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 	}
 
 	return cookie.Value, nil

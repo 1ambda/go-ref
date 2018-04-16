@@ -294,19 +294,32 @@ func init() {
     "Geolocation": {
       "type": "object",
       "properties": {
+        "apiDesiredAccuracy": {
+          "type": "number",
+          "format": "int32"
+        },
+        "apiLanguage": {
+          "type": "string"
+        },
+        "apiProvider": {
+          "type": "string"
+        },
+        "apiVersion": {
+          "type": "string"
+        },
         "city": {
           "type": "string"
         },
-        "common_name": {
+        "commonName": {
           "type": "string"
         },
         "country": {
           "type": "string"
         },
-        "country_code": {
+        "countryCode": {
           "type": "string"
         },
-        "formatted_address": {
+        "formattedAddress": {
           "type": "string"
         },
         "googlePlaceID": {
@@ -326,7 +339,7 @@ func init() {
         "neighborhood": {
           "type": "string"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string"
         },
         "provider": {
@@ -338,16 +351,19 @@ func init() {
         "route": {
           "type": "string"
         },
+        "sessionID": {
+          "type": "string"
+        },
         "state": {
           "type": "string"
         },
-        "state_code": {
+        "stateCode": {
           "type": "string"
         },
         "street": {
           "type": "string"
         },
-        "street_number": {
+        "streetNumber": {
           "type": "string"
         },
         "timezone": {
@@ -728,19 +744,32 @@ func init() {
     "Geolocation": {
       "type": "object",
       "properties": {
+        "apiDesiredAccuracy": {
+          "type": "number",
+          "format": "int32"
+        },
+        "apiLanguage": {
+          "type": "string"
+        },
+        "apiProvider": {
+          "type": "string"
+        },
+        "apiVersion": {
+          "type": "string"
+        },
         "city": {
           "type": "string"
         },
-        "common_name": {
+        "commonName": {
           "type": "string"
         },
         "country": {
           "type": "string"
         },
-        "country_code": {
+        "countryCode": {
           "type": "string"
         },
-        "formatted_address": {
+        "formattedAddress": {
           "type": "string"
         },
         "googlePlaceID": {
@@ -760,7 +789,7 @@ func init() {
         "neighborhood": {
           "type": "string"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string"
         },
         "provider": {
@@ -772,16 +801,19 @@ func init() {
         "route": {
           "type": "string"
         },
+        "sessionID": {
+          "type": "string"
+        },
         "state": {
           "type": "string"
         },
-        "state_code": {
+        "stateCode": {
           "type": "string"
         },
         "street": {
           "type": "string"
         },
-        "street_number": {
+        "streetNumber": {
           "type": "string"
         },
         "timezone": {

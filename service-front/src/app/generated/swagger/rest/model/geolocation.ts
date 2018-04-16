@@ -12,6 +12,11 @@
 
 
 export interface Geolocation {
+    sessionID?: string;
+    apiProvider?: string;
+    apiLanguage?: string;
+    apiVersion?: string;
+    apiDesiredAccuracy?: number;
     provider?: string;
     timezone?: string;
     ip?: string;

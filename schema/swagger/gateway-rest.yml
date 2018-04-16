@@ -143,6 +143,19 @@ definitions:
   Geolocation:
     type: object
     properties:
+      sessionID:
+        type: string
+
+      apiProvider:
+        type: string
+      apiLanguage:
+        type: string
+      apiVersion:
+        type: string
+      apiDesiredAccuracy:
+        type: number
+        format: int32
+
       provider:
         type: string
       timezone:
@@ -157,11 +170,11 @@ definitions:
       longitude:
         type: number
         format: float
-      formatted_address:
+      formattedAddress:
         type: string
-      common_name:
+      commonName:
         type: string
-      street_number:
+      streetNumber:
         type: string
       street:
         type: string
@@ -175,15 +188,15 @@ definitions:
         type: string
       region:
         type: string
-      postal_code:
+      postalCode:
         type: string
       state:
         type: string
-      state_code:
+      stateCode:
         type: string
       country:
         type: string
-      country_code:
+      countryCode:
         type: string
 
   SessionRequest:

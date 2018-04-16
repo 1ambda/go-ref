@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core'
 import { SessionService } from "./session.service"
 import { Geolocation, GeolocationService as GeolocationApiService, SessionResponse } from "../generated/swagger/rest"
 import { NotificationService } from "./notification.service"
+import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { Observable } from 'rxjs/Observable'
 
 const geolocator = require('geolocator')
 
@@ -30,6 +32,7 @@ const GEOLOCATOR_OPTIONS = {
 export class GeoLocationService {
 
   private geolocation: Geolocation
+  private geolocationReplay: ReplaySubject<Geolocation> = new ReplaySubject<Geolocation>()
 
   constructor(private sessionService: SessionService,
               private notificationService: NotificationService,
@@ -80,12 +83,17 @@ export class GeoLocationService {
         }
 
         this.geolocationApiService.add(request).subscribe(response => {
-          this.geolocation = response
           this.notificationService.displayInfo("Geolocation", "Persisted")
+
+          this.geolocation = response
+          this.geolocationReplay.next(response)
         })
       })
     })
+  }
 
+  watchGeolocation(): Observable<Geolocation> {
+    return this.geolocationReplay
   }
 }
 

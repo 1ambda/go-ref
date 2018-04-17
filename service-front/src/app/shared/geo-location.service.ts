@@ -39,7 +39,11 @@ export class GeoLocationService {
               private geolocationApiService: GeolocationApiService) {
 
     this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
-      console.info(`Initializing GeoLocationService (session: ${session.sessionID})`)
+      if (!session) {
+        return
+      }
+
+      console.info("Initializing GeoLocationService")
 
       geolocator.locate(GEOLOCATOR_OPTIONS, (err, response) => {
         if (err) {
@@ -47,8 +51,6 @@ export class GeoLocationService {
           this.notificationService.displayError("Geolocation", "Failed to fetch geolocation")
           return
         }
-
-        this.notificationService.displayInfo("Geolocation", "Analyzed")
 
         const request: Geolocation = {
           apiProvider: "Google",
@@ -83,7 +85,7 @@ export class GeoLocationService {
         }
 
         this.geolocationApiService.add(request).subscribe(response => {
-          this.notificationService.displayInfo("Geolocation", "Persisted")
+          this.notificationService.displayInfo("Geolocation", "Analyzed")
 
           this.geolocation = response
           this.geolocationReplay.next(response)

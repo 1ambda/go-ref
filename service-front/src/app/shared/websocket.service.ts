@@ -11,19 +11,23 @@ const ReconnectingWebSocket = require('reconnecting-websocket')
 
 @Injectable()
 export class WebsocketService {
-  private client
-  private receiveQueue: ReplaySubject<any> = new ReplaySubject()
-  private sendQueue: ReplaySubject<Object> = new ReplaySubject()
-  private websocketConnectedEvent: BehaviorSubject<boolean> = new BehaviorSubject(false)
+  private client = null
+  private receiveMessageReplay: ReplaySubject<any> = new ReplaySubject()
+  private sendMessageQueue: ReplaySubject<Object> = new ReplaySubject()
+  private wsConnectionReplay: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
   constructor(private sessionService: SessionService,
               private notificationService: NotificationService) {
     this.sessionService.subscribeSession().subscribe((session: SessionResponse) => {
-      console.info(`Initializing WebsocketService (session: ${session.sessionID})`)
+      if (!session) {
+        return
+      }
 
       if (this.client) {
         return
       }
+
+      console.info("Initializing WebsocketService")
 
       this.client = new ReconnectingWebSocket(ENDPOINT_SERVICE_GATEWAY_WS)
 
@@ -40,24 +44,24 @@ export class WebsocketService {
       this.client.onclose = () => {
         console.warn('websocket: `onclose` (will reconnect)')
 
-        this.websocketConnectedEvent.next(false)
+        this.wsConnectionReplay.next(false)
         this.notificationService.displayWarn("Disconnected (WS)", "will reconnect")
       }
 
       this.client.onopen = () => {
         console.debug("websocket: `onopen`")
 
-        this.websocketConnectedEvent.next(true)
+        this.wsConnectionReplay.next(true)
         this.notificationService.displaySuccess("Connected (WS)", "")
 
-        this.sendQueue.subscribe(data => {
+        this.sendMessageQueue.subscribe(data => {
           this.client.send(JSON.stringify(data))
         })
       }
 
       this.client.onmessage = (response) => {
         const parsed = JSON.parse(response.data)
-        this.receiveQueue.next(parsed)
+        this.receiveMessageReplay.next(parsed)
 
 
         if (parsed.header.responseType === WebSocketResponseHeader.ResponseTypeEnum.Error) {
@@ -80,12 +84,12 @@ export class WebsocketService {
       console.warn("websocket is not connected. message will be queued")
     }
 
-    this.sendQueue.next(data)
+    this.sendMessageQueue.next(data)
   }
 
 
   public watch(targetResponseType: any): Observable<any> {
-    return this.receiveQueue.filter((response: any) => {
+    return this.receiveMessageReplay.filter((response: any) => {
       const eventType = response.header.responseType
 
       if (eventType === targetResponseType) {
@@ -97,6 +101,6 @@ export class WebsocketService {
   }
 
   public watchWebsocketConnected(): Observable<boolean> {
-    return this.websocketConnectedEvent
+    return this.wsConnectionReplay
   }
 }

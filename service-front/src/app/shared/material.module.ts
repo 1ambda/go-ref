@@ -2,6 +2,7 @@ import {
   MatAutocompleteModule,
   MatButtonModule,
   MatCardModule,
+  MatChipsModule,
   MatDialogModule,
   MatGridListModule,
   MatIconModule,
@@ -15,6 +16,7 @@ import {
   MatToolbarModule,
   MatTooltipModule,
 } from '@angular/material'
+
 import { NgModule } from '@angular/core'
 
 @NgModule({
@@ -34,6 +36,7 @@ import { NgModule } from '@angular/core'
     MatListModule,
     MatDialogModule,
     MatToolbarModule,
+    MatChipsModule,
   ],
   exports: [
     MatButtonModule,
@@ -51,6 +54,7 @@ import { NgModule } from '@angular/core'
     MatListModule,
     MatDialogModule,
     MatToolbarModule,
+    MatChipsModule,
   ],
 })
 

@@ -12,6 +12,15 @@
 
   <div class="flex-spacer"></div>
 
+  <div *ngIf="sessionID">
+    <mat-chip-list>
+      <mat-chip class="session-chip" color="accent" selected="true">
+        <span class="session-text" matTooltip="Session ID">{{sessionID}}</span>
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+
+
   <a mat-button target="_blank" href="https://github.com/1ambda/go-ref" aria-label="GitHub Repository">
     <img class="app-navbar-github-logo"
          src="../../../../assets/img/github-circle-white-transparent.svg"

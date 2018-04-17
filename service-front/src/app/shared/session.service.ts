@@ -28,7 +28,6 @@ export class SessionService {
         const sessionID = response.sessionID
 
         this.session = response
-        // this.cookieService.delete(SESSION_KEY)
         this.cookieService.set(SESSION_KEY, sessionID)
 
         if (emptySession) {
@@ -55,5 +54,6 @@ export class SessionService {
 
   clear() {
     this.cookieService.delete(SESSION_KEY)
+    this.sessionReplay.next(null)
   }
 }

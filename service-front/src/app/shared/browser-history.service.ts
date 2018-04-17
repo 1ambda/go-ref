@@ -23,7 +23,11 @@ export class BrowserHistoryService {
               private browserHistoryApiService: BrowserHistoryApiService,
               private notificationService: NotificationService) {
     sessionService.subscribeSession().subscribe((session: SessionResponse) => {
-      console.info(`Initializing BrowserHistoryService (session: ${session.sessionID})`)
+      if (!session) {
+        return
+      }
+
+      console.info("Initializing BrowserHistoryService")
 
       // start initialization process for BrowserHistoryServcice
       // after session service is properly setup

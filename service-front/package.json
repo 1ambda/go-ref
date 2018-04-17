@@ -90,7 +90,7 @@
     "@angular/platform-browser-dynamic": "~5.2.9",
     "@angular/platform-server": "~5.2.9",
     "@angular/router": "~5.2.8",
-    "@swimlane/ngx-datatable": "^11.2.0",
+    "@swimlane/ngx-datatable": "^11.3.0",
     "@types/moment-timezone": "^0.5.4",
     "ajv": "^6.4.0",
     "angular2-notifications": "^1.0.0",

@@ -84,6 +84,7 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	err := db.
 		Table(model.BrowserHistoryTable).
 		Count(&count).
+		Order("created_at asc").
 		Offset(int(dbOffset)).
 		Limit(int(*itemCountPerPage)).
 		Find(&records).

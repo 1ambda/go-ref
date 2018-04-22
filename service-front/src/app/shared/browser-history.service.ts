@@ -56,10 +56,11 @@ export class BrowserHistoryService {
     return this.browserHistoryApiService.addOne(browserHistory)
   }
 
-  findAll(itemCountPerPage: number,
-          currentPageOffset: number): Observable<BrowserHistoryWithPagination> {
+  findAll(itemCountPerPage: number, currentPageOffset: number,
+          filterColumn: string, filterValue: string): Observable<BrowserHistoryWithPagination> {
 
-    return this.browserHistoryApiService.findAll(itemCountPerPage, currentPageOffset)
+    return this.browserHistoryApiService.findAll(itemCountPerPage, currentPageOffset,
+      filterColumn, filterValue)
   }
 
   watchBrowserHistorySendEvent(): Observable<boolean> {

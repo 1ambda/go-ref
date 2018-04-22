@@ -106,17 +106,17 @@ export class BrowserHistoryService {
      * 
      * @param itemCountPerPage 
      * @param currentPageOffset 
-     * @param filterColummn a column name which will be used for filtering
+     * @param filterColumn a column name which will be used for filtering &#x60;BrowserHistoryFilterType&#x60; definition 
      * @param filterValue a column value which will be used for filtering
      * @param sortBy a column name which will be used for sorting
      * @param orderBy &#39;asc&#39; or &#39;desc&#39;
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColummn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'body', reportProgress?: boolean): Observable<BrowserHistoryWithPagination>;
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColummn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<BrowserHistoryWithPagination>>;
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColummn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<BrowserHistoryWithPagination>>;
-    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColummn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColumn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'body', reportProgress?: boolean): Observable<BrowserHistoryWithPagination>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColumn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<BrowserHistoryWithPagination>>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColumn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<BrowserHistoryWithPagination>>;
+    public findAll(itemCountPerPage?: number, currentPageOffset?: number, filterColumn?: string, filterValue?: string, sortBy?: string, orderBy?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
         if (itemCountPerPage !== undefined) {
@@ -125,8 +125,8 @@ export class BrowserHistoryService {
         if (currentPageOffset !== undefined) {
             queryParameters = queryParameters.set('currentPageOffset', <any>currentPageOffset);
         }
-        if (filterColummn !== undefined) {
-            queryParameters = queryParameters.set('filterColummn', <any>filterColummn);
+        if (filterColumn !== undefined) {
+            queryParameters = queryParameters.set('filterColumn', <any>filterColumn);
         }
         if (filterValue !== undefined) {
             queryParameters = queryParameters.set('filterValue', <any>filterValue);

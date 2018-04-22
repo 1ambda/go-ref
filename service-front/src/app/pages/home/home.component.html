@@ -65,6 +65,9 @@
       <mat-form-field class="table-filter-form-input">
         <input matInput #filterValue maxlength="96" placeholder="Filter Value"
                (input)="onFilterValueChange(filterValue.value)">
+        <button mat-button matSuffix mat-icon-button aria-label="Search" (click)="onFilterSearchClick()">
+          <mat-icon>search</mat-icon>
+        </button>
         <mat-hint align="end">{{filterValue.value.length}} / 96</mat-hint>
       </mat-form-field>
     </form>

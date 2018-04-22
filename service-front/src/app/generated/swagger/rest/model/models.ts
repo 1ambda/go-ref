@@ -1,4 +1,5 @@
 export * from './browserHistory';
+export * from './browserHistoryFilterType';
 export * from './browserHistoryWithPagination';
 export * from './geolocation';
 export * from './pagination';

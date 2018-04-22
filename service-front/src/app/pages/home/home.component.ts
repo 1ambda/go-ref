@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'OS Version', prop: 'osVersion' },
     { name: 'Mobile', prop: 'isMobile' },
     { name: 'Language', prop: 'language' },
-    { name: 'Client Timestamp', prop: 'clientTimestamp', width: 300,},
+    { name: 'Client Timestamp', prop: 'clientTimestamp', width: 300, },
     { name: 'Client Timezone', prop: 'clientTimezone' },
     { name: 'User Agent', prop: 'userAgent', width: 1000, },
   ]
@@ -52,6 +52,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    * filter related variables
    */
   defaultFilterColumn = 'SessionID'
+  filterColumn = this.defaultFilterColumn
+  filterValue = ''
 
   /**
    * server-side streamed variables
@@ -96,7 +98,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.rows = [ {} ]
     this.isTableLoading = true
 
-    this.browserHistoryService.findAll(this.itemCountPerPage, this.currentPageOffset)
+    let filterColumn = this.filterColumn
+    const filterValue = this.filterValue
+    if (!filterValue || filterValue === "") {
+      filterColumn = ""
+    }
+
+    this.browserHistoryService.findAll(this.itemCountPerPage, this.currentPageOffset,
+      filterColumn, filterValue)
       .subscribe(response => {
         this.rows = response.rows
 
@@ -157,11 +166,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onFilterValueChange(filterValue) {
-    console.log(filterValue)
+    this.filterValue = filterValue.trim()
   }
 
   onFilterColumnChange(filterColumn) {
-    console.log(filterColumn)
+    this.filterColumn = filterColumn.trim()
+  }
+
+  onFilterSearchClick() {
+    this.currentPageOffset = 0
+    this.findAllBrowserHistory()
   }
 
   private subscribeBrowserHistorySendEvent(): Subscription {

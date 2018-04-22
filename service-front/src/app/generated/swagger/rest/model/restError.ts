@@ -18,10 +18,11 @@ export interface RestError {
     type?: RestError.TypeEnum;
 }
 export namespace RestError {
-    export type TypeEnum = 'InvalidSession' | 'InternalServer' | 'RecordDoesNotxist';
+    export type TypeEnum = 'InvalidSession' | 'InternalServer' | 'BadFilterRequest' | 'RecordDoesNotxist';
     export const TypeEnum = {
         InvalidSession: 'InvalidSession' as TypeEnum,
         InternalServer: 'InternalServer' as TypeEnum,
+        BadFilterRequest: 'BadFilterRequest' as TypeEnum,
         RecordDoesNotxist: 'RecordDoesNotxist' as TypeEnum
     }
 }

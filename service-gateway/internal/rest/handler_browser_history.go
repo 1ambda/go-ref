@@ -3,6 +3,8 @@ package rest
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 
@@ -80,20 +82,32 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	var count int64 = 0
 	currentPageOffset := params.CurrentPageOffset
 	itemCountPerPage := params.ItemCountPerPage
-	dbOffset := int64(*currentPageOffset) * (*itemCountPerPage)
+	dbOffset := int(int64(*currentPageOffset) * (*itemCountPerPage))
+	dbLimit := int(*itemCountPerPage)
 
-	// get filtering params
+	// get filter params
+	filterColumn, filterValue, filterErr := extractFilterParams(params.FilterColumn, params.FilterValue)
+	if filterErr != nil {
+		restError := buildRestError(filterErr, dto.RestErrorTypeBadFilterRequest, 400)
+		return nil, nil, restError
+	}
 
-	//// get sorting params
-	//orderBy :=
+	whereQuery, whereArgs, err := getWhereClauseParams(filterColumn, filterValue)
+	if err != nil {
+		restError := buildRestError(err, dto.RestErrorTypeBadFilterRequest, 400)
+		return nil, nil, restError
+	}
 
-	err := db.
-		Table(model.BrowserHistoryTable).
-		Count(&count).
-		Order("created_at asc").
-		Offset(int(dbOffset)).
-		Limit(int(*itemCountPerPage)).
+	chain := db.Table(model.BrowserHistoryTable)
+	if whereQuery != "" && whereArgs != "" {
+		chain = chain.Where(whereQuery, whereArgs)
+	}
+
+	err = chain.Order("created_at asc").
+		Offset(dbOffset).
+		Limit(dbLimit).
 		Find(&records).
+		Count(&count).
 		Error
 
 	if err != nil {
@@ -141,4 +155,80 @@ func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB
 	}
 
 	return nil
+}
+
+func extractFilterParams(ptrFilterColumn *string, ptrFilterValue *string) (string, string, error) {
+	// get filtering params
+	filterColumn := ""
+	if ptrFilterColumn != nil {
+		filterColumn = *ptrFilterColumn
+	}
+	filterValue := ""
+	if ptrFilterValue != nil {
+		filterValue = *ptrFilterValue
+	}
+
+	trimedColumn := strings.TrimSpace(filterColumn)
+	trimedValue := strings.TrimSpace(filterValue)
+
+	if trimedColumn == "" && trimedValue != "" {
+		err := errors.New("empty filter column")
+		return "", "", err
+	}
+
+	return trimedColumn, trimedValue, nil
+}
+
+func getWhereClauseParams(filterColumn string, filterValue string) (string, string, error) {
+	if filterColumn == "" || filterValue == "" {
+		return "", "", nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeRecordID) {
+		id, err := strconv.ParseInt(filterValue, 10, 64)
+		if err != nil {
+			return "", "", err
+		}
+
+		query := "id = ?"
+		args := fmt.Sprintf("%d", id)
+		return query, args, nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeSessionID) {
+		query := fmt.Sprintf("%s LIKE ?", "session_id")
+		args := fmt.Sprintf("%s%%", filterValue) // starts with
+
+		return query, args, nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeBrowserName) {
+		query := fmt.Sprintf("%s LIKE ?", "browser_name")
+		args := fmt.Sprintf("%%%s%%", filterValue) // bi-directional `like`
+
+		return query, args, nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeLanguage) {
+		query := fmt.Sprintf("%s LIKE ?", "language")
+		args := fmt.Sprintf("%%%s%%", filterValue) // bi-directional `like`
+
+		return query, args, nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeClientTimezone) {
+		query := fmt.Sprintf("%s LIKE ?", "client_timezone")
+		args := fmt.Sprintf("%%%s%%", filterValue) // bi-directional `like`
+
+		return query, args, nil
+	}
+
+	if filterColumn == string(dto.BrowserHistoryFilterTypeUserAgent) {
+		query := fmt.Sprintf("%s LIKE ?", "user_agent")
+		args := fmt.Sprintf("%%%s%%", filterValue) // bi-directional `like`
+
+		return query, args, nil
+	}
+
+	return "", "", errors.New("invalid filter type")
 }

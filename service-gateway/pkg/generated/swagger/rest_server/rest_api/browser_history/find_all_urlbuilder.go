@@ -16,7 +16,7 @@ import (
 // FindAllURL generates an URL for the find all operation
 type FindAllURL struct {
 	CurrentPageOffset *int32
-	FilterColummn     *string
+	FilterColumn      *string
 	FilterValue       *string
 	ItemCountPerPage  *int64
 	OrderBy           *string
@@ -64,12 +64,12 @@ func (o *FindAllURL) Build() (*url.URL, error) {
 		qs.Set("currentPageOffset", currentPageOffset)
 	}
 
-	var filterColummn string
-	if o.FilterColummn != nil {
-		filterColummn = *o.FilterColummn
+	var filterColumn string
+	if o.FilterColumn != nil {
+		filterColumn = *o.FilterColumn
 	}
-	if filterColummn != "" {
-		qs.Set("filterColummn", filterColummn)
+	if filterColumn != "" {
+		qs.Set("filterColumn", filterColumn)
 	}
 
 	var filterValue string

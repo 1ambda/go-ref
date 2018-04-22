@@ -54,7 +54,7 @@ type FindAllParams struct {
 
 	  In: query
 	*/
-	FilterColummn *string
+	FilterColumn *string
 	/*a column value which will be used for filtering
 	  In: query
 	*/
@@ -90,8 +90,8 @@ func (o *FindAllParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 		res = append(res, err)
 	}
 
-	qFilterColummn, qhkFilterColummn, _ := qs.GetOK("filterColummn")
-	if err := o.bindFilterColummn(qFilterColummn, qhkFilterColummn, route.Formats); err != nil {
+	qFilterColumn, qhkFilterColumn, _ := qs.GetOK("filterColumn")
+	if err := o.bindFilterColumn(qFilterColumn, qhkFilterColumn, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -143,7 +143,7 @@ func (o *FindAllParams) bindCurrentPageOffset(rawData []string, hasKey bool, for
 	return nil
 }
 
-func (o *FindAllParams) bindFilterColummn(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *FindAllParams) bindFilterColumn(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -155,7 +155,7 @@ func (o *FindAllParams) bindFilterColummn(rawData []string, hasKey bool, formats
 		return nil
 	}
 
-	o.FilterColummn = &raw
+	o.FilterColumn = &raw
 
 	return nil
 }

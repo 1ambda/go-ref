@@ -72,7 +72,7 @@ paths:
           type: integer
           format: int32
           default: 0
-        - name: filterColummn
+        - name: filterColumn
           in: query
           type: string
           description: |
@@ -345,4 +345,5 @@ definitions:
         enum:
           - InvalidSession
           - InternalServer
+          - BadFilterRequest
           - RecordDoesNotxist

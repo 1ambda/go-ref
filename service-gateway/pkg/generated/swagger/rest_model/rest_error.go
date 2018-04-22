@@ -51,7 +51,7 @@ var restErrorTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["InvalidSession","InternalServer","RecordDoesNotxist"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["InvalidSession","InternalServer","BadFilterRequest","RecordDoesNotxist"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -66,6 +66,9 @@ const (
 
 	// RestErrorTypeInternalServer captures enum value "InternalServer"
 	RestErrorTypeInternalServer string = "InternalServer"
+
+	// RestErrorTypeBadFilterRequest captures enum value "BadFilterRequest"
+	RestErrorTypeBadFilterRequest string = "BadFilterRequest"
 
 	// RestErrorTypeRecordDoesNotxist captures enum value "RecordDoesNotxist"
 	RestErrorTypeRecordDoesNotxist string = "RecordDoesNotxist"

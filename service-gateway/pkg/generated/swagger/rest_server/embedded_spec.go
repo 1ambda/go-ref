@@ -59,7 +59,7 @@ func init() {
           {
             "type": "string",
             "description": "a column name which will be used for filtering\n` + "`" + `BrowserHistoryFilterType` + "`" + ` definition\n",
-            "name": "filterColummn",
+            "name": "filterColumn",
             "in": "query"
           },
           {
@@ -449,6 +449,7 @@ func init() {
           "enum": [
             "InvalidSession",
             "InternalServer",
+            "BadFilterRequest",
             "RecordDoesNotxist"
           ]
         }
@@ -544,7 +545,7 @@ func init() {
           {
             "type": "string",
             "description": "a column name which will be used for filtering\n` + "`" + `BrowserHistoryFilterType` + "`" + ` definition\n",
-            "name": "filterColummn",
+            "name": "filterColumn",
             "in": "query"
           },
           {
@@ -934,6 +935,7 @@ func init() {
           "enum": [
             "InvalidSession",
             "InternalServer",
+            "BadFilterRequest",
             "RecordDoesNotxist"
           ]
         }

@@ -58,5 +58,10 @@ func GetDatabase(spec config.Specification) *gorm.DB {
 		db.Model(&GeolocationHistory{}).AddForeignKey("session_id", "session(session_id)", "RESTRICT", "CASCADE")
 	}
 
+	if config.IsLocalEnv(spec) || config.IsTestEnv(spec) {
+		db = db.LogMode(true)
+		db = db.Debug()
+	}
+
 	return db
 }

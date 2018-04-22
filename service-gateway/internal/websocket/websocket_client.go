@@ -35,7 +35,7 @@ func (c *Client) getWebsocketID() string {
 	defer c.lock.RUnlock()
 
 	// assign new string to avoid data race
-	id := c.getWebsocketID()
+	id := c.websocketID
 
 	return id
 }
@@ -44,7 +44,8 @@ func (c *Client) getSessionID() string {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
-	return c.sessionID
+	sessionID := c.sessionID
+	return sessionID
 }
 
 func (c *Client) getCloseReason() string {

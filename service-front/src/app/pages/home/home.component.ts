@@ -51,8 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * filter related variables
    */
-  filterValue = 'asdasdasd'
-  filterColumn = 'sessionId'
+  defaultFilterColumn = 'SessionID'
 
   /**
    * server-side streamed variables

@@ -72,6 +72,24 @@ paths:
           type: integer
           format: int32
           default: 0
+        - name: filterColummn
+          in: query
+          type: string
+          description: |
+            a column name which will be used for filtering
+            `BrowserHistoryFilterType` definition
+        - name: filterValue
+          in: query
+          type: string
+          description: a column value which will be used for filtering
+        - name: sortBy
+          in: query
+          type: string
+          description: a column name which will be used for sorting
+        - name: orderBy
+          in: query
+          type: string
+          description: "'asc' or 'desc'"
       responses:
         200:
           description: BrowserHistory records with pagination info
@@ -301,6 +319,16 @@ definitions:
         format: int64
       sessionId:
         type: string
+
+  BrowserHistoryFilterType:
+    type: string
+    enum:
+      - RecordID
+      - SessionID
+      - BrowserName
+      - Language
+      - ClientTimezone
+      - UserAgent
 
   RestError:
     type: object

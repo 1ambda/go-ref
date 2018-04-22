@@ -50,6 +50,8 @@ type FindAllParams struct {
 	*/
 	CurrentPageOffset *int32
 	/*a column name which will be used for filtering
+	`BrowserHistoryFilterType` definition
+
 	  In: query
 	*/
 	FilterColummn *string

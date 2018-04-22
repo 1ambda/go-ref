@@ -58,7 +58,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "a column name which will be used for filtering",
+            "description": "a column name which will be used for filtering\n` + "`" + `BrowserHistoryFilterType` + "`" + ` definition\n",
             "name": "filterColummn",
             "in": "query"
           },
@@ -296,6 +296,17 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "BrowserHistoryFilterType": {
+      "type": "string",
+      "enum": [
+        "RecordID",
+        "SessionID",
+        "BrowserName",
+        "Language",
+        "ClientTimezone",
+        "UserAgent"
+      ]
     },
     "BrowserHistoryWithPagination": {
       "type": "object",
@@ -532,7 +543,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "a column name which will be used for filtering",
+            "description": "a column name which will be used for filtering\n` + "`" + `BrowserHistoryFilterType` + "`" + ` definition\n",
             "name": "filterColummn",
             "in": "query"
           },
@@ -770,6 +781,17 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "BrowserHistoryFilterType": {
+      "type": "string",
+      "enum": [
+        "RecordID",
+        "SessionID",
+        "BrowserName",
+        "Language",
+        "ClientTimezone",
+        "UserAgent"
+      ]
     },
     "BrowserHistoryWithPagination": {
       "type": "object",

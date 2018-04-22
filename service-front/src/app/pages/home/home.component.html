@@ -52,13 +52,14 @@
   <div class="container table-filter-form" >
     <form>
       <mat-form-field class="table-filter-form-select">
-        <mat-select [value]="filterColumn" placeholder="Filter Column"
+        <mat-select [value]="defaultFilterColumn" placeholder="Filter Column"
                     (change)="onFilterColumnChange($event.value)">
-          <mat-option value="recordId">ID</mat-option>
-          <mat-option value="sessionId">Session</mat-option>
-          <mat-option value="browserName">Browser Name</mat-option>
-          <mat-option value="language">Language</mat-option>
-          <mat-option value="clientTimezone">Client Timezone</mat-option>
+          <mat-option value="RecordID">ID</mat-option>
+          <mat-option value="SessionID">Session</mat-option>
+          <mat-option value="BrowserName">Browser Name</mat-option>
+          <mat-option value="Language">Language</mat-option>
+          <mat-option value="ClientTimezone">Client Timezone</mat-option>
+          <mat-option value="UserAgent">User Agent</mat-option>
         </mat-select>
       </mat-form-field>
       <mat-form-field class="table-filter-form-input">

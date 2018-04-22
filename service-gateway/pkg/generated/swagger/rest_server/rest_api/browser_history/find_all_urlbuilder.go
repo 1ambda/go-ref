@@ -16,7 +16,11 @@ import (
 // FindAllURL generates an URL for the find all operation
 type FindAllURL struct {
 	CurrentPageOffset *int32
+	FilterColummn     *string
+	FilterValue       *string
 	ItemCountPerPage  *int64
+	OrderBy           *string
+	SortBy            *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -60,12 +64,44 @@ func (o *FindAllURL) Build() (*url.URL, error) {
 		qs.Set("currentPageOffset", currentPageOffset)
 	}
 
+	var filterColummn string
+	if o.FilterColummn != nil {
+		filterColummn = *o.FilterColummn
+	}
+	if filterColummn != "" {
+		qs.Set("filterColummn", filterColummn)
+	}
+
+	var filterValue string
+	if o.FilterValue != nil {
+		filterValue = *o.FilterValue
+	}
+	if filterValue != "" {
+		qs.Set("filterValue", filterValue)
+	}
+
 	var itemCountPerPage string
 	if o.ItemCountPerPage != nil {
 		itemCountPerPage = swag.FormatInt64(*o.ItemCountPerPage)
 	}
 	if itemCountPerPage != "" {
 		qs.Set("itemCountPerPage", itemCountPerPage)
+	}
+
+	var orderBy string
+	if o.OrderBy != nil {
+		orderBy = *o.OrderBy
+	}
+	if orderBy != "" {
+		qs.Set("orderBy", orderBy)
+	}
+
+	var sortBy string
+	if o.SortBy != nil {
+		sortBy = *o.SortBy
+	}
+	if sortBy != "" {
+		qs.Set("sortBy", sortBy)
 	}
 
 	result.RawQuery = qs.Encode()

@@ -75,11 +75,17 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	logger.Info("Finding All BrowserHistory records")
 
 	var records []model.BrowserHistory
+
+	// get pagination params
 	var count int64 = 0
 	currentPageOffset := params.CurrentPageOffset
 	itemCountPerPage := params.ItemCountPerPage
-
 	dbOffset := int64(*currentPageOffset) * (*itemCountPerPage)
+
+	// get filtering params
+
+	//// get sorting params
+	//orderBy :=
 
 	err := db.
 		Table(model.BrowserHistoryTable).
@@ -136,32 +142,3 @@ func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB
 
 	return nil
 }
-
-// TODO(1ambda): PUT doesn't work
-//func updateOneAccess(params browser_history.UpdateOneParams, db *gorm.DB) (*rest_model.Access, *rest_model.Error) {
-//	logger := config.GetLogger()
-//	logger.Infow("Updating BrowserHistory record", "id", params.ID)
-//
-//	record := model.ConvertFromDTO(params.Body)
-//	var updated model.BrowserHistory
-//
-//	// https://github.com/jinzhu/gorm/issues/891
-//	result := db.Model(&updated).Where("id = ?", params.ID).Update(record)
-//
-//	if result.Error != nil {
-//		logger.Errorw("Failed to update BrowserHistory record due to unknown error",
-//			"id", params.ID, "error", result.Error)
-//		restError := buildRestError(result.Error, 500)
-//		return nil, restError
-//	}
-//
-//	if result.RowsAffected < 1 {
-//		logger.Infow("Failed to find BrowserHistory record before updating", "id", params.ID)
-//		err := errors.New(gorm.ErrRecordNotFound.Error())
-//		restError := buildRestError(err, 400)
-//		return nil, restError
-//	}
-//
-//	response := model.ConvertToDTO(&updated)
-//	return response, nil
-//}

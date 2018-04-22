@@ -91,7 +91,7 @@ var _ = Describe("Rest: BrowserHistory", func() {
 
 				Expect(restErr).To(BeNil())
 				Expect(restResp).NotTo(BeNil())
-				Expect(restResp.UUID).NotTo(Equal(""))
+				Expect(restResp.RecordID).To(Equal(int64(1)))
 			})
 		})
 	})
@@ -139,7 +139,7 @@ var _ = Describe("Rest: BrowserHistory", func() {
 				restResp, restErr := findOneBrowserHistory(params, db)
 
 				Expect(restErr).To(BeNil())
-				Expect(restResp.ID).To(Equal(int64(record.ID)))
+				Expect(restResp.RecordID).To(Equal(int64(record.ID)))
 			})
 		})
 	})
@@ -167,38 +167,4 @@ var _ = Describe("Rest: BrowserHistory", func() {
 			})
 		})
 	})
-
-	//Describe("updateOneHandler", func() {
-	//	Context("When got invalid ID", func() {
-	//		It("should return rest error", func() {
-	//			request := convertToAccessRequest(createAccessRecord())
-	//			params := browser_history.UpdateOneParams{ID: -1, Body: request}
-	//
-	//			restResp, restErr := updateOneBrowserHistory(params, db)
-	//
-	//			Expect(restResp).To(BeNil())
-	//			Expect(restErr).NotTo(BeNil())
-	//			Expect(restErr.Code).To(Equal(int64(404)))
-	//		})
-	//	})
-	//
-	//	Context("When got valid ID", func() {
-	//		It("should update BrowserHistory record", func() {
-	//			record := insertAccessRecord(db)
-	//			request := convertToAccessRequest(record)
-	//
-	//			// update agent value
-	//			newAgent := "agent2"
-	//			request.UserAgent = &newAgent
-	//
-	//			params := browser_history.UpdateOneParams{ID: int64(record.ID), Body: request}
-	//			restResp, restErr := updateOneBrowserHistory(params, db)
-	//
-	//			Expect(restErr).To(BeNil())
-	//			Expect(restResp).NotTo(BeNil())
-	//			Expect(*restResp.UserAgent).To(Equal(newAgent))
-	//		})
-	//	})
-	//})
-
 })

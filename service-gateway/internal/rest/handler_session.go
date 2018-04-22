@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
@@ -97,7 +98,6 @@ func refreshSession(db *gorm.DB, sessionID string) (*model.Session, *dto.RestErr
 }
 
 func getSessionCookieForRest(req *http.Request, db *gorm.DB) (string, *dto.RestError) {
-	logger := config.GetLogger()
 	cookie, err := req.Cookie(config.SessionKey)
 
 	if err != nil {
@@ -110,24 +110,53 @@ func getSessionCookieForRest(req *http.Request, db *gorm.DB) (string, *dto.RestE
 		return "", restErr
 	}
 
-	if cookie == nil || cookie.Value == "" {
-		err := errors.New("empty session cookie")
-		restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
-		return "", restErr
-	}
+	return cookie.Value, nil
+}
 
-	record := &model.Session{}
-	sessionID := cookie.Value
-	if err := db.Where("session_id = ?", sessionID).First(record).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 400)
-			return "", restErr
+// Validate cookie session.
+func ConfigureSessionMiddleware(db *gorm.DB, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := config.GetLogger()
+
+		// if cors
+		if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+			h.ServeHTTP(w, r)
+			return
 		}
 
-		logger.Errorw("Failed to find Session record due to unknown error",
-			"session", sessionID, "error", err)
-		return "", buildRestError(err, dto.RestErrorTypeInternalServer, 500)
-	}
+		// if session creation request
+		if r.Method == http.MethodPost && r.URL.Path == "/api/session" {
+			h.ServeHTTP(w, r)
+			return
+		}
 
-	return cookie.Value, nil
+		sessionID, restErr := getSessionCookieForRest(r, db)
+		if restErr != nil {
+			sendRestError(restErr, w)
+			return
+		}
+
+		record := &model.Session{}
+		if err := db.Where("session_id = ?", sessionID).First(record).Error; err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				restErr := buildRestError(err, dto.RestErrorTypeInvalidSession, 401)
+				sendRestError(restErr, w)
+				return
+			}
+
+			logger.Errorw("Failed to find Session record due to unknown error",
+				"session", sessionID, "error", err)
+			restErr := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
+			sendRestError(restErr, w)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
+func sendRestError(restErr *dto.RestError, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(int(restErr.Code))
+	json.NewEncoder(w).Encode(restErr)
 }

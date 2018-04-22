@@ -55,6 +55,30 @@ func init() {
             "default": 0,
             "name": "currentPageOffset",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column name which will be used for filtering",
+            "name": "filterColummn",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column value which will be used for filtering",
+            "name": "filterValue",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column name which will be used for sorting",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "'asc' or 'desc'",
+            "name": "orderBy",
+            "in": "query"
           }
         ],
         "responses": {
@@ -504,6 +528,30 @@ func init() {
             "format": "int32",
             "default": 0,
             "name": "currentPageOffset",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column name which will be used for filtering",
+            "name": "filterColummn",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column value which will be used for filtering",
+            "name": "filterValue",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a column name which will be used for sorting",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "'asc' or 'desc'",
+            "name": "orderBy",
             "in": "query"
           }
         ],

@@ -63,16 +63,6 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 			return browser_history.NewRemoveOneNoContent()
 		})
 
-	// TOOD(1ambda): PUT doens't work :(
-	//api.AccessUpdateOneHandler = browser_history.UpdateOneHandlerFunc(
-	//	func(params browser_history.UpdateOneParams) middleware.Responder {
-	//		restResp, restErr := updateOneAccess(params, db)
-	//		if restErr != nil {
-	//			return browser_history.NewAddOneDefault(getCode(restErr)).WithPayload(restErr)
-	//		}
-	//		return browser_history.NewUpdateOneOK().WithPayload(restResp)
-	//	})
-
 	/**
 	 * Session API
 	 */

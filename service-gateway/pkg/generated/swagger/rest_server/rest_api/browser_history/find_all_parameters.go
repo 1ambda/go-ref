@@ -24,7 +24,8 @@ func NewFindAllParams() FindAllParams {
 		// initialize parameters with default values
 
 		currentPageOffsetDefault = int32(0)
-		itemCountPerPageDefault  = int64(10)
+
+		itemCountPerPageDefault = int64(10)
 	)
 
 	return FindAllParams{
@@ -48,11 +49,27 @@ type FindAllParams struct {
 	  Default: 0
 	*/
 	CurrentPageOffset *int32
+	/*a column name which will be used for filtering
+	  In: query
+	*/
+	FilterColummn *string
+	/*a column value which will be used for filtering
+	  In: query
+	*/
+	FilterValue *string
 	/*
 	  In: query
 	  Default: 10
 	*/
 	ItemCountPerPage *int64
+	/*'asc' or 'desc'
+	  In: query
+	*/
+	OrderBy *string
+	/*a column name which will be used for sorting
+	  In: query
+	*/
+	SortBy *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -71,8 +88,28 @@ func (o *FindAllParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 		res = append(res, err)
 	}
 
+	qFilterColummn, qhkFilterColummn, _ := qs.GetOK("filterColummn")
+	if err := o.bindFilterColummn(qFilterColummn, qhkFilterColummn, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qFilterValue, qhkFilterValue, _ := qs.GetOK("filterValue")
+	if err := o.bindFilterValue(qFilterValue, qhkFilterValue, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qItemCountPerPage, qhkItemCountPerPage, _ := qs.GetOK("itemCountPerPage")
 	if err := o.bindItemCountPerPage(qItemCountPerPage, qhkItemCountPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrderBy, qhkOrderBy, _ := qs.GetOK("orderBy")
+	if err := o.bindOrderBy(qOrderBy, qhkOrderBy, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSortBy, qhkSortBy, _ := qs.GetOK("sortBy")
+	if err := o.bindSortBy(qSortBy, qhkSortBy, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,6 +141,40 @@ func (o *FindAllParams) bindCurrentPageOffset(rawData []string, hasKey bool, for
 	return nil
 }
 
+func (o *FindAllParams) bindFilterColummn(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.FilterColummn = &raw
+
+	return nil
+}
+
+func (o *FindAllParams) bindFilterValue(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.FilterValue = &raw
+
+	return nil
+}
+
 func (o *FindAllParams) bindItemCountPerPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
@@ -122,6 +193,40 @@ func (o *FindAllParams) bindItemCountPerPage(rawData []string, hasKey bool, form
 		return errors.InvalidType("itemCountPerPage", "query", "int64", raw)
 	}
 	o.ItemCountPerPage = &value
+
+	return nil
+}
+
+func (o *FindAllParams) bindOrderBy(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.OrderBy = &raw
+
+	return nil
+}
+
+func (o *FindAllParams) bindSortBy(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.SortBy = &raw
 
 	return nil
 }

@@ -92,9 +92,9 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 		return nil, nil, restError
 	}
 
-	whereQuery, whereArgs, err := getWhereClauseParams(filterColumn, filterValue)
-	if err != nil {
-		restError := buildRestError(err, dto.RestErrorTypeBadFilterRequest, 400)
+	whereQuery, whereArgs, whereClauseErr := getWhereClauseParams(filterColumn, filterValue)
+	if whereClauseErr != nil {
+		restError := buildRestError(whereClauseErr, dto.RestErrorTypeBadFilterRequest, 400)
 		return nil, nil, restError
 	}
 
@@ -103,12 +103,14 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 		chain = chain.Where(whereQuery, whereArgs)
 	}
 
-	err = chain.Order("created_at asc").
-		Offset(dbOffset).
-		Limit(dbLimit).
-		Find(&records).
-		Count(&count).
-		Error
+	err := chain.Order("created_at asc").Offset(dbOffset).Limit(dbLimit).Find(&records).Error
+
+	// can't use `db.Count()` w/ Offset() + Limit() + Where() due to gorm bug
+	chain = db.Table(model.BrowserHistoryTable)
+	if whereQuery != "" && whereArgs != "" {
+		chain = chain.Where(whereQuery, whereArgs)
+	}
+	chain.Count(&count)
 
 	if err != nil {
 		logger.Errorw("Failed to find all BrowserHistory records", "error", err)

@@ -7,6 +7,7 @@ import { GeoLocationService } from "../../shared/geo-location.service"
 import { SessionService } from "../../shared/session.service"
 import { BrowserHistoryService } from "../../shared/browser-history.service"
 import { NotificationService } from 'app/shared/notification.service'
+import { FormControl, FormGroup } from '@angular/forms'
 
 @Component({
   selector: 'home',
@@ -26,17 +27,17 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   rows = []
   columns = [
-    { name: 'id', prop: 'recordId' },
-    { name: 'session', prop: 'sessionId' },
-    { name: 'browser_name', prop: 'browserName' },
-    { name: 'browser_version', prop: 'browserVersion' },
-    { name: 'os_name', prop: 'osName' },
-    { name: 'os_version', prop: 'osVersion' },
-    { name: 'is_mobile', prop: 'isMobile' },
-    { name: 'language', prop: 'language' },
-    { name: 'local_timestamp', prop: 'clientTimestamp' },
-    { name: 'local_timezone', prop: 'clientTimezone' },
-    { name: 'user_agent', prop: 'userAgent' },
+    { name: 'ID', prop: 'recordId' },
+    { name: 'Session', prop: 'sessionId', width: 320, },
+    { name: 'Browser Name', prop: 'browserName' },
+    { name: 'Browser Version', prop: 'browserVersion' },
+    { name: 'OS Name', prop: 'osName' },
+    { name: 'OS Version', prop: 'osVersion' },
+    { name: 'Mobile', prop: 'isMobile' },
+    { name: 'Language', prop: 'language' },
+    { name: 'Client Timestamp', prop: 'clientTimestamp', width: 300,},
+    { name: 'Client Timezone', prop: 'clientTimezone' },
+    { name: 'User Agent', prop: 'userAgent', width: 1000, },
   ]
 
   /**
@@ -48,12 +49,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   isTableLoading = true
 
   /**
+   * filter related variables
+   */
+  filterValue = 'asdasdasd'
+  filterColumn = 'sessionId'
+
+  /**
    * server-side streamed variables
    */
-  currentTotalAccessCount = "0"
-  currentUserCount = "0"
-  currentNodeCount = "0"
-  currentMasterIdentifier = "UNKNOWN"
+  currentTotalAccessCount = '0'
+  currentUserCount = '0'
+  currentNodeCount = '0'
+  currentMasterIdentifier = 'UNKNOWN'
 
   private subscriptions: Array<Subscription> = []
 
@@ -63,7 +70,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private geoLocationService: GeoLocationService,
     private sessionService: SessionService,
     private notificationService: NotificationService) {
-
   }
 
   public ngOnInit() {
@@ -149,6 +155,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   onPageChange(event) {
     this.currentPageOffset = event.offset
     this.findAllBrowserHistory()
+  }
+
+  onFilterValueChange(filterValue) {
+    console.log(filterValue)
+  }
+
+  onFilterColumnChange(filterColumn) {
+    console.log(filterColumn)
   }
 
   private subscribeBrowserHistorySendEvent(): Subscription {

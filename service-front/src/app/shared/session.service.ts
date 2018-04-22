@@ -28,6 +28,7 @@ export class SessionService {
         const sessionID = response.sessionID
 
         this.session = response
+        // TODO(1ambda): use Set-Cookie header included in server response
         this.cookieService.set(SESSION_KEY, sessionID)
 
         if (emptySession) {

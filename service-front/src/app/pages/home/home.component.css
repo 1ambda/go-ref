@@ -6,3 +6,15 @@
   font-weight: 300;
   font-size: 45px;
 }
+
+.home .table-filter-form {
+  margin-top: 40px;
+}
+
+.home .table-filter-form-select {
+  width: 200px;
+}
+
+.home .table-filter-form-input{
+  width: 500px;
+}

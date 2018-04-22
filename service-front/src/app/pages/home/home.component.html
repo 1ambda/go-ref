@@ -1,4 +1,6 @@
 <div *ngIf="websocketConnected" class="container home">
+
+  <!-- realtime data -->
   <div class="container" fxLayout fxLayout.xs="column">
     <div fxFlex="25" fxFlex.xs="100%">
       <mat-card class="example-card">
@@ -45,6 +47,29 @@
       </mat-card>
     </div>
   </div>
+
+  <!-- table filter -->
+  <div class="container table-filter-form" >
+    <form>
+      <mat-form-field class="table-filter-form-select">
+        <mat-select [value]="filterColumn" placeholder="Filter Column"
+                    (change)="onFilterColumnChange($event.value)">
+          <mat-option value="recordId">ID</mat-option>
+          <mat-option value="sessionId">Session</mat-option>
+          <mat-option value="browserName">Browser Name</mat-option>
+          <mat-option value="language">Language</mat-option>
+          <mat-option value="clientTimezone">Client Timezone</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="table-filter-form-input">
+        <input matInput #filterValue maxlength="96" placeholder="Filter Value"
+               (input)="onFilterValueChange(filterValue.value)">
+        <mat-hint align="end">{{filterValue.value.length}} / 96</mat-hint>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <!-- table -->
   <div class="container">
     <ngx-datatable
       class="material"

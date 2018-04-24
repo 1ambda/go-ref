@@ -19,6 +19,11 @@ export class NotificationService {
     this.notificationLibrary.error(title, message, NOTIFICATION_OPTION)
   }
 
+  displayFormattedError(status: number, message: string, type: string) {
+    const title = `[${status}] ${type}`
+    this.notificationLibrary.error(title, message, NOTIFICATION_OPTION)
+  }
+
   displayWarn(title: string, message: string) {
     this.notificationLibrary.warn(title, message, NOTIFICATION_OPTION)
   }

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { ModuleWithProviders, NgModule } from '@angular/core'
 import { FormsModule } from '@angular/forms'
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 
 import { FlexLayoutModule } from '@angular/flex-layout'
 import { MaterialModule } from './material.module'
@@ -12,6 +13,7 @@ import { NotificationService } from "./notification.service"
 import { WebsocketService } from "./websocket.service"
 import { GeoLocationService } from "./geo-location.service"
 import { SessionService } from "./session.service"
+import { HttpResponseInterceptor } from "./http-response.interceptor"
 
 
 @NgModule({
@@ -19,6 +21,7 @@ import { SessionService } from "./session.service"
     CommonModule,
     MaterialModule,
     FlexLayoutModule,
+    HttpClientModule,
   ],
   declarations: [],
   exports: [
@@ -26,6 +29,7 @@ import { SessionService } from "./session.service"
     FormsModule,
     MaterialModule,
     FlexLayoutModule,
+    HttpClientModule,
   ],
 })
 export class SharedModule {
@@ -40,6 +44,11 @@ export class SharedModule {
         GeoLocationService,
         BrowserHistoryService,
         NotificationService,
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: HttpResponseInterceptor,
+          multi: true
+        }
       ]
     }
   }

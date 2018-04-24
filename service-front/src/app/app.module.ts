@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { HttpClientModule } from '@angular/common/http'
 import { PreloadAllModules, RouterModule } from '@angular/router'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
@@ -21,6 +20,9 @@ import { DevModuleModule } from './pages/+dev-module'
  * rxjs global import
  */
 import 'rxjs/add/operator/filter'
+import 'rxjs/add/operator/do'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/observable/throw'
 /**
  * swagger generated clients
  *
@@ -88,7 +90,6 @@ const APP_PROVIDERS = [
     ReactiveFormsModule,
     NgxDatatableModule,
     ApiModule.forRoot(restApiConfigFactory),
-    HttpClientModule,
     RouterModule.forRoot(ROUTES, {
       useHash: Boolean(history.pushState) === false,
       preloadingStrategy: PreloadAllModules

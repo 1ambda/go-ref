@@ -43,7 +43,7 @@
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
-  revision = "f59a71f0ece6f9dfb438be7f45148f006cbad88e"
+  revision = "863ac7f90e00e88e507095639a8457bbbf3c2ec9"
 
 [[projects]]
   branch = "master"
@@ -82,13 +82,13 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "62281b694b396a17fe3e4313ee8b0ca2c3cca719"
+  revision = "f12926f16ac2fb1da15316fd0aa84ce0d64550c3"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "370d9e047557906322be8396e77cb0376be6cb96"
+  revision = "bcff419492eeeb01f76e77d2ebc714dc97b607f5"
 
 [[projects]]
   branch = "master"
@@ -106,7 +106,7 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "a6c59cf99c081a216ca6988799f3203df06458d2"
+  revision = "f8f9c5961cd5fd7c22af8d93d3190b640b4c72af"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -293,6 +293,7 @@
     "html",
     "html/atom",
     "html/charset",
+    "http/httpguts",
     "http2",
     "http2/hpack",
     "idna",
@@ -300,13 +301,13 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
+  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f6f352972f061230a99fbf49d1eb8073ebdb36cb"
+  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
 
 [[projects]]
   name = "golang.org/x/text"

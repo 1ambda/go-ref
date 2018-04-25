@@ -8,7 +8,7 @@ import (
 
 	"github.com/1ambda/go-ref/service-location/internal/pkg/config"
 	"github.com/1ambda/go-ref/service-location/internal/server/hello"
-	pb "github.com/1ambda/go-ref/service-location/pkg/api"
+	"github.com/1ambda/go-ref/service-location/pkg/generated/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -45,7 +45,7 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		<- c
+		<-c
 		logger.Infow("Stopping server...", "server_name", spec.ServerName)
 		s.GracefulStop()
 	}()

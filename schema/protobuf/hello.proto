@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "io.github.lambda.goref.backend";
 option java_outer_classname = "GoRefBackendProto";
 
-package api;
+package pb;
 
 service Hello {
   rpc SayHello (HelloRequest) returns (HelloReply) {}

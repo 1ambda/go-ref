@@ -1,9 +1,8 @@
 package main
 
 import (
-	pb "github.com/1ambda/go-ref/service-location/pkg/api"
-
 	"github.com/1ambda/go-ref/service-location/internal/pkg/config"
+	"github.com/1ambda/go-ref/service-location/pkg/generated/grpc"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

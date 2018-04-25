@@ -8,7 +8,7 @@ cont:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="${BIN_DIR}" \
-		-exclude-dir="internal/mock" \
+		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build" -command="make run-only" -graceful-kill=true
@@ -19,7 +19,7 @@ cont-just:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="${BIN_DIR}" \
-		-exclude-dir="internal/mock" \
+		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build-just"  -command="make run-only" -graceful-kill=true

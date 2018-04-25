@@ -13,9 +13,6 @@ APPS		:= $(APP) client
 GITHUB_MODULE	= service-location		# module name in the repository
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
-# `api/$(SERVICE).proto					: protobuf definition
-# `pkg/api/$(SERVICE).pb.go`			: (auto-generated) protobuf service
-# `pkg/api/mock_$(SERVICE).pb.go`	: (auto-generated) protobuf mock
 SERVICES	:= hello
 SCHEMA_DIR	:= ../schema/protobuf
 
@@ -24,11 +21,16 @@ $(SERVICES):
 	# capitalize first letter
 	@$(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf service files: $(SERVICE)"
-	protoc  --proto_path $(SCHEMA_DIR) $(SERVICE).proto --go_out=plugins=grpc:pkg/api
+	protoc  --proto_path $(SCHEMA_DIR) $(SERVICE).proto --go_out=plugins=grpc:pkg/generated/grpc
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf mock files: $(SERVICE)"
-	mockgen -source=pkg/api/$(SERVICE).pb.go -package=api $(SERVICE_UPPERCASE)Client > pkg/api/mock_$(SERVICE).pb.go
+	mockgen -source=pkg/generated/grpc/$(SERVICE).pb.go -package=pb $(SERVICE_UPPERCASE)Client > pkg/generated/grpc/mock_$(SERVICE).pb.go
 
-protoc: $(SERVICES)
+protoc-clean:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger files"
+	rm -rf pkg/generated/grpc/* || true
+	mkdir -p pkg/generated/grpc || true
+
+protoc: protoc-clean $(SERVICES)
 
 $(APPS):
 	@$(eval TARGET := $@)

@@ -20,14 +20,14 @@ const ENV_DEV = "DEV"
 const ENV_PROD = "PROD"
 
 type Specification struct {
-	Env           string   `default:"LOCAL"` // `LOCAL`, `TEST`, `DEV`, `PROD`
-	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
-	ServerName    string   `default:"0"`
 	Debug         bool     `default:"true"`
+	Env           string   `default:"LOCAL"` // `LOCAL`, `TEST`, `DEV`, `PROD`
+	Host          string   `default:"localhost"`
 	WebSocketPort int      `default:"50001"`
 	HttpPort      int      `default:"50002"`
 	CorsAllowUrl  string   `default:"localhost:3000"`
-	Host          string   `default:"localhost"`
+	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
+	ServerName    string   `default:"0"`
 	MysqlHost     string   `default:"localhost"`
 	MysqlPort     string   `default:"3306"`
 	MysqlUserName string   `default:"root"`

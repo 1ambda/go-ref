@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"go.uber.org/zap"
 )
 
 var (
@@ -15,22 +14,40 @@ var (
 	Version    string
 )
 
+const ENV_LOCAL = "LOCAL"
+const ENV_TEST = "TEST"
+const ENV_DEV = "DEV"
+const ENV_PROD = "PROD"
+
 type Specification struct {
-	Env   string `default:"LOCAL"`
-	Debug bool   `default:"false"`
-	Port  string `default:"50002"`
-	Host  string `default:"localhost"`
+	Debug         bool     `default:"true"`
+	Env           string   `default:"LOCAL"`
+	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
+	ServerName    string   `default:"0"`
+	GrpcPort      string   `default:"50003"`
+	Host          string   `default:"localhost"`
+}
+
+var Spec Specification
+
+func init() {
+	Spec = GetSpecification()
 }
 
 func GetSpecification() Specification {
 	var s Specification
 	err := envconfig.Process("", &s)
 	if err != nil {
-		logger, _ := zap.NewProduction()
-		defer logger.Sync()
-		log := logger.Sugar()
-		log.Fatal(err.Error())
+		panic("Failed to get specification")
 	}
 
 	return s
+}
+
+func IsTestEnv(spec Specification) bool {
+	return spec.Env == ENV_TEST
+}
+
+func IsLocalEnv(spec Specification) bool {
+	return spec.Env == ENV_LOCAL
 }

@@ -11,7 +11,10 @@
 - [service-gateway](https://github.com/1ambda/go-ref/tree/master/service-gateway): serving Websocket and REST endpoints
   * generate rest, websocket model + server stub using [go-swagger](https://github.com/go-swagger/go-swagger)
   * while working as a gRPC client
-- [service-backend](https://github.com/1ambda/go-ref/tree/master/service-backend): serving gRPC endpoints
+  * provides scalable realtime metric servers using etcd 
+- [service-location](https://github.com/1ambda/go-ref/tree/master/service-backend): serving gRPC endpoints
+  * provides location service sharding (e.g location server 1 handles requests from US, ..)
+  
 
 
 ```                                                                                                  

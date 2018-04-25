@@ -2,12 +2,13 @@ package main
 
 import (
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/1ambda/go-ref/service-location/internal/pkg/config"
 	"github.com/1ambda/go-ref/service-location/internal/server/hello"
 	pb "github.com/1ambda/go-ref/service-location/pkg/api"
-
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -15,10 +16,8 @@ import (
 func main() {
 	spec := config.GetSpecification()
 
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	log := logger.Sugar()
-	log.Infow("Starting server...",
+	logger := config.GetLogger()
+	logger.Infow("Starting server...",
 		"version", config.Version,
 		"build_date", config.BuildDate,
 		"git_commit", config.GitCommit,
@@ -26,20 +25,33 @@ func main() {
 		"git_state", config.GitState,
 		"git_summary", config.GitSummary,
 		"env", spec.Env,
-		"port", spec.Port,
+		"grpc_port", spec.GrpcPort,
 		"debug", spec.Debug,
+		"server_name", spec.ServerName,
 	)
 
-	port := spec.Port
+	port := spec.GrpcPort
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
+		logger.Fatalf("Failed to listen: %v", err)
 	}
 
+	// register grpc services
 	s := grpc.NewServer()
 	pb.RegisterHelloServer(s, &hello.HelloServer{})
 	reflection.Register(s)
+
+	// register shutdown hook
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<- c
+		logger.Infow("Stopping server...", "server_name", spec.ServerName)
+		s.GracefulStop()
+	}()
+
+	// start server
 	if err := s.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+		logger.Fatalf("Failed to serve: %v", err)
 	}
 }

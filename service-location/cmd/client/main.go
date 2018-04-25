@@ -24,11 +24,11 @@ func main() {
 		"git_summary", config.GitSummary,
 		"env", spec.Env,
 		"host", spec.Host,
-		"port", spec.Port,
+		"port", spec.GrpcPort,
 		"debug", spec.Debug,
 	)
 
-	address := spec.Host + ":" + spec.Port
+	address := spec.Host + ":" + spec.GrpcPort
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)

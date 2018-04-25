@@ -20,8 +20,6 @@ PROTO_DIR  = ../schema/protobuf
 PROTO_FILE = $(PROTO_DIR)/gateway.proto
 GENERATED_GRPC_SERVER_DIR = "pkg/grpc"
 
-#MOCK_PKG_DIRS = "internal/distributed" "internal/websocket"
-
 MOCKGEN = mockgen
 MOCK_PREFIX = mock_
 MOCK_PKG_DIRS := "internal/distributed" "internal/websocket"

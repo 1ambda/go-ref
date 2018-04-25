@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package pb;
+
+service Location {
+    rpc SayLocation (LocationRequest) returns (LocationResponse) {
+    }
+}
+
+message LocationContext {
+    string sessionId = 1;
+    string country = 2;
+}
+
+message LocationRequest {
+    LocationContext locationContext = 1;
+}
+
+message LocationResponse {
+    LocationContext locationContext = 1;
+}

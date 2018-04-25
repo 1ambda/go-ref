@@ -13,8 +13,12 @@ APPS		:= $(APP) client
 GITHUB_MODULE	= service-location		# module name in the repository
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
-SERVICES	:= hello
+SERVICES	:= hello location
 SCHEMA_DIR	:= ../schema/protobuf
+
+MOCKGEN = mockgen
+MOCK_PREFIX = mock_
+MOCK_PKG_DIRS := "internal/hello"
 
 $(SERVICES):
 	@$(eval SERVICE := $@)
@@ -47,6 +51,8 @@ $(MOCK_PKG_DIRS):
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating mock files for $(TARGET)"
 	PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
 	@echo ""
+
+mock-generate: $(MOCK_PKG_DIRS)
 
 mock-generate: $(MOCK_PKG_DIRS)
 

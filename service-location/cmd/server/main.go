@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/1ambda/go-ref/service-location/internal/pkg/config"
-	"github.com/1ambda/go-ref/service-location/internal/server/hello"
+	"github.com/1ambda/go-ref/service-location/internal/config"
+	"github.com/1ambda/go-ref/service-location/internal/hello"
 	"github.com/1ambda/go-ref/service-location/pkg/generated/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

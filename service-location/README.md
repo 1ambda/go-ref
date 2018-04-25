@@ -1,10 +1,10 @@
-# Backend 
+# service-location 
 
 ## Requirements
 
 | name | version | description |
 |---|---|---|
-| [go](https://github.com/golang/go) | 1.9.2+ | use [gvm](https://github.com/moovweb/gvm) |
+| [go](https://github.com/golang/go) | 1.10+ | use [gvm](https://github.com/moovweb/gvm) |
 | [dep](https://github.com/golang/dep) |  | `go get -u github.com/golang/dep/cmd/dep` |
 | [protobuf](https://github.com/google/protobuf) | 3.5.0+ | `brew install protobuf` |
 

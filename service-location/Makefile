@@ -10,7 +10,7 @@ include ../scripts/makefiles/git.mk
 APP			= server					# default app
 APPS		:= $(APP) client
 
-GITHUB_MODULE	= service-backend		# module name in the repository
+GITHUB_MODULE	= service-location		# module name in the repository
 DOCKER_IMAGE	= $(shell echo $(DOCKER_IMAGE_PREFIX)_$(GITHUB_MODULE))
 
 # `api/$(SERVICE).proto					: protobuf definition
@@ -30,13 +30,27 @@ $(SERVICES):
 
 protoc: $(SERVICES)
 
-$(APPS): protoc
+$(APPS):
 	@$(eval TARGET := $@)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))
 	$(GOBUILD) -i -ldflags="$(LDFLAG)" -o $(BIN_DIR)/$(TARGET) -v $(CMD_DIR)/$(TARGET)/$(MAIN)
 
-build: clean $(APPS)
+$(MOCK_PKG_DIRS):
+	@$(eval TARGET := $@)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning mock files under $(TARGET)"
+	rm -rf $(TARGET)/$(MOCK_PREFIX)*
+	@echo ""
+
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating mock files for $(TARGET)"
+	PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
+	@echo ""
+
+mock-generate: $(MOCK_PKG_DIRS)
+
+build: clean protoc $(APPS)
+
+build-just: $(APPS)
 
 clean:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning"

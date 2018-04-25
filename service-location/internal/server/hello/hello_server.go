@@ -3,7 +3,7 @@ package hello
 import (
 	"context"
 
-	pb "github.com/1ambda/go-ref/service-backend/pkg/api"
+	pb "github.com/1ambda/go-ref/service-location/pkg/api"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"

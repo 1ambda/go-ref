@@ -18,7 +18,7 @@ SCHEMA_DIR	:= ../schema/protobuf
 
 MOCKGEN = mockgen
 MOCK_PREFIX = mock_
-MOCK_PKG_DIRS := "internal/hello"
+MOCK_PKG_DIRS := "internal/hello" "internal/distributed"
 
 $(SERVICES):
 	@$(eval SERVICE := $@)

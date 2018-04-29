@@ -34,22 +34,22 @@ func (m *MockLocationClient) EXPECT() *MockLocationClientMockRecorder {
 	return m.recorder
 }
 
-// SayLocation mocks base method
-func (m *MockLocationClient) SayLocation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
+// AddSession mocks base method
+func (m *MockLocationClient) AddSession(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "SayLocation", varargs...)
+	ret := m.ctrl.Call(m, "AddSession", varargs...)
 	ret0, _ := ret[0].(*LocationResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SayLocation indicates an expected call of SayLocation
-func (mr *MockLocationClientMockRecorder) SayLocation(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+// AddSession indicates an expected call of AddSession
+func (mr *MockLocationClientMockRecorder) AddSession(ctx, in interface{}, opts ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SayLocation", reflect.TypeOf((*MockLocationClient)(nil).SayLocation), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSession", reflect.TypeOf((*MockLocationClient)(nil).AddSession), varargs...)
 }
 
 // MockLocationServer is a mock of LocationServer interface
@@ -75,15 +75,15 @@ func (m *MockLocationServer) EXPECT() *MockLocationServerMockRecorder {
 	return m.recorder
 }
 
-// SayLocation mocks base method
-func (m *MockLocationServer) SayLocation(arg0 context.Context, arg1 *LocationRequest) (*LocationResponse, error) {
-	ret := m.ctrl.Call(m, "SayLocation", arg0, arg1)
+// AddSession mocks base method
+func (m *MockLocationServer) AddSession(arg0 context.Context, arg1 *LocationRequest) (*LocationResponse, error) {
+	ret := m.ctrl.Call(m, "AddSession", arg0, arg1)
 	ret0, _ := ret[0].(*LocationResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SayLocation indicates an expected call of SayLocation
-func (mr *MockLocationServerMockRecorder) SayLocation(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SayLocation", reflect.TypeOf((*MockLocationServer)(nil).SayLocation), arg0, arg1)
+// AddSession indicates an expected call of AddSession
+func (mr *MockLocationServerMockRecorder) AddSession(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSession", reflect.TypeOf((*MockLocationServer)(nil).AddSession), arg0, arg1)
 }

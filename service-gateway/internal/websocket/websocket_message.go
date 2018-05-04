@@ -53,12 +53,12 @@ func NewErrorMessage(err error, errorType string, code int64) (*Message, error) 
 	wsErr := dto.WebSocketError{
 		Code:      code,
 		Message:   err.Error(),
-		Type: errorType,
+		Type:      errorType,
 		Timestamp: time.Now().UTC().String(),
 	}
 
 	message := dto.WebSocketRealtimeResponse{
-		Header: &dto.WebSocketResponseHeader{ResponseType: &eventType, Error: &wsErr,},
+		Header: &dto.WebSocketResponseHeader{ResponseType: &eventType, Error: &wsErr},
 		Body:   &dto.WebSocketRealtimeResponseBody{},
 	}
 

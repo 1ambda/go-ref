@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/1ambda/go-ref/service-location/cmd/server",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/hello:go_default_library",
+        "//pkg/generated/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/reflection:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "server",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+    x_defs = [
+        "A",
+        "B",
+        "C",
+    ],
+)

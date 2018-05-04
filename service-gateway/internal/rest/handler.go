@@ -79,9 +79,9 @@ func Configure(db *gorm.DB, api *rest_api.GatewayRestAPI, dClient distributed.Di
 	/**
 	 * Geolocation API
 	 */
-	 api.GeolocationAddHandler = geolocation.AddHandlerFunc(
-	 	func(params geolocation.AddParams) middleware.Responder {
-	 		restResp, restErr := addOneGeolocationHistory(params, db)
+	api.GeolocationAddHandler = geolocation.AddHandlerFunc(
+		func(params geolocation.AddParams) middleware.Responder {
+			restResp, restErr := addOneGeolocationHistory(params, db)
 
 			if restErr != nil {
 				return geolocation.NewAddDefault(getCode(restErr)).WithPayload(restErr)
@@ -95,7 +95,7 @@ func buildRestError(err error, errorType string, code int64) *dto.RestError {
 	return &dto.RestError{
 		Code:      code,
 		Message:   err.Error(),
-		Type: errorType,
+		Type:      errorType,
 		Timestamp: time.Now().UTC().String(),
 	}
 }

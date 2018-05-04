@@ -123,9 +123,9 @@ func (m *managerImpl) updateWebsocketHistory(c *Client, isShutdown bool) {
 	result := m.db.Model(&record).
 		Where("websocket_id = ?", websocketID).
 		Updates(map[string]interface{}{
-		"close_reason": closeReason,
-		"closed_at":    time.Now().UTC(),
-	})
+			"close_reason": closeReason,
+			"closed_at":    time.Now().UTC(),
+		})
 
 	if result.Error != nil {
 		logger.Errorw("Failed to update WebsocketHistory record due to unknown error",

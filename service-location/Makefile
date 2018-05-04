@@ -20,26 +20,26 @@ MOCKGEN = mockgen
 MOCK_PREFIX = mock_
 MOCK_PKG_DIRS := "internal/hello" "internal/distributed"
 
-$(SERVICES):
+$(SERVICES): protoc
 	@$(eval SERVICE := $@)
 	# capitalize first letter
 	@$(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf service files: $(SERVICE)"
-	protoc  --proto_path $(SCHEMA_DIR) $(SERVICE).proto --go_out=plugins=grpc:pkg/generated/grpc
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf mock files: $(SERVICE)"
 	mockgen -source=pkg/generated/grpc/$(SERVICE).pb.go -package=pb $(SERVICE_UPPERCASE)Client > pkg/generated/grpc/mock_$(SERVICE).pb.go
 
-protoc-clean:
+protoc:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning swagger files"
 	rm -rf pkg/generated/grpc/* || true
 	mkdir -p pkg/generated/grpc || true
 
-protoc: protoc-clean $(SERVICES)
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - generating protobuf service files: $(SERVICE)"
+	protoc  --proto_path $(SCHEMA_DIR) --go_out=plugins=grpc:pkg/generated/grpc $(SCHEMA_DIR)/*.proto
 
 $(APPS):
 	@$(eval TARGET := $@)
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - building app: $(TARGET)"
 	@$(eval LDFLAG := $(shell govvv -flags -pkg $(shell go list ./internal/pkg/config)))
+	echo $(LDFLAG)
 	$(GOBUILD) -i -ldflags="$(LDFLAG)" -o $(BIN_DIR)/$(TARGET) -v $(CMD_DIR)/$(TARGET)/$(MAIN)
 
 $(MOCK_PKG_DIRS):
@@ -54,14 +54,19 @@ $(MOCK_PKG_DIRS):
 
 mock-generate: $(MOCK_PKG_DIRS)
 
-mock-generate: $(MOCK_PKG_DIRS)
-
-build: clean protoc $(APPS)
+build: clean protoc $(SERVICES) $(APPS)
 
 build-just: $(APPS)
 
+.PHONY: clean
 clean:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - cleaning"
 	rm -rf ./bin
 
-.PHONY: clean install build
+.PHONY: dep
+dep:
+	dep ensure -v
+	find vendor/ -name "BUILD" -delete
+	find vendor/ -name "BUILD.bazel" -delete
+	bazel run //:gazelle -- -proto disable
+	rm -f vendor/github.com/coreos/etcd/cmd/etcd

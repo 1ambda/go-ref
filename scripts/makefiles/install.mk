@@ -1,6 +1,5 @@
 GOCMD		= go
 GOGET		= $(GOCMD) get -u -v
-GODEP		= dep
 BREW		= brew
 
 prepare:
@@ -29,8 +28,8 @@ prepare:
 	$(GOGET) github.com/golang/mock/gomock
 	$(GOGET) github.com/golang/mock/mockgen
 
-install:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing / updating dependencies"
-	@$(GODEP) ensure -update
-	@$(GODEP) ensure
+	# bazel
+	$(BREW) brew install bazel
+	$(GOGET) get github.com/bazelbuild/buildtools/buildifier
+	$(GOGET) go get github.com/bazelbuild/buildtools/buildozer
 

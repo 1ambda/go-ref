@@ -20,7 +20,7 @@ type Connector interface {
 }
 
 type etcdConnectorImpl struct {
-	appCtx context.Context
+	appCtx     context.Context
 	etcdClient *clientv3.Client
 
 	serverName string

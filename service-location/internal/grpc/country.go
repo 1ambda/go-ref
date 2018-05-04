@@ -7,10 +7,8 @@ import (
 )
 
 type locationServiceImpl struct {
-
 }
 
 func (s *locationServiceImpl) AddSession(ctx context.Context, in *pb.LocationRequest) (*pb.LocationResponse, error) {
 	return nil, nil
 }
-

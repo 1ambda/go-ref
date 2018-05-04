@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "config.go",
+        "logger.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-location/internal/config",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//vendor/github.com/kelseyhightower/envconfig:go_default_library",
+        "//vendor/go.uber.org/zap:go_default_library",
+    ],
+)

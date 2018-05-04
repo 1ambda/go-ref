@@ -8,7 +8,7 @@ go_library(
     ],
     importpath = "github.com/1ambda/go-ref/service-location/internal/config",
     visibility = ["//:__subpackages__"],
-    x_defs = {"Version": "0.0.1", "BuildDate": "2018-05-04T10:49:40Z", "GitCommit": "0172192", "GitBranch": "master", "GitState": "dirty"},
+    x_defs = {"Version": "0.0.1", "BuildDate": "2018-05-04T11:45:43Z", "GitCommit": "1134982", "GitBranch": "master", "GitState": "dirty"},
     deps = [
         "//vendor/github.com/kelseyhightower/envconfig:go_default_library",
         "//vendor/go.uber.org/zap:go_default_library",

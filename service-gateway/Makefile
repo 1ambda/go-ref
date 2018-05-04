@@ -2,10 +2,11 @@ include ../scripts/makefiles/variables.mk
 include ../scripts/makefiles/basic.mk
 include ../scripts/makefiles/docker.mk
 include ../scripts/makefiles/install.mk
-include ../scripts/makefiles/run.mk
 include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
 include ../scripts/makefiles/git.mk
+include ../scripts/makefiles/protobuf.mk
+include ../scripts/makefiles/bazel.mk
 
 APP			= server
 APPS		:= $(APP)
@@ -21,8 +22,8 @@ SWAGGER_WS_SPEC		= ../schema/swagger/gateway-websocket.yml
 PROTO_SERVICES	:= hello location
 SCHEMA_DIR	:= ../schema/protobuf
 
-MOCKGEN = mockgen
-MOCK_PREFIX = mock_
+MOCKGEN 	= mockgen
+MOCK_PREFIX = mock
 MOCK_PKG_DIRS := "internal/distributed" "internal/websocket"
 
 .PHONY: dep
@@ -68,25 +69,14 @@ $(MOCK_PKG_DIRS):
 	@$(eval TARGET := $@)
 
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning mock files under $(TARGET)"
-	rm -rf $(TARGET)/$(MOCK_PREFIX)*
+	@rm -rf $(TARGET)/$(MOCK_PREFIX)*
 
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating mock files for $(TARGET)"
-	PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
+	@PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
 	@echo ""
 
 .PHONY: mock-internal
 mock-internal: $(MOCK_PKG_DIRS)
-
-.PHONY: protoc
-protoc:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning grpc files"
-	@rm -rf pkg/generated/grpc/* || true
-	@mkdir -p pkg/generated/grpc || true
-	@echo ""
-
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating protobuf service files"
-	protoc  --proto_path $(SCHEMA_DIR) --go_out=plugins=grpc:pkg/generated/grpc $(SCHEMA_DIR)/*.proto
-	@echo ""
 
 $(PROTO_SERVICES):
 	@$(eval SERVICE := $@)
@@ -94,26 +84,12 @@ $(PROTO_SERVICES):
 	# capitalize first letter
 	@$(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating protobuf mock files: $(SERVICE)"
-	mockgen -source=pkg/generated/grpc/$(SERVICE).pb.go -package=pb $(SERVICE_UPPERCASE)Client > pkg/generated/grpc/mock_$(SERVICE).pb.go
+	$(MOCKGEN) -source=pkg/generated/grpc/$(SERVICE).pb.go -package=pb $(SERVICE_UPPERCASE)Client > pkg/generated/grpc/$(MOCK_PREFIX)_$(SERVICE).pb.go
 	@echo ""
 
 .PHONY: mock-proto
 mock-proto: $(PROTO_SERVICES)
 
-.PHONY: gazelle
-gazelle:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating BUILD.bazel files"
-	@ find vendor/ -name "BUILD" -delete
-	@ find vendor/ -name "BUILD.bazel" -delete
-	@$(BAZEL) run //:gazelle -- -proto disable
-	@rm -f vendor/github.com/coreos/etcd/cmd/etcd
-	@echo ""
-
-.PHONY: inject-meta
-inject-meta:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Injecting LDFLAGS into BUILD.bazel"
-	@WORKSPACE=$(ROOT_IMPORT_PATH)/$(GITHUB_MODULE) CONFIG_PACKAGE_PATH=$(CONFIG_PACKAGE_PATH) ../scripts/get-ldflags.sh
-	@echo ""
 
 $(APPS): inject-meta
 	@$(eval TARGET := $@)
@@ -127,3 +103,28 @@ build: mock-internal protoc mock-proto swagger-server gazelle $(APPS)
 
 .PHONY: build-just
 build-just: gazelle $(APPS)
+
+.PHONY: run
+run:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
+	@echo ""
+	@bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
+
+.PHONY: cont
+cont:
+	CompileDaemon \
+		-exclude-dir="${VENDOR_DIR}" \
+		-exclude-dir="internal/*/mock_*.go" \
+		-exclude-dir="pkg/generated" \
+		-log-prefix=false \
+		-build="make build" -command="make run" -graceful-kill=true
+
+.PHONY: cont-just
+cont-just:
+	CompileDaemon \
+		-exclude-dir="${VENDOR_DIR}" \
+		-exclude-dir="internal/*/mock_*.go" \
+		-exclude-dir="pkg/generated" \
+		-log-prefix=false \
+		-build="make build-just"  -command="make run" -graceful-kill=true
+

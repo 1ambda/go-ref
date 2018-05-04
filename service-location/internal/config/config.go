@@ -10,7 +10,6 @@ var (
 	GitCommit  string
 	GitBranch  string
 	GitState   string
-	GitSummary string
 	Version    string
 )
 

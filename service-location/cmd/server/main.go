@@ -23,7 +23,6 @@ func main() {
 		"git_commit", config.GitCommit,
 		"git_branch", config.GitBranch,
 		"git_state", config.GitState,
-		"git_summary", config.GitSummary,
 		"env", spec.Env,
 		"grpc_port", spec.GrpcPort,
 		"debug", spec.Debug,

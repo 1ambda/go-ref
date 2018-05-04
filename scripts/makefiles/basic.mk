@@ -28,3 +28,5 @@ GO_FILES	= $(shell $(GOCMD) list ./... | grep -v /vendor/)
 GIT_COMMIT	= $(shell git rev-parse HEAD)
 GIT_DIRTY	= $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 VERSION		= $(shell cat ./VERSION)
+
+BAZEL		= bazel

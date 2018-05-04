@@ -9,47 +9,47 @@ import (
 	reflect "reflect"
 )
 
-// MockClient is a mock of Connector interface
-type MockClient struct {
+// MockConnector is a mock of Connector interface
+type MockConnector struct {
 	ctrl     *gomock.Controller
-	recorder *MockClientMockRecorder
+	recorder *MockConnectorMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
-type MockClientMockRecorder struct {
-	mock *MockClient
+// MockConnectorMockRecorder is the mock recorder for MockConnector
+type MockConnectorMockRecorder struct {
+	mock *MockConnector
 }
 
-// NewMockClient creates a new mock instance
-func NewMockClient(ctrl *gomock.Controller) *MockClient {
-	mock := &MockClient{ctrl: ctrl}
-	mock.recorder = &MockClientMockRecorder{mock}
+// NewMockConnector creates a new mock instance
+func NewMockConnector(ctrl *gomock.Controller) *MockConnector {
+	mock := &MockConnector{ctrl: ctrl}
+	mock.recorder = &MockConnectorMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockClient) EXPECT() *MockClientMockRecorder {
+func (m *MockConnector) EXPECT() *MockConnectorMockRecorder {
 	return m.recorder
 }
 
 // Publish mocks base method
-func (m *MockClient) Publish(message *Message) error {
+func (m *MockConnector) Publish(message *Message) error {
 	ret := m.ctrl.Call(m, "Publish", message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Publish indicates an expected call of Publish
-func (mr *MockClientMockRecorder) Publish(message interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockClient)(nil).Publish), message)
+func (mr *MockConnectorMockRecorder) Publish(message interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockConnector)(nil).Publish), message)
 }
 
 // Stop mocks base method
-func (m *MockClient) Stop() {
+func (m *MockConnector) Stop() {
 	m.ctrl.Call(m, "Stop")
 }
 
 // Stop indicates an expected call of Stop
-func (mr *MockClientMockRecorder) Stop() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockClient)(nil).Stop))
+func (mr *MockConnectorMockRecorder) Stop() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockConnector)(nil).Stop))
 }

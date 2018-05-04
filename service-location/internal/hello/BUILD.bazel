@@ -2,11 +2,15 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = ["hello_server.go"],
+    srcs = [
+        "hello_server.go",
+        "mock_hello_server.go",
+    ],
     importpath = "github.com/1ambda/go-ref/service-location/internal/hello",
     visibility = ["//:__subpackages__"],
     deps = [
         "//pkg/generated/grpc:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
         "//vendor/go.uber.org/zap:go_default_library",
     ],

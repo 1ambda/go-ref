@@ -1,25 +1,22 @@
-run-only:
+run:
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - running app: $(APP)"
-	@$(BIN_DIR)/$(APP)
-
-run: build run-only
+	@echo ""
+	@bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
 
 cont:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
-		-exclude-dir="${BIN_DIR}" \
+		-exclude-dir="/private/var/tmp/_bazel-*" \
 		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
-		-build="make build" -command="make run-only" -graceful-kill=true
-
-run-just: build-just run-only
+		-build="make build" -command="make run" -graceful-kill=true
 
 cont-just:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
-		-exclude-dir="${BIN_DIR}" \
+		-exclude-dir="/private/var/tmp/_bazel-*" \
 		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
-		-build="make build-just"  -command="make run-only" -graceful-kill=true
+		-build="make build-just"  -command="make run" -graceful-kill=true

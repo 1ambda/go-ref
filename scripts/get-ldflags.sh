@@ -2,17 +2,16 @@
 
 TAG="[get-ldflags.sh]"
 
-USAGE="Usage: WORKSPACE={RELATIVE_WORKSPACE_PATH} CONFIG_PACKAGE_PATH=${CONFIG_PKG_NAME} APP={RELATIVE_APP_PATH} $0"
+USAGE="Usage: WORKSPACE={RELATIVE_WORKSPACE_PATH} CONFIG_PACKAGE_PATH=${CONFIG_PKG_NAME} $0"
 
 
-if [ "$APP" == "" ] || [ "$WORKSPACE" == "" ] || [ "$CONFIG_PACKAGE_PATH" == "" ]; then
+if [ "$WORKSPACE" == "" ] || [ "$CONFIG_PACKAGE_PATH" == "" ]; then
     echo ${USAGE} >&2
     exit 1
 fi
 
 WORKSPACE=$(echo ${WORKSPACE} | tr -d " ")
 CONFIG_PACKAGE_PATH=$(echo ${CONFIG_PACKAGE_PATH} | tr -d " ")
-APP=$(echo ${APP} | tr -d " ")
 
 if ! [ -x "$(command -v bazel)" ]; then
   echo 'Error: buildozer is not installed.' >&2

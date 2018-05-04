@@ -1,0 +1,33 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "add_one.go",
+        "add_one_parameters.go",
+        "add_one_responses.go",
+        "add_one_urlbuilder.go",
+        "find_all.go",
+        "find_all_parameters.go",
+        "find_all_responses.go",
+        "find_all_urlbuilder.go",
+        "find_one.go",
+        "find_one_parameters.go",
+        "find_one_responses.go",
+        "find_one_urlbuilder.go",
+        "remove_one.go",
+        "remove_one_parameters.go",
+        "remove_one_responses.go",
+        "remove_one_urlbuilder.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/generated/swagger/rest_model:go_default_library",
+        "//vendor/github.com/go-openapi/errors:go_default_library",
+        "//vendor/github.com/go-openapi/runtime:go_default_library",
+        "//vendor/github.com/go-openapi/runtime/middleware:go_default_library",
+        "//vendor/github.com/go-openapi/strfmt:go_default_library",
+        "//vendor/github.com/go-openapi/swag:go_default_library",
+    ],
+)

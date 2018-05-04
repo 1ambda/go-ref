@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "validate_or_generate.go",
+        "validate_or_generate_parameters.go",
+        "validate_or_generate_responses.go",
+        "validate_or_generate_urlbuilder.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/generated/swagger/rest_model:go_default_library",
+        "//vendor/github.com/go-openapi/errors:go_default_library",
+        "//vendor/github.com/go-openapi/runtime:go_default_library",
+        "//vendor/github.com/go-openapi/runtime/middleware:go_default_library",
+    ],
+)

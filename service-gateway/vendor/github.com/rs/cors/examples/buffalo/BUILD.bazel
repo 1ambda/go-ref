@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["server.go"],
+    importmap = "vendor/github.com/rs/cors/examples/buffalo",
+    importpath = "github.com/rs/cors/examples/buffalo",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/gobuffalo/buffalo:go_default_library",
+        "//vendor/github.com/gobuffalo/buffalo/render:go_default_library",
+        "//vendor/github.com/rs/cors:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "buffalo",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

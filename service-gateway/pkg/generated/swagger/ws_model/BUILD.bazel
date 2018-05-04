@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "web_socket_error.go",
+        "web_socket_realtime_response.go",
+        "web_socket_realtime_response_body.go",
+        "web_socket_response_header.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/ws_model",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/go-openapi/errors:go_default_library",
+        "//vendor/github.com/go-openapi/strfmt:go_default_library",
+        "//vendor/github.com/go-openapi/swag:go_default_library",
+        "//vendor/github.com/go-openapi/validate:go_default_library",
+    ],
+)

@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "database.go",
+        "model_browser_history.go",
+        "model_geolocation_history.go",
+        "model_session.go",
+        "model_websocket_history.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/internal/model",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//pkg/generated/swagger/rest_model:go_default_library",
+        "//vendor/github.com/go-sql-driver/mysql:go_default_library",
+        "//vendor/github.com/jinzhu/gorm:go_default_library",
+        "//vendor/github.com/jinzhu/gorm/dialects/mysql:go_default_library",
+        "//vendor/github.com/jinzhu/gorm/dialects/sqlite:go_default_library",
+        "//vendor/github.com/satori/go.uuid:go_default_library",
+    ],
+)

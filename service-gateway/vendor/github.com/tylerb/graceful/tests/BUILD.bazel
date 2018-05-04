@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importmap = "vendor/github.com/tylerb/graceful/tests",
+    importpath = "github.com/tylerb/graceful/tests",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/urfave/negroni:go_default_library",
+        "//vendor/gopkg.in/tylerb/graceful.v1:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "tests",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

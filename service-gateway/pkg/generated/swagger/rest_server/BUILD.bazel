@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "configure_gateway_rest.go",
+        "doc.go",
+        "embedded_spec.go",
+        "server.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/generated/swagger/rest_server/rest_api:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/browser_history:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/geolocation:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/session:go_default_library",
+        "//vendor/github.com/go-openapi/errors:go_default_library",
+        "//vendor/github.com/go-openapi/runtime:go_default_library",
+        "//vendor/github.com/go-openapi/runtime/flagext:go_default_library",
+        "//vendor/github.com/go-openapi/runtime/middleware:go_default_library",
+        "//vendor/github.com/go-openapi/swag:go_default_library",
+        "//vendor/github.com/jessevdk/go-flags:go_default_library",
+        "//vendor/github.com/tylerb/graceful:go_default_library",
+    ],
+)

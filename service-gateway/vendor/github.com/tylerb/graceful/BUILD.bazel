@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "graceful.go",
+        "keepalive_listener.go",
+        "limit_listen.go",
+        "signal.go",
+    ],
+    importmap = "vendor/github.com/tylerb/graceful",
+    importpath = "github.com/tylerb/graceful",
+    visibility = ["//visibility:public"],
+)

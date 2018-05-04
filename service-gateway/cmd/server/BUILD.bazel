@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/1ambda/go-ref/service-gateway/cmd/server",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/distributed:go_default_library",
+        "//internal/model:go_default_library",
+        "//internal/rest:go_default_library",
+        "//internal/websocket:go_default_library",
+        "//pkg/generated/swagger/rest_server:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api:go_default_library",
+        "//vendor/github.com/go-openapi/loads:go_default_library",
+        "//vendor/github.com/go-openapi/runtime:go_default_library",
+        "//vendor/github.com/jessevdk/go-flags:go_default_library",
+        "//vendor/github.com/rs/cors:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "server",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

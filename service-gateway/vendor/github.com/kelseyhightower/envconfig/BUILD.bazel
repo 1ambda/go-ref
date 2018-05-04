@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "doc.go",
+        "env_syscall.go",
+        "envconfig.go",
+        "usage.go",
+    ],
+    importmap = "vendor/github.com/kelseyhightower/envconfig",
+    importpath = "github.com/kelseyhightower/envconfig",
+    visibility = ["//visibility:public"],
+)

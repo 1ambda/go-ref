@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "handler.go",
+        "mock_websocket_manager.go",
+        "websocket_client.go",
+        "websocket_manager.go",
+        "websocket_message.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/internal/websocket",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/model:go_default_library",
+        "//pkg/generated/swagger/ws_model:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/github.com/gorilla/websocket:go_default_library",
+        "//vendor/github.com/jinzhu/gorm:go_default_library",
+        "//vendor/github.com/satori/go.uuid:go_default_library",
+    ],
+)

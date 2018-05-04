@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "distributed_client.go",
+        "distributed_message.go",
+        "mock_distributed_client.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/internal/distributed",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/websocket:go_default_library",
+        "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
+        "//vendor/github.com/coreos/etcd/clientv3/concurrency:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/google.golang.org/grpc:go_default_library",
+    ],
+)

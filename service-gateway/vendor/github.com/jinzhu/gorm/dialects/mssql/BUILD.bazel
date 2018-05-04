@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["mssql.go"],
+    importmap = "vendor/github.com/jinzhu/gorm/dialects/mssql",
+    importpath = "github.com/jinzhu/gorm/dialects/mssql",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/denisenkom/go-mssqldb:go_default_library",
+        "//vendor/github.com/jinzhu/gorm:go_default_library",
+    ],
+)

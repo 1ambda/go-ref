@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "browser_history.go",
+        "browser_history_filter_type.go",
+        "browser_history_with_pagination.go",
+        "geolocation.go",
+        "pagination.go",
+        "rest_error.go",
+        "session_request.go",
+        "session_response.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/go-openapi/errors:go_default_library",
+        "//vendor/github.com/go-openapi/strfmt:go_default_library",
+        "//vendor/github.com/go-openapi/swag:go_default_library",
+        "//vendor/github.com/go-openapi/validate:go_default_library",
+    ],
+)

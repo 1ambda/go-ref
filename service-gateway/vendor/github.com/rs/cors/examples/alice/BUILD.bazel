@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["server.go"],
+    importmap = "vendor/github.com/rs/cors/examples/alice",
+    importpath = "github.com/rs/cors/examples/alice",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/justinas/alice:go_default_library",
+        "//vendor/github.com/rs/cors:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "alice",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

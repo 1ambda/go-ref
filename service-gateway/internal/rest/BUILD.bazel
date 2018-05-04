@@ -1,0 +1,46 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "handler.go",
+        "handler_browser_history.go",
+        "handler_geolocation.go",
+        "handler_session.go",
+    ],
+    importpath = "github.com/1ambda/go-ref/service-gateway/internal/rest",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/distributed:go_default_library",
+        "//internal/model:go_default_library",
+        "//pkg/generated/swagger/rest_model:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/browser_history:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/geolocation:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/session:go_default_library",
+        "//vendor/github.com/go-openapi/runtime/middleware:go_default_library",
+        "//vendor/github.com/jinzhu/gorm:go_default_library",
+        "//vendor/github.com/satori/go.uuid:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "rest_suite_test.go",
+        "rest_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//internal/config:go_default_library",
+        "//internal/distributed:go_default_library",
+        "//internal/model:go_default_library",
+        "//pkg/generated/swagger/rest_model:go_default_library",
+        "//pkg/generated/swagger/rest_server/rest_api/browser_history:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/github.com/jinzhu/gorm:go_default_library",
+        "//vendor/github.com/onsi/ginkgo:go_default_library",
+        "//vendor/github.com/onsi/gomega:go_default_library",
+    ],
+)

@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "env.go",
+        "env_file.go",
+        "types.go",
+    ],
+    importmap = "vendor/github.com/coreos/pkg/flagutil",
+    importpath = "github.com/coreos/pkg/flagutil",
+    visibility = ["//visibility:public"],
+)

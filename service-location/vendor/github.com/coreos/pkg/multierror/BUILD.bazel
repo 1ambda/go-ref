@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["multierror.go"],
+    importmap = "vendor/github.com/coreos/pkg/multierror",
+    importpath = "github.com/coreos/pkg/multierror",
+    visibility = ["//visibility:public"],
+)

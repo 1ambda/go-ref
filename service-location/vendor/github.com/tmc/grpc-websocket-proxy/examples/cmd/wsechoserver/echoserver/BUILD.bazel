@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "echoserver.pb.go",
+        "echoserver.pb.gw.go",
+        "gen.go",
+    ],
+    importmap = "vendor/github.com/tmc/grpc-websocket-proxy/examples/cmd/wsechoserver/echoserver",
+    importpath = "github.com/tmc/grpc-websocket-proxy/examples/cmd/wsechoserver/echoserver",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
+        "//vendor/github.com/grpc-ecosystem/grpc-gateway/runtime:go_default_library",
+        "//vendor/github.com/grpc-ecosystem/grpc-gateway/utilities:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+        "//vendor/google.golang.org/genproto/googleapis/api/annotations:go_default_library",
+        "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/codes:go_default_library",
+        "//vendor/google.golang.org/grpc/grpclog:go_default_library",
+        "//vendor/google.golang.org/grpc/status:go_default_library",
+    ],
+)

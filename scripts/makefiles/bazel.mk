@@ -4,7 +4,7 @@ gazelle:
 	@ find vendor/ -name "BUILD" -delete
 	@ find vendor/ -name "BUILD.bazel" -delete
 	@$(BAZEL) run //:gazelle -- -proto disable
-	@rm -f vendor/github.com/coreos/etcd/cmd/etcd
+	@rm -rf vendor/github.com/coreos/etcd/cmd/etcd
 	@echo ""
 
 .PHONY: inject-meta

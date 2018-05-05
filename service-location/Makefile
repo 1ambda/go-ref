@@ -2,7 +2,6 @@ include ../scripts/makefiles/variables.mk
 include ../scripts/makefiles/basic.mk
 include ../scripts/makefiles/docker.mk
 include ../scripts/makefiles/install.mk
-include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
 include ../scripts/makefiles/git.mk
 include ../scripts/makefiles/protobuf.mk
@@ -58,7 +57,7 @@ $(PROTO_SERVICES):
 .PHONY: mock-proto
 mock-proto: $(PROTO_SERVICES)
 
-$(APPS): inject-meta
+$(APPS):
 	@$(eval TARGET := $@)
 
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Building app: $(TARGET)"
@@ -66,7 +65,7 @@ $(APPS): inject-meta
 	@echo ""
 
 .PHONY: build
-build: mock-internal protoc mock-proto gazelle $(APPS)
+build: mock-internal protoc mock-proto gazelle inject-meta $(APPS)
 
 .PHONY: build-just
 build-just: gazelle $(APPS)
@@ -94,4 +93,24 @@ cont-just:
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build-just"  -command="make run" -graceful-kill=true
+
+.PHONY: test
+test:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - testing"
+	$(GOTEST) $(GOTEST_OPT) -skip=$(VENDOR_DIR) --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace
+
+.PHONY: test-cont
+test-cont:
+	@echo "\n[MAKEFILE] ($(shell TZ=UTC date -u '+%Y-%m-%dT%H:%M:%SZ')) test-cont"
+	$(GOTEST) watch $(GOTEST_OPT) -skip=$(VENDOR_DIR)
+
+.PHONY: test-bazel
+test-bazel:
+	$(BAZEL) test //internal/...
+
+.PHONY: test-clean
+test-clean:
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
+	@rm internal/distributed/127.0.0.1:*
+	@rm internal/distributed/localhost:*
 

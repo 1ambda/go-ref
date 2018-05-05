@@ -9,7 +9,9 @@ go_library(
     importpath = "github.com/1ambda/go-ref/service-location/internal/distributed",
     visibility = ["//:__subpackages__"],
     deps = [
+        "//internal/config:go_default_library",
         "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
+        "//vendor/github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes:go_default_library",
         "//vendor/github.com/golang/mock/gomock:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
     ],

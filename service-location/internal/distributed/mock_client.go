@@ -5,6 +5,7 @@
 package distributed
 
 import (
+	context "context"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -33,15 +34,15 @@ func (m *MockConnector) EXPECT() *MockConnectorMockRecorder {
 }
 
 // Publish mocks base method
-func (m *MockConnector) Publish(message *Message) error {
-	ret := m.ctrl.Call(m, "Publish", message)
+func (m *MockConnector) Publish(ctx context.Context, message *Message) error {
+	ret := m.ctrl.Call(m, "Publish", ctx, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Publish indicates an expected call of Publish
-func (mr *MockConnectorMockRecorder) Publish(message interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockConnector)(nil).Publish), message)
+func (mr *MockConnectorMockRecorder) Publish(ctx, message interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockConnector)(nil).Publish), ctx, message)
 }
 
 // Stop mocks base method

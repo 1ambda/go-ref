@@ -9,9 +9,9 @@ go_library(
     importpath = "github.com/1ambda/go-ref/service-location/internal/distributed",
     visibility = ["//:__subpackages__"],
     deps = [
-        "//internal/config:go_default_library",
         "//vendor/github.com/coreos/etcd/clientv3:go_default_library",
         "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/github.com/pkg/errors:go_default_library",
     ],
 )
 
@@ -23,6 +23,7 @@ go_test(
     ],
     embed = [":go_default_library"],
     deps = [
+        "//vendor/github.com/coreos/etcd/integration:go_default_library",
         "//vendor/github.com/onsi/ginkgo:go_default_library",
         "//vendor/github.com/onsi/gomega:go_default_library",
     ],

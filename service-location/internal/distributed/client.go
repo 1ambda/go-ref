@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/1ambda/go-ref/service-location/internal/config"
 	"github.com/coreos/etcd/clientv3"
+	"github.com/pkg/errors"
 )
 
 const CampaignInterval = 5 * time.Second
@@ -28,22 +28,19 @@ type etcdConnectorImpl struct {
 }
 
 func New(appCtx context.Context, endpoints []string, serverName string) (Connector, error) {
-	logger := config.GetLogger()
-
 	etcdClient, err := clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: 3 * time.Second,
 	})
 
 	if err != nil {
-		etcdClient.Close()
 		if err == context.DeadlineExceeded {
-			logger.Fatalw("Failed to connect to etcd cluster",
-				"cause", "dial timeout", "error", err)
+			err = errors.Wrap(err, "Failed to connect to etcd cluster (DialTimeout)")
+			return nil, err
 		}
 
-		logger.Fatalw("Failed to connect to etcd cluster",
-			"cause", "unknown error", "error", err)
+		err = errors.Wrap(err, "Failed to connect to etcd cluster (Unknown)")
+		return nil, err
 	}
 
 	return &etcdConnectorImpl{
@@ -60,6 +57,10 @@ func (c *etcdConnectorImpl) Publish(message *Message) error {
 
 func (c *etcdConnectorImpl) Stop() {
 	panic("implement me")
+}
+
+func (c *etcdConnectorImpl) run() {
+
 }
 
 type Message struct {

@@ -24,45 +24,45 @@ MOCK_PKG_DIRS := "internal/hello" "internal/distributed"
 
 .PHONY: dep
 dep:
-	@dep ensure -v
+	@ dep ensure -v
 
 .PHONY: clean
 clean:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning"
-	@$(BAZEL) clean
-	@echo ""
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning"
+	@ $(BAZEL) clean
+	@ echo ""
 
 $(MOCK_PKG_DIRS):
-	@$(eval TARGET := $@)
+	@ $(eval TARGET := $@)
 
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning mock files under $(TARGET)"
-	@rm -rf $(TARGET)/$(MOCK_PREFIX)*
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning mock files under $(TARGET)"
+	@ rm -rf $(TARGET)/$(MOCK_PREFIX)*
 
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating mock files for $(TARGET)"
-	@PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
-	@echo ""
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating mock files for $(TARGET)"
+	@ PKG_DIR=$(TARGET) ../scripts/generate-gomock.sh
+	@ echo ""
 
 .PHONY: mock-internal
 mock-internal: $(MOCK_PKG_DIRS)
 
 $(PROTO_SERVICES):
-	@$(eval SERVICE := $@)
+	@ $(eval SERVICE := $@)
 
 	# capitalize first letter
-	@$(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating protobuf mock files: $(SERVICE)"
+	@ $(eval SERVICE_UPPERCASE := $(shell echo `echo $${SERVICE:0:1} | tr  '[a-z]' '[A-Z]'`$${SERVICE:1}))
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Generating protobuf mock files: $(SERVICE)"
 	$(MOCKGEN) -source=pkg/generated/grpc/$(SERVICE).pb.go -package=pb $(SERVICE_UPPERCASE)Client > pkg/generated/grpc/$(MOCK_PREFIX)_$(SERVICE).pb.go
-	@echo ""
+	@ echo ""
 
 .PHONY: mock-proto
 mock-proto: $(PROTO_SERVICES)
 
 $(APPS):
-	@$(eval TARGET := $@)
+	@ $(eval TARGET := $@)
 
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Building app: $(TARGET)"
-	@$(BAZEL) build //cmd/$(TARGET)
-	@echo ""
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Building app: $(TARGET)"
+	@ $(BAZEL) build //cmd/$(TARGET)
+	@ echo ""
 
 .PHONY: build
 build: mock-internal protoc mock-proto gazelle inject-meta $(APPS)
@@ -72,9 +72,9 @@ build-just: gazelle $(APPS)
 
 .PHONY: run
 run:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
-	@echo ""
-	@bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
+	@ echo ""
+	@ bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
 
 .PHONY: cont
 cont:
@@ -94,23 +94,15 @@ cont-just:
 		-log-prefix=false \
 		-build="make build-just"  -command="make run" -graceful-kill=true
 
+.PHONY: test-unit
+test-unit:
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Testing (Unit)"
+	@ $(BAZEL) test //internal/... --features=race
+	@ echo ""
+
 .PHONY: test
-test:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - testing"
-	$(GOTEST) $(GOTEST_OPT) -skip=$(VENDOR_DIR) --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace
-
-.PHONY: test-cont
-test-cont:
-	@echo "\n[MAKEFILE] ($(shell TZ=UTC date -u '+%Y-%m-%dT%H:%M:%SZ')) test-cont"
-	$(GOTEST) watch $(GOTEST_OPT) -skip=$(VENDOR_DIR)
-
-.PHONY: test-bazel
-test-bazel:
-	$(BAZEL) test //internal/...
-
-.PHONY: test-clean
-test-clean:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
-	@rm internal/distributed/127.0.0.1:*
-	@rm internal/distributed/localhost:*
-
+test: test-unit
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning test resources (Unit)"
+	@ rm -rf internal/distributed/127.0.0.1:*
+	@ rm -rf internal/distributed/localhost:*
+	@ echo ""

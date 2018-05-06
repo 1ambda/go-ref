@@ -8,9 +8,9 @@ import (
 	"go.uber.org/zap"
 )
 
-type HelloServer struct{}
+type service struct{}
 
-func (s *HelloServer) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+func (s *service) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	actualName, err := GetName(in.Name)
 	if err != nil {
 		logger, _ := zap.NewProduction()

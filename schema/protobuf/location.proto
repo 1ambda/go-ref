@@ -3,7 +3,7 @@ syntax = "proto3";
 package pb;
 
 service Location {
-    rpc AddSession (LocationRequest) returns (LocationResponse) {}
+    rpc Add (LocationRequest) returns (LocationResponse) {}
 }
 
 message LocationContext {

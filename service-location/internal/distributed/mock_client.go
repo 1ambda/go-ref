@@ -33,6 +33,19 @@ func (m *MockConnector) EXPECT() *MockConnectorMockRecorder {
 	return m.recorder
 }
 
+// GetLeaderOrCampaign mocks base method
+func (m *MockConnector) GetLeaderOrCampaign(electSubPath, electProclaim string) (string, error) {
+	ret := m.ctrl.Call(m, "GetLeaderOrCampaign", electSubPath, electProclaim)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLeaderOrCampaign indicates an expected call of GetLeaderOrCampaign
+func (mr *MockConnectorMockRecorder) GetLeaderOrCampaign(electSubPath, electProclaim interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLeaderOrCampaign", reflect.TypeOf((*MockConnector)(nil).GetLeaderOrCampaign), electSubPath, electProclaim)
+}
+
 // Publish mocks base method
 func (m *MockConnector) Publish(ctx context.Context, message *Message) error {
 	ret := m.ctrl.Call(m, "Publish", ctx, message)

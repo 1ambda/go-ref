@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["location_server.go"],
+    importpath = "github.com/1ambda/go-ref/service-location/internal/location",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/distributed:go_default_library",
+        "//pkg/generated/grpc:go_default_library",
+    ],
+)

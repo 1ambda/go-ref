@@ -34,22 +34,22 @@ func (m *MockLocationClient) EXPECT() *MockLocationClientMockRecorder {
 	return m.recorder
 }
 
-// AddSession mocks base method
-func (m *MockLocationClient) AddSession(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
+// Add mocks base method
+func (m *MockLocationClient) Add(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "AddSession", varargs...)
+	ret := m.ctrl.Call(m, "Add", varargs...)
 	ret0, _ := ret[0].(*LocationResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddSession indicates an expected call of AddSession
-func (mr *MockLocationClientMockRecorder) AddSession(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+// Add indicates an expected call of Add
+func (mr *MockLocationClientMockRecorder) Add(ctx, in interface{}, opts ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSession", reflect.TypeOf((*MockLocationClient)(nil).AddSession), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockLocationClient)(nil).Add), varargs...)
 }
 
 // MockLocationServer is a mock of LocationServer interface
@@ -75,15 +75,15 @@ func (m *MockLocationServer) EXPECT() *MockLocationServerMockRecorder {
 	return m.recorder
 }
 
-// AddSession mocks base method
-func (m *MockLocationServer) AddSession(arg0 context.Context, arg1 *LocationRequest) (*LocationResponse, error) {
-	ret := m.ctrl.Call(m, "AddSession", arg0, arg1)
+// Add mocks base method
+func (m *MockLocationServer) Add(arg0 context.Context, arg1 *LocationRequest) (*LocationResponse, error) {
+	ret := m.ctrl.Call(m, "Add", arg0, arg1)
 	ret0, _ := ret[0].(*LocationResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddSession indicates an expected call of AddSession
-func (mr *MockLocationServerMockRecorder) AddSession(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSession", reflect.TypeOf((*MockLocationServer)(nil).AddSession), arg0, arg1)
+// Add indicates an expected call of Add
+func (mr *MockLocationServerMockRecorder) Add(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockLocationServer)(nil).Add), arg0, arg1)
 }

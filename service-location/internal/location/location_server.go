@@ -50,6 +50,7 @@ func (s *server) Add(ctx context.Context, in *pb.LocationRequest) (*pb.LocationR
 	c := in.LocationContext.Country
 
 	// (TODO): leader cache
+	// (TODO): leader update using etcd watch
 	// get leader
 	srvName := s.serverName
 	l, err := s.connector.GetLeaderOrCampaign(c, srvName)

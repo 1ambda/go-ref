@@ -1,13 +1,15 @@
 package main
 
 import (
+	"context"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/1ambda/go-ref/service-location/internal/config"
-	"github.com/1ambda/go-ref/service-location/internal/hello"
+	"github.com/1ambda/go-ref/service-location/internal/distributed"
+	"github.com/1ambda/go-ref/service-location/internal/location"
 	"github.com/1ambda/go-ref/service-location/pkg/generated/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -37,7 +39,21 @@ func main() {
 
 	// register grpc services
 	s := grpc.NewServer()
-	pb.RegisterHelloServer(s, &hello.HelloServer{})
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	srvName := config.GetServerName()
+	connector, err := distributed.New(ctx, spec.EtcdEndpoints, srvName)
+	if err != nil {
+		logger.Panic("Failed to get etcd connector")
+	}
+
+	// register servers
+	locationSrv, err := location.New(srvName, connector)
+	if err != nil {
+		logger.Panic("Failed to create Location Server")
+	}
+	pb.RegisterLocationServer(s, locationSrv)
 	reflection.Register(s)
 
 	// register shutdown hook
@@ -46,6 +62,10 @@ func main() {
 	go func() {
 		<-c
 		logger.Infow("Stopping server...", "server_name", spec.ServerName)
+
+		cancel()
+		connector.Stop()
+
 		s.GracefulStop()
 	}()
 

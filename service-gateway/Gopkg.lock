@@ -243,6 +243,12 @@
   version = "v1.3.0"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/rs/cors"
   packages = ["."]
   revision = "feef513b9575b32f84bafa580aad89b011259019"
@@ -398,6 +404,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0026e507928c75e5e27756e49338e8f510b8ccb12f38308bf905eb7b7a3a6a24"
+  inputs-digest = "9edecbe36660d1e4e4e0336832fd524e6755107e3e84e3ca92db3bc54b92ad93"
   solver-name = "gps-cdcl"
   solver-version = 1

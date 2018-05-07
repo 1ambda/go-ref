@@ -15,10 +15,12 @@ import (
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/session"
 )
 
-func validateOrGenerateSession(params session.ValidateOrGenerateParams, db *gorm.DB) (*dto.SessionResponse, *dto.RestError) {
+func (ctrl *controllerImpl) validateOrGenerateSession(params session.ValidateOrGenerateParams) (*dto.SessionResponse, *dto.RestError) {
+	logger := ctrl.logger
+	db := ctrl.db
+
 	sessionId := *params.Body.SessionID
 
-	logger := config.GetLogger()
 	logger.Infow("validateOrGenerateSession record", "session", sessionId)
 
 	var record *model.Session

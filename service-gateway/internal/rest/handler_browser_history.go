@@ -8,15 +8,16 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/distributed"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/browser_history"
 )
 
-func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dClient distributed.DistributedClient) (*dto.BrowserHistory, *dto.RestError) {
-	logger := config.GetLogger()
+func (ctrl *controllerImpl) addOneBrowserHistory(params browser_history.AddOneParams) (*dto.BrowserHistory, *dto.RestError) {
+	db := ctrl.db
+	dConnector := ctrl.dConnector
+	logger := ctrl.logger
 
 	sessionID, restErr := getSessionCookieForRest(params.HTTPRequest, db)
 	if restErr != nil {
@@ -44,15 +45,17 @@ func addOneBrowserHistory(params browser_history.AddOneParams, db *gorm.DB, dCli
 	}
 
 	stringified := fmt.Sprintf("%d", count)
-	dClient.Publish(distributed.NewBrowserHistoryCountMessage(stringified))
+	dConnector.Publish(distributed.NewBrowserHistoryCountMessage(stringified))
 
 	restResp := record.ConvertToDTO()
 
 	return restResp, nil
 }
 
-func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*dto.BrowserHistory, *dto.RestError) {
-	logger := config.GetLogger()
+func (ctrl *controllerImpl) findOneBrowserHistory(params browser_history.FindOneParams) (*dto.BrowserHistory, *dto.RestError) {
+	db := ctrl.db
+	logger := ctrl.logger
+
 	logger.Infow("Finding BrowserHistory record", "id", params.ID)
 
 	var record model.BrowserHistory
@@ -72,8 +75,9 @@ func findOneBrowserHistory(params browser_history.FindOneParams, db *gorm.DB) (*
 	return response, nil
 }
 
-func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*dto.Pagination, []*dto.BrowserHistory, *dto.RestError) {
-	logger := config.GetLogger()
+func (ctrl *controllerImpl) findAllBrowserHistory(params browser_history.FindAllParams) (*dto.Pagination, []*dto.BrowserHistory, *dto.RestError) {
+	db := ctrl.db
+	logger := ctrl.logger
 	logger.Info("Finding All BrowserHistory records")
 
 	var records []model.BrowserHistory
@@ -134,8 +138,9 @@ func findAllBrowserHistory(params browser_history.FindAllParams, db *gorm.DB) (*
 	return &pagination, rows, nil
 }
 
-func removeOneBrowserHistory(params browser_history.RemoveOneParams, db *gorm.DB) *dto.RestError {
-	logger := config.GetLogger()
+func (ctrl *controllerImpl) removeOneBrowserHistory(params browser_history.RemoveOneParams) *dto.RestError {
+	db := ctrl.db
+	logger := ctrl.logger
 	logger.Infow("Deleting BrowserHistory record", "id", params.ID)
 
 	// https://github.com/jinzhu/gorm/issues/1380

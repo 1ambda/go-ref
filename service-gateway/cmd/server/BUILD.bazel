@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//internal/config:go_default_library",
         "//internal/distributed:go_default_library",
+        "//internal/location:go_default_library",
         "//internal/model:go_default_library",
         "//internal/rest:go_default_library",
         "//internal/websocket:go_default_library",

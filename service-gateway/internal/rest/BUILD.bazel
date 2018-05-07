@@ -13,6 +13,7 @@ go_library(
     deps = [
         "//internal/config:go_default_library",
         "//internal/distributed:go_default_library",
+        "//internal/location:go_default_library",
         "//internal/model:go_default_library",
         "//pkg/generated/swagger/rest_model:go_default_library",
         "//pkg/generated/swagger/rest_server/rest_api:go_default_library",
@@ -22,6 +23,7 @@ go_library(
         "//vendor/github.com/go-openapi/runtime/middleware:go_default_library",
         "//vendor/github.com/jinzhu/gorm:go_default_library",
         "//vendor/github.com/satori/go.uuid:go_default_library",
+        "//vendor/go.uber.org/zap:go_default_library",
     ],
 )
 

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/1ambda/go-ref/service-gateway/internal/location"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/jessevdk/go-flags"
@@ -40,6 +41,7 @@ func main() {
 		"debug", spec.Debug,
 		"etcd_endpoints", spec.EtcdEndpoints,
 		"server_name", spec.ServerName,
+		"location_server_endpoint", spec.LocationServerEndpoint,
 	)
 
 	// setup db connection
@@ -50,6 +52,13 @@ func main() {
 	// create app context
 	appCtx, appCancelFunc := context.WithCancel(context.Background())
 
+	// create services
+	locationService, err := location.New(appCtx, spec.LocationServerEndpoint)
+	if err != nil {
+		logger.Fatalw("Failed to connect location server",
+			"endpoint", spec.LocationServerEndpoint, "error", err)
+	}
+
 	// configure WS server handlers, middlewares
 	logger.Info("Configure WS server")
 	mux := http.NewServeMux()
@@ -57,7 +66,7 @@ func main() {
 
 	// setup etcd client
 	logger.Info("Configure distributed client (etcd)")
-	dClient := distributed.NewDistributedClient(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
+	dConnector := distributed.New(appCtx, spec.EtcdEndpoints, spec.ServerName, wsManager)
 
 	wsServerPort := fmt.Sprintf(":%d", spec.WebSocketPort)
 	logger.Infof("Serving gateway ws at http://127.0.0.1:%d", spec.WebSocketPort)
@@ -105,7 +114,9 @@ func main() {
 
 	// configure REST server handlers, middlewares
 	logger.Info("Configure REST handlers")
-	rest.Configure(db, api, dClient)
+	restCtrl := rest.New(db, dConnector, locationService, logger)
+	restCtrl.Configure(api)
+
 	handler := api.Serve(nil)
 
 	logger.Info("Configure REST middleware")
@@ -117,7 +128,7 @@ func main() {
 	api.ServerShutdown = func() {
 		logger.Info("Handling shutdown hook")
 		appCancelFunc()
-		dClient.Stop()
+		dConnector.Stop()
 
 		<-wsManager.Stop()
 		if err := wsServer.Shutdown(nil); err != nil {

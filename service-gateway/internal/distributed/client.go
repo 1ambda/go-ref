@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type DistributedClient interface {
+type Connector interface {
 	Publish(message *Message)
 	Stop()
 }
@@ -25,7 +25,7 @@ const ElectionPath = "/gateway-leader"
 const EtcdSessionTTL = 120 // second
 const EtcdPutGetTimeout = 5 * time.Second
 
-type etcdDistributedClient struct {
+type etcdConnector struct {
 	client     *clientv3.Client
 	session    *concurrency.Session
 	leader     string
@@ -36,8 +36,7 @@ type etcdDistributedClient struct {
 	wsManager websocket.Manager
 }
 
-func NewDistributedClient(appCtx context.Context, endpoints []string,
-	serverName string, wsManager websocket.Manager) DistributedClient {
+func New(appCtx context.Context, endpoints []string, serverName string, wsManager websocket.Manager) Connector {
 	logger := config.GetLogger()
 
 	etcdClient, err := clientv3.New(clientv3.Config{
@@ -54,8 +53,8 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 		logger.Fatalw("Failed to connect etcd due to unknown error", "error", err)
 	}
 
-	dClient := &etcdDistributedClient{
-		client: etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
+	dClient := &etcdConnector{
+		client:      etcdClient, leader: "", serverName: serverName, wsManager: wsManager,
 		publishChan: make(chan *Message),
 	}
 
@@ -76,11 +75,11 @@ func NewDistributedClient(appCtx context.Context, endpoints []string,
 	return dClient
 }
 
-func (d *etcdDistributedClient) Publish(message *Message) {
+func (d *etcdConnector) Publish(message *Message) {
 	d.publishChan <- message
 }
 
-func (d *etcdDistributedClient) Stop() {
+func (d *etcdConnector) Stop() {
 	logger := config.GetLogger()
 
 	d.session.Close()
@@ -89,7 +88,7 @@ func (d *etcdDistributedClient) Stop() {
 	logger.Info("Closed etcd client connection")
 }
 
-func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
+func (d *etcdConnector) runPublishTask(appCtx context.Context) {
 	logger := config.GetLogger()
 
 	defer close(d.publishChan)
@@ -112,7 +111,7 @@ func (d *etcdDistributedClient) runPublishTask(appCtx context.Context) {
 	}
 }
 
-func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
+func (d *etcdConnector) runWatchTask(appCtx context.Context) {
 	logger := config.GetLogger()
 
 	// TODO: make variables for watched values
@@ -175,7 +174,7 @@ func (d *etcdDistributedClient) runWatchTask(appCtx context.Context) {
 	logger.Infow("Stopping watch task goroutine")
 }
 
-func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Context, response *clientv3.WatchResponse) {
+func (d *etcdConnector) subscribeWsConnectionCount(appCtx context.Context, response *clientv3.WatchResponse) {
 	logger := config.GetLogger()
 
 	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)
@@ -228,7 +227,7 @@ func (d *etcdDistributedClient) subscribeWsConnectionCount(appCtx context.Contex
 	}
 }
 
-func (d *etcdDistributedClient) subscribeBrowserHistoryCount(response *clientv3.WatchResponse) {
+func (d *etcdConnector) subscribeBrowserHistoryCount(response *clientv3.WatchResponse) {
 	logger := config.GetLogger()
 
 	for _, ev := range response.Events {
@@ -243,7 +242,7 @@ func (d *etcdDistributedClient) subscribeBrowserHistoryCount(response *clientv3.
 	}
 }
 
-func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResponse) {
+func (d *etcdConnector) subscribeLeaderName(response *clientv3.WatchResponse) {
 	logger := config.GetLogger()
 
 	for _, ev := range response.Events {
@@ -258,7 +257,7 @@ func (d *etcdDistributedClient) subscribeLeaderName(response *clientv3.WatchResp
 	}
 }
 
-func (d *etcdDistributedClient) runElectionCampaign(appCtx context.Context) {
+func (d *etcdConnector) runElectionCampaign(appCtx context.Context) {
 	logger := config.GetLogger()
 
 	ticker := time.NewTicker(CampaignInterval)
@@ -280,7 +279,7 @@ func (d *etcdDistributedClient) runElectionCampaign(appCtx context.Context) {
 }
 
 // Check leader and if there is a no leader, try to take leadership.
-func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concurrency.Election) {
+func (d *etcdConnector) campaign(appCtx context.Context, election *concurrency.Election) {
 	logger := config.GetLogger()
 
 	electionCtx, electionCancelFunc := context.WithTimeout(appCtx, ElectionTimeout)
@@ -326,7 +325,7 @@ func (d *etcdDistributedClient) campaign(appCtx context.Context, election *concu
 	d.put(appCtx, SingleKeyLeaderName, d.leader)
 }
 
-func (d *etcdDistributedClient) put(appCtx context.Context, key string, value string) {
+func (d *etcdConnector) put(appCtx context.Context, key string, value string) {
 	logger := config.GetLogger()
 
 	ctx, cancel := context.WithTimeout(appCtx, EtcdPutGetTimeout)

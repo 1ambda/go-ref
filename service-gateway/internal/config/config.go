@@ -20,19 +20,20 @@ const ENV_DEV = "DEV"
 const ENV_PROD = "PROD"
 
 type Specification struct {
-	Debug         bool     `default:"true"`
-	Env           string   `default:"LOCAL"` // `LOCAL`, `TEST`, `DEV`, `PROD`
-	Host          string   `default:"localhost"`
-	WebSocketPort int      `default:"50001"`
-	HttpPort      int      `default:"50002"`
-	CorsAllowUrl  string   `default:"localhost:3000"`
-	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
-	ServerName    string   `default:"0"`
-	MysqlHost     string   `default:"localhost"`
-	MysqlPort     string   `default:"3306"`
-	MysqlUserName string   `default:"root"`
-	MysqlPassword string   `default:"root"`
-	MysqlDatabase string   `default:"goref"`
+	Debug                  bool     `default:"true"`
+	Env                    string   `default:"LOCAL"` // `LOCAL`, `TEST`, `DEV`, `PROD`
+	Host                   string   `default:"localhost"`
+	WebSocketPort          int      `default:"50001"`
+	HttpPort               int      `default:"50002"`
+	CorsAllowUrl           string   `default:"localhost:3000"`
+	EtcdEndpoints          []string `default:"http://127.0.0.1:2379"`
+	LocationServerEndpoint string   `default:"localhost:50003"`
+	ServerName             string   `default:"0"`
+	MysqlHost              string   `default:"localhost"`
+	MysqlPort              string   `default:"3306"`
+	MysqlUserName          string   `default:"root"`
+	MysqlPassword          string   `default:"root"`
+	MysqlDatabase          string   `default:"goref"`
 }
 
 var Spec Specification

@@ -3,9 +3,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = [
-        "distributed_client.go",
-        "distributed_message.go",
-        "mock_distributed_client.go",
+        "client.go",
+        "message.go",
+        "mock_client.go",
     ],
     importpath = "github.com/1ambda/go-ref/service-gateway/internal/distributed",
     visibility = ["//:__subpackages__"],

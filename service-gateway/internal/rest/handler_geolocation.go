@@ -1,15 +1,16 @@
 package rest
 
 import (
-	"github.com/1ambda/go-ref/service-gateway/internal/config"
 	"github.com/1ambda/go-ref/service-gateway/internal/model"
 	dto "github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_model"
 	"github.com/1ambda/go-ref/service-gateway/pkg/generated/swagger/rest_server/rest_api/geolocation"
-	"github.com/jinzhu/gorm"
 )
 
-func addOneGeolocationHistory(params geolocation.AddParams, db *gorm.DB) (*dto.Geolocation, *dto.RestError) {
-	logger := config.GetLogger()
+func (ctrl *controllerImpl) addOneGeolocationHistory(params geolocation.AddParams) (*dto.Geolocation, *dto.RestError) {
+	logger := ctrl.logger
+	db := ctrl.db
+	locationSvc := ctrl.locationService
+
 	sessionID, restErr := getSessionCookieForRest(params.HTTPRequest, db)
 	if restErr != nil {
 		return nil, restErr
@@ -26,6 +27,12 @@ func addOneGeolocationHistory(params geolocation.AddParams, db *gorm.DB) (*dto.G
 			"session_id", sessionID, "error", err)
 		restError := buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 		return nil, restError
+	}
+
+	_, err := locationSvc.Add(sessionID, record.Country)
+	if err != nil {
+		logger.Errorw("Failed to send geolocation info to location server", "error", err)
+		return nil, buildRestError(err, dto.RestErrorTypeInternalServer, 500)
 	}
 
 	return record.ConvertToDTO(), nil

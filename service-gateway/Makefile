@@ -2,7 +2,6 @@ include ../scripts/makefiles/variables.mk
 include ../scripts/makefiles/basic.mk
 include ../scripts/makefiles/docker.mk
 include ../scripts/makefiles/install.mk
-include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
 include ../scripts/makefiles/git.mk
 include ../scripts/makefiles/protobuf.mk
@@ -127,4 +126,17 @@ cont-just:
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build-just"  -command="make run" -graceful-kill=true
+
+.PHONY: test-unit
+test-unit:
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Testing (Unit)"
+	@ $(BAZEL) test //internal/... --features=race
+	@ echo ""
+
+.PHONY: test
+test: test-unit
+	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Cleaning test resources (Unit)"
+	# @ rm -rf internal/distributed/127.0.0.1:*
+	# @ rm -rf internal/distributed/localhost:*
+	@ echo ""
 

@@ -3,7 +3,7 @@ GOGET		= $(GOCMD) get -u -v
 BREW		= brew
 
 prepare:
-	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - installing prerequisites"
+	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Installing prerequisites"
 	$(GOGET) github.com/alecthomas/gometalinter
 	$(GOLINT) --install --update --force
 	$(GOGET) github.com/ahmetb/govvv
@@ -29,7 +29,7 @@ prepare:
 	$(GOGET) github.com/golang/mock/mockgen
 
 	# bazel
-	$(BREW) brew install bazel
+	$(BREW) install bazel
 	$(GOGET) get github.com/bazelbuild/buildtools/buildifier
-	$(GOGET) go get github.com/bazelbuild/buildtools/buildozer
+	$(GOGET) get github.com/bazelbuild/buildtools/buildozer
 

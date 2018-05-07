@@ -70,8 +70,12 @@ build: mock-internal protoc mock-proto gazelle inject-meta $(APPS)
 .PHONY: build-just
 build-just: gazelle $(APPS)
 
+.PHONY: stop
+stop:
+	@ lsof -i -sTCP:LISTEN | grep 3000 | awk '{print $2}' | xargs kill -15
+
 .PHONY: run
-run:
+run: stop
 	@ echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
 	@ echo ""
 	@ bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
@@ -82,6 +86,7 @@ cont:
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
+		-exclude-dir="/private/var" \
 		-log-prefix=false \
 		-build="make build" -command="make run" -graceful-kill=true
 
@@ -91,6 +96,7 @@ cont-just:
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="internal/*/mock_*.go" \
 		-exclude-dir="pkg/generated" \
+		-exclude-dir="/private/var" \
 		-log-prefix=false \
 		-build="make build-just"  -command="make run" -graceful-kill=true
 

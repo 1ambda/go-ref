@@ -103,8 +103,13 @@ build: mock-internal protoc mock-proto swagger-server gazelle $(APPS)
 .PHONY: build-just
 build-just: gazelle $(APPS)
 
+.PHONY: stop
+stop:
+	@ lsof -i -sTCP:LISTEN | grep 50001 | awk '{print $2}' | xargs kill -15 || true
+	@ lsof -i -sTCP:LISTEN | grep 50002 | awk '{print $2}' | xargs kill -15 || true
+
 .PHONY: run
-run:
+run: stop
 	@echo "[$(TAG)] ($(shell TZ=UTC date -u '+%H:%M:%S')) - Running app: $(APP)"
 	@echo ""
 	@bazel-bin/cmd/$(strip $(APP))/*/$(strip $(APP))
@@ -114,6 +119,7 @@ cont:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="internal/*/mock_*.go" \
+		-exclude-dir="/private/var" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build" -command="make run" -graceful-kill=true
@@ -123,6 +129,7 @@ cont-just:
 	CompileDaemon \
 		-exclude-dir="${VENDOR_DIR}" \
 		-exclude-dir="internal/*/mock_*.go" \
+		-exclude-dir="/private/var" \
 		-exclude-dir="pkg/generated" \
 		-log-prefix=false \
 		-build="make build-just"  -command="make run" -graceful-kill=true

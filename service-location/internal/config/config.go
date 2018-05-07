@@ -8,24 +8,24 @@ import (
 
 var (
 	// These fields are populated by govvv
-	BuildDate  string
-	GitCommit  string
-	GitBranch  string
-	GitState   string
-	Version    string
+	BuildDate string
+	GitCommit string
+	GitBranch string
+	GitState  string
+	Version   string
 )
 
 const ENV_LOCAL = "LOCAL"
 const ENV_TEST = "TEST"
 const ENV_DEV = "DEV"
 const ENV_PROD = "PROD"
-const SERVICE_NAME = "service-location"
+const ServerPrefix = "location"
 
 type Specification struct {
 	Debug         bool     `default:"true"`
 	Env           string   `default:"LOCAL"`
 	EtcdEndpoints []string `default:"http://127.0.0.1:2379"`
-	ServerName    string   `default:"0"`
+	ServerID      string   `default:"0"`
 	GrpcPort      string   `default:"50003"`
 	Host          string   `default:"localhost"`
 }
@@ -47,7 +47,7 @@ func GetSpecification() Specification {
 }
 
 func GetServerName() string {
-	return fmt.Sprintf("%s-%s", SERVICE_NAME, Spec.ServerName)
+	return fmt.Sprintf("%s-%s", ServerPrefix, Spec.ServerID)
 }
 
 func IsTestEnv(spec Specification) bool {

@@ -2,8 +2,6 @@ include ../scripts/makefiles/variables.mk
 include ../scripts/makefiles/basic.mk
 include ../scripts/makefiles/docker.mk
 include ../scripts/makefiles/install.mk
-include ../scripts/makefiles/run.mk
-include ../scripts/makefiles/test.mk
 include ../scripts/makefiles/check.mk
 include ../scripts/makefiles/git.mk
 

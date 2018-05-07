@@ -12,7 +12,6 @@ import (
 )
 
 type country string
-
 type leader string
 
 type server struct {
@@ -28,7 +27,7 @@ func New(srvName string, connector distributed.Connector) (pb.LocationServer, er
 	svc := &server{
 		connector:  connector,
 		serverName: srvName,
-		leaders: make(map[country]leader),
+		leaders:    make(map[country]leader),
 	}
 
 	return svc, nil
@@ -47,12 +46,12 @@ func (s *server) Add(ctx context.Context, in *pb.LocationRequest) (*pb.LocationR
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid LocationRequest")
 	}
 
+	sId := in.LocationContext.SessionId
 	c := in.LocationContext.Country
-
+	srvName := s.serverName
 	// (TODO): leader cache
 	// (TODO): leader update using etcd watch
 	// get leader
-	srvName := s.serverName
 	l, err := s.connector.GetLeaderOrCampaign(c, srvName)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -65,9 +64,24 @@ func (s *server) Add(ctx context.Context, in *pb.LocationRequest) (*pb.LocationR
 		return nil, status.Error(codes.InvalidArgument, message)
 	}
 
+	message := NewCountryMessage(c, sId)
+	err = s.connector.Publish(ctx, message)
+	if err != nil {
+		message := fmt.Sprintf("Failed to publish etcd message")
+		return nil, status.Error(codes.Internal, message)
+	}
+
 	resp := &pb.LocationResponse{
 		LocationContext: in.LocationContext,
 	}
 
 	return resp, nil
+}
+
+func NewCountryMessage(country string, sessionId string) *distributed.Message {
+	return &distributed.Message{
+		Key:    country,
+		SubKey: sessionId,
+		Value:  "",
+	}
 }

@@ -28,7 +28,7 @@ func main() {
 		"env", spec.Env,
 		"grpc_port", spec.GrpcPort,
 		"debug", spec.Debug,
-		"server_name", spec.ServerName,
+		"server_name", spec.ServerID,
 	)
 
 	port := spec.GrpcPort
@@ -61,7 +61,7 @@ func main() {
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-c
-		logger.Infow("Stopping server...", "server_name", spec.ServerName)
+		logger.Infow("Stopping server...", "server_name", spec.ServerID)
 
 		cancel()
 		connector.Stop()

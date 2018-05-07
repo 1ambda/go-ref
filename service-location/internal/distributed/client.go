@@ -84,9 +84,19 @@ func New(appCtx context.Context, endpoints []string, serverName string) (Connect
 	return connector, nil
 }
 
-func (c *etcdConnector) Publish(ctx context.Context, message *Message) error {
+func (c *etcdConnector) Publish(ctx context.Context, m *Message) error {
+	putCtx, cancel := context.WithTimeout(c.ctx, EtcdPutGetTimeout)
+	defer cancel()
 
-	_, err := c.etcdClient.Put(ctx, message.Key, message.Value)
+	key := ""
+
+	if m.SubKey == "" {
+		key = fmt.Sprintf("%s/%s/value", ElectionPathPrefix, m.Key)
+	} else {
+		key = fmt.Sprintf("%s/%s/value/%s", ElectionPathPrefix, m.Key, m.SubKey)
+	}
+
+	_, err := c.etcdClient.Put(putCtx, key, m.Value)
 
 	if err != nil {
 		switch err {
@@ -131,35 +141,13 @@ func (c *etcdConnector) run() {
 	}
 }
 
-func (c *etcdConnector) put(m *Message) error {
-	putCtx, cancel := context.WithTimeout(c.ctx, EtcdPutGetTimeout)
-	defer cancel()
-
-	_, err := c.etcdClient.Put(putCtx, m.Key, m.Value)
-
-	if err != nil {
-		switch err {
-		case context.Canceled:
-			err = errors.Wrap(err, "Failed to put etcd KV (Canceled)")
-		case context.DeadlineExceeded:
-			err = errors.Wrap(err, "Failed to put etcd KV (DeadlineExceeded)")
-		case rpctypes.ErrEmptyKey:
-			err = errors.Wrap(err, "Failed to put etcd KV (ErrEmptyKey)")
-		default:
-			err = errors.Wrap(err, "Failed to put etcd KV (Unknown)")
-		}
-	}
-
-	return err
-}
-
 func (c *etcdConnector) GetLeaderOrCampaign(electSubPath string, electProclaim string) (string, error) {
 	session, err := concurrency.NewSession(c.etcdClient)
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to get etcd session")
 	}
 
-	electPath := fmt.Sprintf("%s/%s", ElectionPathPrefix, electSubPath)
+	electPath := fmt.Sprintf("%s/%s/leader", ElectionPathPrefix, electSubPath)
 	elect := concurrency.NewElection(session, electPath)
 	ctx, cancel := context.WithTimeout(c.ctx, ElectionTimeout)
 	defer cancel()
@@ -185,9 +173,4 @@ func (c *etcdConnector) GetLeaderOrCampaign(electSubPath string, electProclaim s
 	}
 
 	return electProclaim, nil
-}
-
-type Message struct {
-	Key   string
-	Value string
 }

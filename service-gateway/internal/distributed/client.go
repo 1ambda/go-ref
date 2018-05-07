@@ -21,7 +21,7 @@ type Connector interface {
 
 const CampaignInterval = 5 * time.Second
 const ElectionTimeout = 10 * time.Second
-const ElectionPath = "/gateway-leader"
+const ElectionPath = "service-gateway/leader"
 const EtcdSessionTTL = 120 // second
 const EtcdPutGetTimeout = 5 * time.Second
 

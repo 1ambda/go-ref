@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "client.go",
+        "message.go",
         "mock_client.go",
     ],
     importpath = "github.com/1ambda/go-ref/service-location/internal/distributed",

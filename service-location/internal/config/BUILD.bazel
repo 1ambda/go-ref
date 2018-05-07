@@ -10,8 +10,8 @@ go_library(
     visibility = ["//:__subpackages__"],
     x_defs = {
         "Version": "0.0.1",
-        "BuildDate": "2018-05-07T07:55:47Z",
-        "GitCommit": "1e5e202",
+        "BuildDate": "2018-05-07T15:17:14Z",
+        "GitCommit": "252d5af",
         "GitBranch": "master",
         "GitState": "dirty",
     },

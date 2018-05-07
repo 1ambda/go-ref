@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
@@ -8,5 +8,23 @@ go_library(
     deps = [
         "//internal/distributed:go_default_library",
         "//pkg/generated/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/codes:go_default_library",
+        "//vendor/google.golang.org/grpc/status:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "location_suite_test.go",
+        "location_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//internal/distributed:go_default_library",
+        "//pkg/generated/grpc:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/github.com/onsi/ginkgo:go_default_library",
+        "//vendor/github.com/onsi/gomega:go_default_library",
     ],
 )

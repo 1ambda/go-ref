@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Distributed", func() {
+var _ = Describe("distributed/", func() {
 	BeforeEach(func() {
 
 	})
@@ -168,6 +168,7 @@ var _ = Describe("Distributed", func() {
 				Expect(string(resp.Kvs[0].Value)).To(Equal(electProclaim))
 			})
 		})
-
 	})
+
+
 })

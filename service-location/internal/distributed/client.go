@@ -43,6 +43,8 @@ type etcdConnector struct {
 	messageChan chan *Message
 }
 
+type LeaderChangeHandler func(string)
+
 func New(appCtx context.Context, endpoints []string, serverName string) (Connector, error) {
 	logger := config.GetLogger()
 

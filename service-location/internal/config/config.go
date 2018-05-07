@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -17,6 +19,7 @@ const ENV_LOCAL = "LOCAL"
 const ENV_TEST = "TEST"
 const ENV_DEV = "DEV"
 const ENV_PROD = "PROD"
+const SERVICE_NAME = "service-location"
 
 type Specification struct {
 	Debug         bool     `default:"true"`
@@ -41,6 +44,10 @@ func GetSpecification() Specification {
 	}
 
 	return s
+}
+
+func GetServerName() string {
+	return fmt.Sprintf("%s-%s", SERVICE_NAME, Spec.ServerName)
 }
 
 func IsTestEnv(spec Specification) bool {

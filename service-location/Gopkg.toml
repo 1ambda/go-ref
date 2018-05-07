@@ -24,7 +24,7 @@
 
 [[constraint]]
   name = "github.com/golang/mock"
-  version = "1.0.0"
+  version = "1.1.0"
 
 [[constraint]]
   name = "github.com/kelseyhightower/envconfig"

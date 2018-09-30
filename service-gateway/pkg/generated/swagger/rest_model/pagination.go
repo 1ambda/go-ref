@@ -35,17 +35,14 @@ func (m *Pagination) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCurrentPageOffset(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateItemCountPerPage(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateTotalItemCount(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

@@ -27,7 +27,6 @@ func (m *SessionRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateSessionID(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

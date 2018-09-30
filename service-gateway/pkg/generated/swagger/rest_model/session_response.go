@@ -47,32 +47,26 @@ func (m *SessionResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateExpiredAt(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateRefreshCount(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateRefreshed(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateSessionID(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

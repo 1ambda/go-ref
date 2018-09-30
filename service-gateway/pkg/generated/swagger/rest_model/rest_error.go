@@ -29,6 +29,7 @@ type RestError struct {
 	Timestamp string `json:"timestamp,omitempty"`
 
 	// type
+	// Enum: [InvalidSession InternalServer BadFilterRequest RecordDoesNotxist]
 	Type string `json:"type,omitempty"`
 }
 
@@ -37,7 +38,6 @@ func (m *RestError) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateType(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

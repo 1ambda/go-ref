@@ -65,47 +65,38 @@ func (m *BrowserHistory) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBrowserName(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateBrowserVersion(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateClientTimestamp(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateClientTimezone(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateIsMobile(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateLanguage(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateOsName(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateOsVersion(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateUserAgent(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

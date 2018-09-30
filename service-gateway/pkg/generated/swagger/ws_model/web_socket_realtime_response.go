@@ -31,12 +31,10 @@ func (m *WebSocketRealtimeResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBody(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateHeader(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -53,14 +51,12 @@ func (m *WebSocketRealtimeResponse) validateBody(formats strfmt.Registry) error 
 	}
 
 	if m.Body != nil {
-
 		if err := m.Body.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body")
 			}
 			return err
 		}
-
 	}
 
 	return nil
@@ -73,14 +69,12 @@ func (m *WebSocketRealtimeResponse) validateHeader(formats strfmt.Registry) erro
 	}
 
 	if m.Header != nil {
-
 		if err := m.Header.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("header")
 			}
 			return err
 		}
-
 	}
 
 	return nil

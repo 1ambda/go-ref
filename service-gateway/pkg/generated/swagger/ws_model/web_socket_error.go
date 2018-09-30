@@ -29,6 +29,7 @@ type WebSocketError struct {
 	Timestamp string `json:"timestamp,omitempty"`
 
 	// type
+	// Enum: [InvalidSession InternalServer]
 	Type string `json:"type,omitempty"`
 }
 
@@ -37,7 +38,6 @@ func (m *WebSocketError) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateType(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

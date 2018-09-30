@@ -33,12 +33,10 @@ func (m *BrowserHistoryWithPagination) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validatePagination(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateRows(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -55,14 +53,12 @@ func (m *BrowserHistoryWithPagination) validatePagination(formats strfmt.Registr
 	}
 
 	if m.Pagination != nil {
-
 		if err := m.Pagination.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pagination")
 			}
 			return err
 		}
-
 	}
 
 	return nil
@@ -75,20 +71,17 @@ func (m *BrowserHistoryWithPagination) validateRows(formats strfmt.Registry) err
 	}
 
 	for i := 0; i < len(m.Rows); i++ {
-
 		if swag.IsZero(m.Rows[i]) { // not required
 			continue
 		}
 
 		if m.Rows[i] != nil {
-
 			if err := m.Rows[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("rows" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
-
 		}
 
 	}

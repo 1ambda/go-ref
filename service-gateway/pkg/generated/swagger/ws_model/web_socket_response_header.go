@@ -24,6 +24,7 @@ type WebSocketResponseHeader struct {
 
 	// response type
 	// Required: true
+	// Enum: [Error UpdateBrowserHistoryCount UpdateWebSocketConnectionCount UpdateGatewayLeaderNodeName UpdateGatewayNodeCount]
 	ResponseType *string `json:"responseType"`
 }
 
@@ -32,12 +33,10 @@ func (m *WebSocketResponseHeader) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateError(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateResponseType(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -54,14 +53,12 @@ func (m *WebSocketResponseHeader) validateError(formats strfmt.Registry) error {
 	}
 
 	if m.Error != nil {
-
 		if err := m.Error.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("error")
 			}
 			return err
 		}
-
 	}
 
 	return nil

@@ -173,7 +173,7 @@
     "url-loader": "^1.0.1",
     "webpack": "^3.10.1",
     "webpack-dev-middleware": "^2.0.6",
-    "webpack-dev-server": "~2.11.1",
+    "webpack-dev-server": "~3.1.11",
     "webpack-jarvis": "^0.3.0",
     "webpack-merge": "~4.1.2"
   },

@@ -140,7 +140,7 @@
     "inline-manifest-webpack-plugin": "^3.0.1",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine-core": "^2.99.1",
-    "karma": "^2.0.0",
+    "karma": "^6.4.1",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",

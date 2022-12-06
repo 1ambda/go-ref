@@ -98,7 +98,7 @@
     "core-js": "^2.5.1",
     "geolocator": "^2.1.3",
     "hammerjs": "^2.0.8",
-    "http-server": "^0.11.1",
+    "http-server": "^0.11.2",
     "ie-shim": "^0.1.0",
     "moment": "^2.20.1",
     "moment-timezone": "^0.5.14",
